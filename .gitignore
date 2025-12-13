@@ -1,1 +1,12 @@
+#Compiler class files
+/bin/
+*.class
+
+#Eclipse metadata files
 /.metadata/
+/.settings/
+.classpath
+.project
+
+#etc
+*.log
