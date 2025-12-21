@@ -1,5 +1,9 @@
 package ui;
 
-public class MainUI {
+import javax.swing.JFrame;
 
+public class MainUI extends JFrame{
+	public MainUI() {
+		JFrame f = new JFrame();
+	}
 }

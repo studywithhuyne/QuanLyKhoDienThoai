@@ -1,2 +1,3 @@
-module QuanLyKhoHangDienThoai {
+module QuanLyKhoDienThoai {
+	requires java.desktop;
 }
