@@ -237,7 +237,29 @@ public class ProductAddUI extends JDialog {
         combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         combo.setBackground(CARD_BG);
-        combo.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        combo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(2, 8, 2, 8)
+        ));
+        combo.setFocusable(false);
+        combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton button = super.createArrowButton();
+                button.setBackground(CARD_BG);
+                button.setBorder(BorderFactory.createEmptyBorder());
+                return button;
+            }
+        });
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBorder(new EmptyBorder(5, 10, 5, 10));
+                setBackground(isSelected ? new Color(99, 102, 241, 30) : CARD_BG);
+                return this;
+            }
+        });
         return combo;
     }
     

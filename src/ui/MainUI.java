@@ -56,14 +56,14 @@ public class MainUI extends JFrame {
     };
     
     private Color[] menuIconColors = {
-        new Color(96, 165, 250),   // Dashboard - Blue
-        new Color(52, 211, 153),   // Sản phẩm - Green  
-        new Color(251, 191, 36),   // Nhập kho - Yellow
-        new Color(251, 113, 133),  // Bán hàng - Pink
-        new Color(129, 140, 248),  // Nhà cung cấp - Indigo
-        new Color(244, 114, 182),  // Thương hiệu - Pink
-        new Color(56, 189, 248),   // Danh mục - Cyan
-        new Color(163, 230, 53)    // Tài khoản - Lime
+        new Color(64, 156, 255),   // Dashboard - Vivid Blue
+        new Color(46, 213, 115),   // Sản phẩm - Vivid Green
+        new Color(255, 159, 67),   // Nhập kho - Vivid Orange
+        new Color(255, 71, 87),    // Bán hàng - Vivid Red
+        new Color(83, 82, 237),    // Nhà cung cấp - Vivid Indigo
+        new Color(255, 107, 129),  // Thương hiệu - Vivid Pink
+        new Color(112, 161, 255),  // Danh mục - Vivid Light Blue
+        new Color(236, 204, 104)   // Tài khoản - Vivid Yellow
     };
     
     public MainUI() {
@@ -134,7 +134,7 @@ public class MainUI extends JFrame {
         logoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JLabel logoIcon = new JLabel("📦");
-        logoIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
+        logoIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
         
         JLabel logoText = new JLabel("PhoneStock");
         logoText.setFont(new Font("Segoe UI", Font.BOLD, 22));
@@ -222,13 +222,14 @@ public class MainUI extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 // Draw colored background circle
-                g2.setColor(new Color(iconColor.getRed(), iconColor.getGreen(), iconColor.getBlue(), 40));
-                g2.fillRoundRect(0, 0, 32, 32, 8, 8);
+                g2.setColor(new Color(iconColor.getRed(), iconColor.getGreen(), iconColor.getBlue(), 70));
+                g2.fillRoundRect(0, 0, 32, 32, 12, 12);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+        iconLabel.setForeground(iconColor);
         iconLabel.setPreferredSize(new Dimension(32, 32));
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
@@ -645,10 +646,10 @@ public class MainUI extends JFrame {
         actionPanel.setBackground(CONTENT_BG);
         actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
         
-        JButton addBtn = createActionButton("➕ Thêm mới", DARK_BLUE);
-        JButton editBtn = createActionButton("✏️ Sửa", WARNING_COLOR);
-        JButton deleteBtn = createActionButton("🗑️ Xóa", DANGER_COLOR);
-        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
         addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
@@ -730,9 +731,9 @@ public class MainUI extends JFrame {
         contextMenu.setBackground(CARD_BG);
         contextMenu.setBorder(new LineBorder(BORDER_COLOR, 1, true));
         
-        JMenuItem menuAdd = createMenuItem("➕ Thêm mới", DARK_BLUE);
-        JMenuItem menuEdit = createMenuItem("✏️ Sửa", WARNING_COLOR);
-        JMenuItem menuDelete = createMenuItem("🗑️ Xóa", DANGER_COLOR);
+        JMenuItem menuAdd = createMenuItem("Thêm mới", DARK_BLUE);
+        JMenuItem menuEdit = createMenuItem("Sửa", WARNING_COLOR);
+        JMenuItem menuDelete = createMenuItem("Xóa", DANGER_COLOR);
         menuAdd.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         menuEdit.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         menuDelete.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
@@ -841,60 +842,467 @@ public class MainUI extends JFrame {
         return panel;
     }
     
+    // ==================== IMPORT PANEL ====================
+    private JTable importTable;
+    private Object[][] importData = {
+        {1, "FPT Synnex", "Jerry", "1,500,000,000₫", "02/01/2026"},
+    };
+    private String[] importColumns = {"ID", "Nhà cung cấp", "Nhân viên", "Tổng tiền", "Ngày tạo"};
+    
     private JPanel createImportPanel() {
-        return createDataPanel("Phiếu nhập", 
-            new String[]{"ID", "Nhà cung cấp", "Nhân viên", "Tổng tiền", "Ngày tạo"},
-            new Object[][]{
-                {1, "FPT Synnex", "Jerry", "1,500,000,000₫", "02/01/2026"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        // Action buttons panel
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new ImportAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = importTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu nhập cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) importTable.getValueAt(selectedRow, 0);
+            String supplier = (String) importTable.getValueAt(selectedRow, 1);
+            String employee = (String) importTable.getValueAt(selectedRow, 2);
+            String totalAmount = (String) importTable.getValueAt(selectedRow, 3);
+            String date = (String) importTable.getValueAt(selectedRow, 4);
+            new ImportEditUI(MainUI.this, id, supplier, employee, totalAmount, date);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = importTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu nhập cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) importTable.getValueAt(selectedRow, 0);
+            String supplier = (String) importTable.getValueAt(selectedRow, 1);
+            new ImportDeleteUI(MainUI.this, id, supplier);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        // Table
+        importTable = new JTable(importData, importColumns);
+        setupTable(importTable);
+        
+        JScrollPane scrollPane = createScrollPane(importTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
+    
+    // ==================== SALES PANEL ====================
+    private JTable salesTable;
+    private Object[][] salesData = {
+        {1, "Jerry", "56,490,000₫", "05/01/2026"},
+    };
+    private String[] salesColumns = {"ID", "Nhân viên", "Tổng tiền", "Ngày tạo"};
     
     private JPanel createSalesPanel() {
-        return createDataPanel("Hóa đơn", 
-            new String[]{"ID", "Nhân viên", "Tổng tiền", "Ngày tạo"},
-            new Object[][]{
-                {1, "Jerry", "56,490,000₫", "05/01/2026"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new SalesAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = salesTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) salesTable.getValueAt(selectedRow, 0);
+            String employee = (String) salesTable.getValueAt(selectedRow, 1);
+            String totalAmount = (String) salesTable.getValueAt(selectedRow, 2);
+            String date = (String) salesTable.getValueAt(selectedRow, 3);
+            new SalesEditUI(MainUI.this, id, employee, totalAmount, date);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = salesTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) salesTable.getValueAt(selectedRow, 0);
+            String employee = (String) salesTable.getValueAt(selectedRow, 1);
+            new SalesDeleteUI(MainUI.this, id, employee);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        salesTable = new JTable(salesData, salesColumns);
+        setupTable(salesTable);
+        
+        JScrollPane scrollPane = createScrollPane(salesTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
+    
+    // ==================== SUPPLIER PANEL ====================
+    private JTable supplierTable;
+    private Object[][] supplierData = {
+        {1, "FPT Synnex"}, {2, "Viettel Store"}, {3, "CellphoneS B2B"},
+        {4, "Anker Vietnam"}, {5, "Baseus Official"}, {6, "Ugreen Vietnam"},
+    };
+    private String[] supplierColumns = {"ID", "Tên nhà cung cấp"};
     
     private JPanel createSupplierPanel() {
-        return createDataPanel("Nhà cung cấp", 
-            new String[]{"ID", "Tên nhà cung cấp"},
-            new Object[][]{
-                {1, "FPT Synnex"},
-                {2, "Viettel Store"},
-                {3, "CellphoneS B2B"},
-                {4, "Anker Vietnam"},
-                {5, "Baseus Official"},
-                {6, "Ugreen Vietnam"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new SupplierAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = supplierTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) supplierTable.getValueAt(selectedRow, 0);
+            String name = (String) supplierTable.getValueAt(selectedRow, 1);
+            new SupplierEditUI(MainUI.this, id, name);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = supplierTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) supplierTable.getValueAt(selectedRow, 0);
+            String name = (String) supplierTable.getValueAt(selectedRow, 1);
+            new SupplierDeleteUI(MainUI.this, id, name);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        supplierTable = new JTable(supplierData, supplierColumns);
+        setupTable(supplierTable);
+        
+        JScrollPane scrollPane = createScrollPane(supplierTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
+    
+    // ==================== BRAND PANEL ====================
+    private JTable brandTable;
+    private Object[][] brandData = {
+        {1, "Apple"}, {2, "Samsung"}, {3, "Xiaomi"}, {4, "Oppo"},
+        {5, "Anker"}, {6, "Baseus"}, {7, "Belkin"}, {8, "Sony"}, {9, "Ugreen"},
+    };
+    private String[] brandColumns = {"ID", "Tên thương hiệu"};
     
     private JPanel createBrandPanel() {
-        return createDataPanel("Thương hiệu", 
-            new String[]{"ID", "Tên thương hiệu"},
-            new Object[][]{
-                {1, "Apple"}, {2, "Samsung"}, {3, "Xiaomi"}, {4, "Oppo"},
-                {5, "Anker"}, {6, "Baseus"}, {7, "Belkin"}, {8, "Sony"}, {9, "Ugreen"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new BrandAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = brandTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn thương hiệu cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) brandTable.getValueAt(selectedRow, 0);
+            String name = (String) brandTable.getValueAt(selectedRow, 1);
+            new BrandEditUI(MainUI.this, id, name);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = brandTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn thương hiệu cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) brandTable.getValueAt(selectedRow, 0);
+            String name = (String) brandTable.getValueAt(selectedRow, 1);
+            new BrandDeleteUI(MainUI.this, id, name);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        brandTable = new JTable(brandData, brandColumns);
+        setupTable(brandTable);
+        
+        JScrollPane scrollPane = createScrollPane(brandTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
+    
+    // ==================== CATEGORY PANEL ====================
+    private JTable categoryTable;
+    private Object[][] categoryData = {
+        {1, "Điện thoại"}, {2, "Cáp sạc"}, {3, "Cường lực"},
+        {4, "Sạc dự phòng"}, {5, "Củ sạc"}, {6, "Loa"},
+    };
+    private String[] categoryColumns = {"ID", "Tên danh mục"};
     
     private JPanel createCategoryPanel() {
-        return createDataPanel("Danh mục", 
-            new String[]{"ID", "Tên danh mục"},
-            new Object[][]{
-                {1, "Điện thoại"}, {2, "Cáp sạc"}, {3, "Cường lực"},
-                {4, "Sạc dự phòng"}, {5, "Củ sạc"}, {6, "Loa"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new CategoryAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = categoryTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn danh mục cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) categoryTable.getValueAt(selectedRow, 0);
+            String name = (String) categoryTable.getValueAt(selectedRow, 1);
+            new CategoryEditUI(MainUI.this, id, name);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = categoryTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn danh mục cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) categoryTable.getValueAt(selectedRow, 0);
+            String name = (String) categoryTable.getValueAt(selectedRow, 1);
+            new CategoryDeleteUI(MainUI.this, id, name);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        categoryTable = new JTable(categoryData, categoryColumns);
+        setupTable(categoryTable);
+        
+        JScrollPane scrollPane = createScrollPane(categoryTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
     
+    // ==================== HELPER METHODS ====================
+    private void setupTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setRowHeight(45);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setBackground(CARD_BG);
+        table.setSelectionBackground(new Color(79, 70, 229, 30));
+        table.setSelectionForeground(TEXT_PRIMARY);
+        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(CARD_BG);
+        table.getTableHeader().setForeground(TEXT_PRIMARY);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 50));
+        table.getTableHeader().setBorder(new MatteBorder(0, 0, 2, 0, BORDER_COLOR));
+        
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, 
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? CARD_BG : new Color(249, 250, 251));
+                }
+                setBorder(new EmptyBorder(0, 15, 0, 15));
+                return c;
+            }
+        });
+    }
+    
+    private JScrollPane createScrollPane(JTable table) {
+        JScrollPane scrollPane = new JScrollPane(table) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_BG);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        scrollPane.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        scrollPane.getViewport().setBackground(CARD_BG);
+        return scrollPane;
+    }
+    
+    // ==================== ACCOUNT PANEL ====================
+    private JTable accountTable;
+    private Object[][] accountData = {
+        {1, "admin", "Quản lý", "Admin", "01/01/2026"},
+        {2, "jerry", "Jerry", "Staff", "01/01/2026"},
+    };
+    private String[] accountColumns = {"ID", "Username", "Họ tên", "Vai trò", "Ngày tạo"};
+    
     private JPanel createAccountPanel() {
-        return createDataPanel("Tài khoản", 
-            new String[]{"ID", "Username", "Họ tên", "Vai trò", "Ngày tạo"},
-            new Object[][]{
-                {1, "admin", "Quản lý", "Admin", "01/01/2026"},
-                {2, "jerry", "Jerry", "Staff", "01/01/2026"},
-            });
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CONTENT_BG);
+        panel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actionPanel.setBackground(CONTENT_BG);
+        actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+        
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        
+        addBtn.addActionListener(e -> new AccountAddUI(MainUI.this));
+        
+        editBtn.addActionListener(e -> {
+            int selectedRow = accountTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) accountTable.getValueAt(selectedRow, 0);
+            String username = (String) accountTable.getValueAt(selectedRow, 1);
+            String fullName = (String) accountTable.getValueAt(selectedRow, 2);
+            String role = (String) accountTable.getValueAt(selectedRow, 3);
+            new AccountEditUI(MainUI.this, id, username, fullName, role);
+        });
+        
+        deleteBtn.addActionListener(e -> {
+            int selectedRow = accountTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id = (int) accountTable.getValueAt(selectedRow, 0);
+            String username = (String) accountTable.getValueAt(selectedRow, 1);
+            new AccountDeleteUI(MainUI.this, id, username);
+        });
+        
+        refreshBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(refreshBtn);
+        
+        panel.add(actionPanel, BorderLayout.NORTH);
+        
+        accountTable = new JTable(accountData, accountColumns);
+        setupTable(accountTable);
+        
+        JScrollPane scrollPane = createScrollPane(accountTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
     }
     
     private JPanel createDataPanel(String title, String[] columns, Object[][] data) {
@@ -907,10 +1315,10 @@ public class MainUI extends JFrame {
         actionPanel.setBackground(CONTENT_BG);
         actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
         
-        JButton addBtn = createActionButton("➕ Thêm mới", DARK_BLUE);
-        JButton editBtn = createActionButton("✏️ Sửa", WARNING_COLOR);
-        JButton deleteBtn = createActionButton("🗑️ Xóa", DANGER_COLOR);
-        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
         addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));

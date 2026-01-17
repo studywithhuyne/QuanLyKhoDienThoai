@@ -6,73 +6,64 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class ProductEditUI extends JDialog {
+public class AccountEditUI extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
-    private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
+    private static final Color WARNING_COLOR = new Color(251, 191, 36);
+    private static final Color WARNING_HOVER = new Color(245, 158, 11);
     private static final Color BACKGROUND = new Color(249, 250, 251);
     private static final Color CARD_BG = Color.WHITE;
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
-    private static final Color WARNING_COLOR = new Color(251, 191, 36);
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
     
     // Form fields
     private JTextField txtId;
-    private JTextField txtName;
-    private JComboBox<String> cmbBrand;
-    private JComboBox<String> cmbCategory;
-    private JTextArea txtDescription;
+    private JTextField txtUsername;
+    private JTextField txtFullName;
+    private JPasswordField txtPassword;
+    private JComboBox<String> cmbRole;
     
-    // Product data
-    private int productId;
-    private String productName;
-    private String productBrand;
-    private String productCategory;
-    
-    // Buttons
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public ProductEditUI(Frame parent, int id, String name, String brand, String category) {
-        super(parent, "Sửa thông tin sản phẩm", true);
-        this.productId = id;
-        this.productName = name;
-        this.productBrand = brand;
-        this.productCategory = category;
+    // Data
+    private int accountId;
+    private String currentUsername;
+    private String currentFullName;
+    private String currentRole;
+
+    public AccountEditUI(Frame parent, int id, String username, String fullName, String role) {
+        super(parent, "Sửa tài khoản", true);
+        this.accountId = id;
+        this.currentUsername = username;
+        this.currentFullName = fullName;
+        this.currentRole = role;
         
         initializeDialog();
         createComponents();
-        loadProductData();
+        loadData();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        // CHỈNH SỬA: Tăng kích thước lên 540x730
-        // Cao hơn form Add vì form Edit có thêm trường ID
-        setSize(540, 730);
+        setSize(540, 580);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND);
     }
-    
+
     private void createComponents() {
-        // Header
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
-        
-        // Form content
         JPanel formPanel = createForm();
         add(formPanel, BorderLayout.CENTER);
-        
-        // Footer with buttons
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
-    
+
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
@@ -89,11 +80,11 @@ public class ProductEditUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Sửa thông tin sản phẩm");
+        JLabel titleLabel = new JLabel("Sửa thông tin tài khoản");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin sản phẩm #" + productId);
+        JLabel subtitleLabel = new JLabel("Cập nhật thông tin tài khoản #" + accountId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -107,7 +98,6 @@ public class ProductEditUI extends JDialog {
         leftSection.add(titlePanel);
         
         header.add(leftSection, BorderLayout.WEST);
-        
         return header;
     }
     
@@ -130,46 +120,31 @@ public class ProductEditUI extends JDialog {
         formCard.setOpaque(false);
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
-        // CHỈNH SỬA: Thêm Glue ở đầu để đẩy nội dung vào giữa
         formCard.add(Box.createVerticalGlue());
-        
-        // Product ID (readonly)
+
+        // ID (readonly)
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(new Color(243, 244, 246));
-        formCard.add(createFormGroup("ID sản phẩm", txtId));
+        formCard.add(createFormGroup("ID", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Product Name
-        formCard.add(createFormGroup("Tên sản phẩm", txtName = createTextField("Nhập tên sản phẩm...")));
+        // Username
+        formCard.add(createFormGroup("Tên đăng nhập", txtUsername = createTextField("Nhập tên đăng nhập...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Brand
-        String[] brands = {"Apple", "Samsung", "Xiaomi", "Oppo", "Anker", "Baseus", "Belkin", "Sony", "Ugreen"};
-        formCard.add(createFormGroup("Thương hiệu", cmbBrand = createComboBox(brands)));
+        // Full Name
+        formCard.add(createFormGroup("Họ và tên", txtFullName = createTextField("Nhập họ và tên...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Category
-        String[] categories = {"Điện thoại", "Cáp sạc", "Cường lực", "Sạc dự phòng", "Củ sạc", "Loa"};
-        formCard.add(createFormGroup("Danh mục", cmbCategory = createComboBox(categories)));
+        // Password (optional for edit)
+        formCard.add(createFormGroup("Mật khẩu mới (để trống nếu không đổi)", txtPassword = createPasswordField("Nhập mật khẩu mới...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description - CHỈNH SỬA: Tăng kích thước
-        txtDescription = new JTextArea(6, 20); // Tăng lên 6 dòng
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
+        // Role
+        String[] roles = {"Staff", "Admin"};
+        formCard.add(createFormGroup("Vai trò", cmbRole = createComboBox(roles)));
         
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        // Tăng chiều cao lên 150px
-        descScroll.setPreferredSize(new Dimension(0, 150));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
-        
-        // CHỈNH SỬA: Thêm Glue ở cuối để đẩy nội dung vào giữa
         formCard.add(Box.createVerticalGlue());
         
         formWrapper.add(formCard, BorderLayout.CENTER);
@@ -177,17 +152,13 @@ public class ProductEditUI extends JDialog {
         return formWrapper;
     }
     
-    private void loadProductData() {
-        txtId.setText(String.valueOf(productId));
-        txtName.setText(productName);
-        cmbBrand.setSelectedItem(productBrand);
-        cmbCategory.setSelectedItem(productCategory);
-        // Nếu bạn có dữ liệu mô tả truyền vào constructor sau này, hãy set ở đây
-        // txtDescription.setText(productDescription); 
+    private void loadData() {
+        txtId.setText(String.valueOf(accountId));
+        txtUsername.setText(currentUsername);
+        txtFullName.setText(currentFullName);
+        cmbRole.setSelectedItem(currentRole);
     }
-    
-    // ... (Giữ nguyên các hàm createFormGroup, createTextField, createComboBox)
-    
+
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -207,33 +178,55 @@ public class ProductEditUI extends JDialog {
         
         return group;
     }
-    
-    private JPanel createFormGroupWithComponent(String label, JComponent component) {
-        JPanel group = new JPanel();
-        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
-        group.setOpaque(false);
-        group.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(TEXT_PRIMARY);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        group.add(lbl);
-        group.add(Box.createVerticalStrut(8));
-        group.add(component);
-        
-        return group;
-    }
-    
+
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (getText().isEmpty() && !hasFocus()) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setColor(TEXT_SECONDARY);
+                    g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                    g2.drawString(placeholder, 12, 26);
+                    g2.dispose();
+                }
+            }
+        };
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        field.setBorder(new CompoundBorder(
+            new LineBorder(BORDER_COLOR, 1, true),
+            new EmptyBorder(5, 12, 5, 12)
+        ));
+        
+        field.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                if (field.isEditable()) {
+                    field.setBorder(new CompoundBorder(
+                        new LineBorder(PRIMARY_COLOR, 2, true),
+                        new EmptyBorder(4, 11, 4, 11)
+                    ));
+                }
+            }
+            public void focusLost(FocusEvent e) {
+                field.setBorder(new CompoundBorder(
+                    new LineBorder(BORDER_COLOR, 1, true),
+                    new EmptyBorder(5, 12, 5, 12)
+                ));
+            }
+        });
+        
+        return field;
+    }
+    
+    private JPasswordField createPasswordField(String placeholder) {
+        JPasswordField field = new JPasswordField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getPassword().length == 0 && !hasFocus()) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setColor(TEXT_SECONDARY);
                     g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -309,7 +302,7 @@ public class ProductEditUI extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateProduct());
+        btnUpdate.addActionListener(e -> updateAccount());
         
         footer.add(btnCancel);
         footer.add(btnUpdate);
@@ -330,12 +323,7 @@ public class ProductEditUI extends JDialog {
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 } else {
-                    Color hoverColor = new Color(
-                        Math.min(bgColor.getRed() + 20, 255),
-                        Math.min(bgColor.getGreen() + 20, 255),
-                        Math.min(bgColor.getBlue() + 20, 255)
-                    );
-                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
+                    g2.setColor(getModel().isRollover() ? WARNING_HOVER : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                 }
                 
@@ -355,27 +343,24 @@ public class ProductEditUI extends JDialog {
         return button;
     }
     
-    private void updateProduct() {
-        if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên sản phẩm!");
-            txtName.requestFocus();
+    private void updateAccount() {
+        String username = txtUsername.getText().trim();
+        String fullName = txtFullName.getText().trim();
+        String role = (String) cmbRole.getSelectedItem();
+        
+        if (username.isEmpty() || fullName.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Vui lòng nhập đầy đủ thông tin!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Cập nhật sản phẩm thành công!", 
-            "Thành công", 
+        // TODO: Update in database
+        JOptionPane.showMessageDialog(this,
+            "Cập nhật tài khoản thành công!\n\nUsername: " + username + "\nHọ tên: " + fullName + "\nVai trò: " + role,
+            "Thành công",
             JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
-    
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
-    }
-    
-    public int getProductId() { return productId; }
-    public String getProductName() { return txtName.getText().trim(); }
-    public String getBrand() { return (String) cmbBrand.getSelectedItem(); }
-    public String getCategory() { return (String) cmbCategory.getSelectedItem(); }
-    public String getDescription() { return txtDescription.getText().trim(); }
 }
