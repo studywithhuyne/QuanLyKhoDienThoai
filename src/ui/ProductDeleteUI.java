@@ -79,7 +79,7 @@ public class ProductDeleteUI extends JDialog {
         card.add(Box.createVerticalGlue());
         
         // Warning icon
-        JLabel iconLabel = new JLabel("⚠️") {
+        JLabel iconLabel = new JLabel("⚠") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -91,7 +91,7 @@ public class ProductDeleteUI extends JDialog {
                 super.paintComponent(g);
             }
         };
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 25));
         iconLabel.setPreferredSize(new Dimension(70, 70));
         iconLabel.setMaximumSize(new Dimension(70, 70));
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -143,7 +143,7 @@ public class ProductDeleteUI extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("🗑️  Xóa sản phẩm", Color.WHITE, DANGER_COLOR, false);
+        btnDelete = createButton("Xóa sản phẩm", Color.WHITE, DANGER_COLOR, false);
         btnDelete.addActionListener(e -> deleteProduct());
         
         footer.add(btnCancel);

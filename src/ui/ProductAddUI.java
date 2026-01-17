@@ -150,8 +150,7 @@ public class ProductAddUI extends JDialog {
         return formWrapper;
     }
 
-    // ... (Giữ nguyên các hàm createFormGroup, createTextField, createComboBox, createFooter, createButton, v.v.)
-    
+   
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -250,7 +249,7 @@ public class ProductAddUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("💾  Lưu sản phẩm", Color.WHITE, PRIMARY_COLOR, false);
+        btnSave = createButton("Lưu sản phẩm", Color.WHITE, PRIMARY_COLOR, false);
         btnSave.addActionListener(e -> saveProduct());
         
         footer.add(btnCancel);

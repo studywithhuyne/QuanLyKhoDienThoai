@@ -286,7 +286,7 @@ public class ProductEditUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnUpdate = createButton("💾  Cập nhật", Color.WHITE, WARNING_COLOR, false);
+        btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
         btnUpdate.addActionListener(e -> updateProduct());
         
         footer.add(btnCancel);

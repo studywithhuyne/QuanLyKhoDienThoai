@@ -11,6 +11,7 @@ public class MainUI extends JFrame {
     // Colors - Modern Dark Theme
     private static final Color PRIMARY_COLOR = new Color(45, 55, 72);      // Brighter Indigo
     //Màu xanh đậm (99, 102, 241)
+    private static final Color DARK_BLUE = new Color(99, 102, 241);
     private static final Color PRIMARY_HOVER = new Color(129, 140, 248);     // Lighter Indigo
     private static final Color SIDEBAR_BG = new Color(17, 24, 39);           // Dark Gray
     private static final Color SIDEBAR_HOVER = new Color(45, 55, 72);        // Slightly lighter
@@ -33,6 +34,7 @@ public class MainUI extends JFrame {
     private static final Color SUCCESS_COLOR = new Color(34, 197, 94);
     private static final Color WARNING_COLOR = new Color(251, 191, 36);      // Brighter yellow
     private static final Color DANGER_COLOR = new Color(248, 113, 113);      // Brighter red
+    private static final Color GREEN = new Color(22, 186, 44);      // Green
     
     // Components
     private JPanel sidebarPanel;
@@ -362,7 +364,7 @@ public class MainUI extends JFrame {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setColor(TEXT_SECONDARY);
                     g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                    g2.drawString("🔍 Tìm kiếm...", 15, 25);
+                    g2.drawString("Tìm kiếm...", 15, 25);
                     g2.dispose();
                 }
             }
@@ -376,6 +378,7 @@ public class MainUI extends JFrame {
         rightSection.add(searchField);
         
         // Notification button
+        
         JButton notifBtn = createIconButton("🔔", "Thông báo");
         rightSection.add(notifBtn);
         
@@ -404,7 +407,8 @@ public class MainUI extends JFrame {
                 super.paintComponent(g);
             }
         };
-        button.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        
+        button.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
         button.setPreferredSize(new Dimension(40, 40));
         button.setBackground(CARD_BG);
         button.setBorderPainted(false);
@@ -641,10 +645,14 @@ public class MainUI extends JFrame {
         actionPanel.setBackground(CONTENT_BG);
         actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
         
-        JButton addBtn = createActionButton("➕ Thêm mới", PRIMARY_COLOR);
+        JButton addBtn = createActionButton("➕ Thêm mới", DARK_BLUE);
         JButton editBtn = createActionButton("✏️ Sửa", WARNING_COLOR);
         JButton deleteBtn = createActionButton("🗑️ Xóa", DANGER_COLOR);
-        JButton refreshBtn = createActionButton("🔄 Làm mới", TEXT_SECONDARY);
+        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         
         // Add button action - Open ProductAddUI
         addBtn.addActionListener(e -> {
@@ -722,9 +730,12 @@ public class MainUI extends JFrame {
         contextMenu.setBackground(CARD_BG);
         contextMenu.setBorder(new LineBorder(BORDER_COLOR, 1, true));
         
-        JMenuItem menuAdd = createMenuItem("➕ Thêm mới", PRIMARY_COLOR);
+        JMenuItem menuAdd = createMenuItem("➕ Thêm mới", DARK_BLUE);
         JMenuItem menuEdit = createMenuItem("✏️ Sửa", WARNING_COLOR);
         JMenuItem menuDelete = createMenuItem("🗑️ Xóa", DANGER_COLOR);
+        menuAdd.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        menuEdit.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        menuDelete.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         
         menuAdd.addActionListener(e -> {
             new ProductAddUI(MainUI.this);
@@ -896,10 +907,14 @@ public class MainUI extends JFrame {
         actionPanel.setBackground(CONTENT_BG);
         actionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
         
-        JButton addBtn = createActionButton("➕ Thêm mới", PRIMARY_COLOR);
+        JButton addBtn = createActionButton("➕ Thêm mới", DARK_BLUE);
         JButton editBtn = createActionButton("✏️ Sửa", WARNING_COLOR);
         JButton deleteBtn = createActionButton("🗑️ Xóa", DANGER_COLOR);
-        JButton refreshBtn = createActionButton("🔄 Làm mới", TEXT_SECONDARY);
+        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        addBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        refreshBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        editBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
+        deleteBtn.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         
         actionPanel.add(addBtn);
         actionPanel.add(editBtn);
