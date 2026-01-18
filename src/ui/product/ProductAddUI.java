@@ -1,14 +1,12 @@
-package ui;
+package ui.product;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 
 public class ProductAddUI extends JDialog {
     
-    // ... (Giữ nguyên các biến Colors và khai báo biến như cũ)
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
     private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
@@ -22,7 +20,7 @@ public class ProductAddUI extends JDialog {
     private JTextField txtName;
     private JComboBox<String> cmbBrand;
     private JComboBox<String> cmbCategory;
-    private JTextArea txtDescription; // Đã khai báo ở trên
+    private JTextArea txtDescription; 
     
     private JButton btnSave;
     private JButton btnCancel;
@@ -35,7 +33,6 @@ public class ProductAddUI extends JDialog {
     }
     
     private void initializeDialog() {
-        // CHỈNH SỬA: Tăng chiều cao lên 680 để vừa với khung mô tả lớn hơn
         setSize(540, 680); 
         setLocationRelativeTo(getParent());
         setResizable(false);
@@ -43,7 +40,6 @@ public class ProductAddUI extends JDialog {
         getContentPane().setBackground(BACKGROUND);
     }
 
-    // ... (Giữ nguyên createComponents và createHeader)
     private void createComponents() {
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
@@ -54,7 +50,6 @@ public class ProductAddUI extends JDialog {
     }
 
     private JPanel createHeader() {
-        // ... (Giữ nguyên code phần Header của bạn)
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
         header.setBorder(new CompoundBorder(
@@ -96,21 +91,14 @@ public class ProductAddUI extends JDialog {
         formWrapper.setBackground(BACKGROUND);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
-        JPanel formCard = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.dispose();
-            }
-        };
+        JPanel formCard = new JPanel();
         formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
-        formCard.setOpaque(false);
-        formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
+        formCard.setBackground(CARD_BG);
+        formCard.setBorder(new CompoundBorder(
+            new LineBorder(BORDER_COLOR, 1, true),
+            new EmptyBorder(25, 25, 25, 25)
+        ));
         
-        // CHỈNH SỬA: Thêm Glue ở đầu để đẩy nội dung vào giữa theo chiều dọc
         formCard.add(Box.createVerticalGlue());
 
         // Product Name
@@ -127,8 +115,8 @@ public class ProductAddUI extends JDialog {
         formCard.add(createFormGroup("Danh mục", cmbCategory = createComboBox(categories)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description - CHỈNH SỬA: Tăng kích thước
-        txtDescription = new JTextArea(6, 20); // Tăng số dòng lên 6
+        // Description
+        txtDescription = new JTextArea(6, 20);
         txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtDescription.setLineWrap(true);
         txtDescription.setWrapStyleWord(true);
@@ -136,13 +124,11 @@ public class ProductAddUI extends JDialog {
         
         JScrollPane descScroll = new JScrollPane(txtDescription);
         descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        // Tăng chiều cao cố định của khung cuộn lên 150
         descScroll.setPreferredSize(new Dimension(0, 150)); 
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150)); // Đảm bảo không bị giãn quá mức
+        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         
         formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
         
-        // CHỈNH SỬA: Thêm Glue ở cuối để cân bằng khoảng trống trên/dưới
         formCard.add(Box.createVerticalGlue());
         
         formWrapper.add(formCard, BorderLayout.CENTER);
@@ -155,7 +141,7 @@ public class ProductAddUI extends JDialog {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
         group.setOpaque(false);
-        group.setAlignmentX(Component.LEFT_ALIGNMENT); // Canh trái trong Group nhưng Group sẽ nằm giữa Card nhờ Layout
+        group.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -192,19 +178,7 @@ public class ProductAddUI extends JDialog {
     }
 
     private JTextField createTextField(String placeholder) {
-        JTextField field = new JTextField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty() && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_SECONDARY);
-                    g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                    g2.drawString(placeholder, 12, 26);
-                    g2.dispose();
-                }
-            }
-        };
+        JTextField field = new JTextField();
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         field.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
@@ -212,6 +186,8 @@ public class ProductAddUI extends JDialog {
             new LineBorder(BORDER_COLOR, 1, true),
             new EmptyBorder(5, 12, 5, 12)
         ));
+        field.setForeground(TEXT_PRIMARY);
+        field.putClientProperty("JTextField.placeholderText", placeholder);
         
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
@@ -281,34 +257,34 @@ public class ProductAddUI extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                    g2.setColor(BORDER_COLOR);
-                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                } else {
-                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                }
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
+        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 100 : 160, 42));
-        button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+        
+        if (isOutline) {
+            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        } else {
+            button.setBorder(new EmptyBorder(8, 16, 8, 16));
+            button.setBorderPainted(false);
+        }
+        
+        // Hover effect đơn giản
+        Color hoverColor = isOutline ? new Color(243, 244, 246) : PRIMARY_HOVER;
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(hoverColor);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor);
+            }
+        });
         
         return button;
     }
