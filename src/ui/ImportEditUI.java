@@ -1,11 +1,12 @@
-package ui.product;
+package ui;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 
-public class ProductEditUI extends JDialog {
+public class ImportEditUI extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -16,36 +17,36 @@ public class ProductEditUI extends JDialog {
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
     private static final Color WARNING_COLOR = new Color(251, 191, 36);
-    private static final Color WARNING_HOVER = new Color(245, 158, 11);
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
     
     // Form fields
     private JTextField txtId;
-    private JTextField txtName;
-    private JComboBox<String> cmbBrand;
-    private JComboBox<String> cmbCategory;
-    private JTextArea txtDescription;
+    private JComboBox<String> cmbSupplier;
+    private JComboBox<String> cmbEmployee;
+    private JTextField txtTotalAmount;
+    private JTextField txtDate;
+    private JTextArea txtNote;
     
-    // Product data
-    private int productId;
-    private String productName;
-    private String productBrand;
-    private String productCategory;
+    // Data
+    private int importId;
+    private String supplier;
+    private String employee;
+    private String totalAmount;
+    private String date;
     
-    // Buttons
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public ProductEditUI(Frame parent, int id, String name, String brand, String category) {
-        super(parent, "Sửa thông tin sản phẩm", true);
-        this.productId = id;
-        this.productName = name;
-        this.productBrand = brand;
-        this.productCategory = category;
+    public ImportEditUI(Frame parent, int id, String supplier, String employee, String totalAmount, String date) {
+        super(parent, "Sửa phiếu nhập kho", true);
+        this.importId = id;
+        this.supplier = supplier;
+        this.employee = employee;
+        this.totalAmount = totalAmount;
+        this.date = date;
         
         initializeDialog();
         createComponents();
-        loadProductData();
+        loadData();
         setVisible(true);
     }
     
@@ -60,10 +61,8 @@ public class ProductEditUI extends JDialog {
     private void createComponents() {
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
-        
         JPanel formPanel = createForm();
         add(formPanel, BorderLayout.CENTER);
-        
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
@@ -84,11 +83,11 @@ public class ProductEditUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Sửa thông tin sản phẩm");
+        JLabel titleLabel = new JLabel("Sửa phiếu nhập kho");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin sản phẩm #" + productId);
+        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin phiếu nhập #" + importId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -111,50 +110,60 @@ public class ProductEditUI extends JDialog {
         formWrapper.setBackground(BACKGROUND);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
-        JPanel formCard = new JPanel();
+        JPanel formCard = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_BG);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
+                g2.dispose();
+            }
+        };
         formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
-        formCard.setBackground(CARD_BG);
-        formCard.setBorder(new CompoundBorder(
-            new LineBorder(BORDER_COLOR, 1, true),
-            new EmptyBorder(25, 25, 25, 25)
-        ));
+        formCard.setOpaque(false);
+        formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
         formCard.add(Box.createVerticalGlue());
         
-        // Product ID (readonly)
+        // ID (readonly)
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(new Color(243, 244, 246));
-        formCard.add(createFormGroup("ID sản phẩm", txtId));
+        formCard.add(createFormGroup("ID phiếu nhập", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Product Name
-        formCard.add(createFormGroup("Tên sản phẩm", txtName = createTextField("Nhập tên sản phẩm...")));
+        // Supplier
+        String[] suppliers = {"FPT Synnex", "Viettel Store", "CellphoneS B2B", "Anker Vietnam", "Baseus Official", "Ugreen Vietnam"};
+        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier = createComboBox(suppliers)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Brand
-        String[] brands = {"Apple", "Samsung", "Xiaomi", "Oppo", "Anker", "Baseus", "Belkin", "Sony", "Ugreen"};
-        formCard.add(createFormGroup("Thương hiệu", cmbBrand = createComboBox(brands)));
+        // Employee
+        String[] employees = {"Admin", "Jerry"};
+        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee = createComboBox(employees)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Category
-        String[] categories = {"Điện thoại", "Cáp sạc", "Cường lực", "Sạc dự phòng", "Củ sạc", "Loa"};
-        formCard.add(createFormGroup("Danh mục", cmbCategory = createComboBox(categories)));
+        // Total Amount
+        formCard.add(createFormGroup("Tổng tiền", txtTotalAmount = createTextField("Nhập tổng tiền...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description
-        txtDescription = new JTextArea(6, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
+        // Date
+        formCard.add(createFormGroup("Ngày tạo", txtDate = createTextField("dd/MM/yyyy")));
+        formCard.add(Box.createVerticalStrut(18));
         
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 150));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        // Note
+        txtNote = new JTextArea(4, 20);
+        txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtNote.setLineWrap(true);
+        txtNote.setWrapStyleWord(true);
+        txtNote.setBorder(new EmptyBorder(10, 12, 10, 12));
         
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
+        JScrollPane noteScroll = new JScrollPane(txtNote);
+        noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        noteScroll.setPreferredSize(new Dimension(0, 100));
+        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        
+        formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -163,11 +172,12 @@ public class ProductEditUI extends JDialog {
         return formWrapper;
     }
     
-    private void loadProductData() {
-        txtId.setText(String.valueOf(productId));
-        txtName.setText(productName);
-        cmbBrand.setSelectedItem(productBrand);
-        cmbCategory.setSelectedItem(productCategory);
+    private void loadData() {
+        txtId.setText(String.valueOf(importId));
+        cmbSupplier.setSelectedItem(supplier);
+        cmbEmployee.setSelectedItem(employee);
+        txtTotalAmount.setText(totalAmount);
+        txtDate.setText(date);
     }
     
     private JPanel createFormGroup(String label, JComponent field) {
@@ -211,7 +221,19 @@ public class ProductEditUI extends JDialog {
     }
     
     private JTextField createTextField(String placeholder) {
-        JTextField field = new JTextField();
+        JTextField field = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getText().isEmpty() && !hasFocus()) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setColor(TEXT_SECONDARY);
+                    g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                    g2.drawString(placeholder, 12, 26);
+                    g2.dispose();
+                }
+            }
+        };
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         field.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
@@ -219,8 +241,6 @@ public class ProductEditUI extends JDialog {
             new LineBorder(BORDER_COLOR, 1, true),
             new EmptyBorder(5, 12, 5, 12)
         ));
-        field.setForeground(TEXT_PRIMARY);
-        field.putClientProperty("JTextField.placeholderText", placeholder);
         
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
@@ -281,7 +301,7 @@ public class ProductEditUI extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateProduct());
+        btnUpdate.addActionListener(e -> updateImport());
         
         footer.add(btnCancel);
         footer.add(btnUpdate);
@@ -290,47 +310,52 @@ public class ProductEditUI extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text);
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (isOutline) {
+                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                    g2.setColor(BORDER_COLOR);
+                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                } else {
+                    Color hoverColor = new Color(
+                        Math.min(bgColor.getRed() + 20, 255),
+                        Math.min(bgColor.getGreen() + 20, 255),
+                        Math.min(bgColor.getBlue() + 20, 255)
+                    );
+                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                }
+                
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
+        button.setBorderPainted(false);
         button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true);
-        
-        if (isOutline) {
-            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        } else {
-            button.setBorder(new EmptyBorder(8, 16, 8, 16));
-            button.setBorderPainted(false);
-        }
-        
-        // Hover effect
-        Color hoverColor = isOutline ? new Color(243, 244, 246) : WARNING_HOVER;
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(hoverColor);
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(bgColor);
-            }
-        });
         
         return button;
     }
     
-    private void updateProduct() {
-        if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên sản phẩm!");
-            txtName.requestFocus();
+    private void updateImport() {
+        if (txtTotalAmount.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập tổng tiền!");
+            txtTotalAmount.requestFocus();
             return;
         }
         
         JOptionPane.showMessageDialog(this, 
-            "Cập nhật sản phẩm thành công!", 
+            "Cập nhật phiếu nhập thành công!", 
             "Thành công", 
             JOptionPane.INFORMATION_MESSAGE);
         dispose();
@@ -339,10 +364,4 @@ public class ProductEditUI extends JDialog {
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
-    
-    public int getProductId() { return productId; }
-    public String getProductName() { return txtName.getText().trim(); }
-    public String getBrand() { return (String) cmbBrand.getSelectedItem(); }
-    public String getCategory() { return (String) cmbCategory.getSelectedItem(); }
-    public String getDescription() { return txtDescription.getText().trim(); }
 }

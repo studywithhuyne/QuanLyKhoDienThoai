@@ -21,14 +21,14 @@ public class MainUI extends JFrame {
     private String[] menuItems = {"Dashboard", "Sản phẩm", "Nhập kho", "Bán hàng", "Nhà cung cấp", "Thương hiệu", "Danh mục", "Tài khoản"};
     private String[] menuIcons = {"📊", "📱", "📥", "🛒", "🏭", "🏷️", "📂", "👤"};
     private Color[] menuIconColors = {
-        new Color(96, 165, 250),   // Dashboard - Blue
-        new Color(52, 211, 153),   // Sản phẩm - Green  
-        new Color(251, 191, 36),   // Nhập kho - Yellow
-        new Color(251, 113, 133),  // Bán hàng - Pink
-        new Color(129, 140, 248),  // Nhà cung cấp - Indigo
-        new Color(244, 114, 182),  // Thương hiệu - Pink
-        new Color(56, 189, 248),   // Danh mục - Cyan
-        new Color(163, 230, 53)    // Tài khoản - Lime
+        new Color(64, 156, 255),   // Dashboard - Vivid Blue
+        new Color(46, 213, 115),   // Sản phẩm - Vivid Green
+        new Color(255, 159, 67),   // Nhập kho - Vivid Orange
+        new Color(255, 71, 87),    // Bán hàng - Vivid Red
+        new Color(83, 82, 237),    // Nhà cung cấp - Vivid Indigo
+        new Color(255, 107, 129),  // Thương hiệu - Vivid Pink
+        new Color(112, 161, 255),  // Danh mục - Vivid Light Blue
+        new Color(236, 204, 104)   // Tài khoản - Vivid Yellow
     };
     
     public MainUI() {
