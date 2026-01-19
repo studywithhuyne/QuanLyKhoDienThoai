@@ -1,4 +1,4 @@
-package ui.import_;
+package ui.brand;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class ImportDeleteUI extends JDialog {
+public class BrandDeleteDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color BACKGROUND = new Color(249, 250, 251);
@@ -19,17 +19,17 @@ public class ImportDeleteUI extends JDialog {
     private static final Color DANGER_BG = new Color(254, 242, 242);
     
     // Data
-    private int importId;
-    private String supplier;
+    private int brandId;
+    private String brandName;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public ImportDeleteUI(Frame parent, int id, String supplier) {
+    public BrandDeleteDialog(Frame parent, int id, String name) {
         super(parent, "Xác nhận xóa", true);
-        this.importId = id;
-        this.supplier = supplier;
+        this.brandId = id;
+        this.brandName = name;
         
         initializeDialog();
         createComponents();
@@ -91,13 +91,13 @@ public class ImportDeleteUI extends JDialog {
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa phiếu nhập?");
+        JLabel titleLabel = new JLabel("Xóa thương hiệu?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa phiếu nhập<br><b>#" + importId + " - " + supplier + "</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa thương hiệu<br><b>\"" + brandName + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -135,8 +135,8 @@ public class ImportDeleteUI extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa phiếu nhập", Color.WHITE, DANGER_COLOR, false);
-        btnDelete.addActionListener(e -> deleteImport());
+        btnDelete = createButton("Xóa thương hiệu", Color.WHITE, DANGER_COLOR, false);
+        btnDelete.addActionListener(e -> deleteBrand());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -168,7 +168,7 @@ public class ImportDeleteUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 110 : 150, 44));
+        button.setPreferredSize(new Dimension(isOutline ? 110 : 160, 44));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -177,10 +177,10 @@ public class ImportDeleteUI extends JDialog {
         return button;
     }
     
-    private void deleteImport() {
+    private void deleteBrand() {
         confirmed = true;
         JOptionPane.showMessageDialog(this, 
-            "Xóa phiếu nhập thành công!", 
+            "Xóa thương hiệu thành công!", 
             "Thành công", 
             JOptionPane.INFORMATION_MESSAGE);
         dispose();

@@ -1,17 +1,18 @@
-package ui.account;
+package ui.import_;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class AccountEditUI extends JDialog {
+public class ImportAddDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
-    private static final Color WARNING_COLOR = new Color(251, 191, 36);
-    private static final Color WARNING_HOVER = new Color(245, 158, 11);
+    private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
     private static final Color BACKGROUND = new Color(249, 250, 251);
     private static final Color CARD_BG = Color.WHITE;
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
@@ -19,36 +20,24 @@ public class AccountEditUI extends JDialog {
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
     
     // Form fields
-    private JTextField txtId;
-    private JTextField txtUsername;
-    private JTextField txtFullName;
-    private JPasswordField txtPassword;
-    private JComboBox<String> cmbRole;
+    private JComboBox<String> cmbSupplier;
+    private JComboBox<String> cmbEmployee;
+    private JTextField txtTotalAmount;
+    private JTextField txtDate;
+    private JTextArea txtNote;
     
-    private JButton btnUpdate;
+    private JButton btnSave;
     private JButton btnCancel;
-    
-    // Data
-    private int accountId;
-    private String currentUsername;
-    private String currentFullName;
-    private String currentRole;
 
-    public AccountEditUI(Frame parent, int id, String username, String fullName, String role) {
-        super(parent, "Sửa tài khoản", true);
-        this.accountId = id;
-        this.currentUsername = username;
-        this.currentFullName = fullName;
-        this.currentRole = role;
-        
+    public ImportAddDialog(Frame parent) {
+        super(parent, "Thêm phiếu nhập kho", true);
         initializeDialog();
         createComponents();
-        loadData();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(540, 580);
+        setSize(540, 680);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -72,7 +61,7 @@ public class AccountEditUI extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("✏️");
+        JLabel iconLabel = new JLabel("📥");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
         
         JPanel titlePanel = new JPanel();
@@ -80,11 +69,11 @@ public class AccountEditUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Sửa thông tin tài khoản");
+        JLabel titleLabel = new JLabel("Thêm phiếu nhập kho");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Cập nhật thông tin tài khoản #" + accountId);
+        JLabel subtitleLabel = new JLabel("Nhập thông tin phiếu nhập bên dưới");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -122,41 +111,45 @@ public class AccountEditUI extends JDialog {
         
         formCard.add(Box.createVerticalGlue());
 
-        // ID (readonly)
-        txtId = createTextField("");
-        txtId.setEditable(false);
-        txtId.setBackground(new Color(243, 244, 246));
-        formCard.add(createFormGroup("ID", txtId));
+        // Supplier
+        String[] suppliers = {"FPT Synnex", "Viettel Store", "CellphoneS B2B", "Anker Vietnam", "Baseus Official", "Ugreen Vietnam"};
+        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier = createComboBox(suppliers)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Username
-        formCard.add(createFormGroup("Tên đăng nhập", txtUsername = createTextField("Nhập tên đăng nhập...")));
+        // Employee
+        String[] employees = {"Admin", "Jerry"};
+        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee = createComboBox(employees)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Full Name
-        formCard.add(createFormGroup("Họ và tên", txtFullName = createTextField("Nhập họ và tên...")));
+        // Total Amount
+        formCard.add(createFormGroup("Tổng tiền", txtTotalAmount = createTextField("Nhập tổng tiền...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Password (optional for edit)
-        formCard.add(createFormGroup("Mật khẩu mới (để trống nếu không đổi)", txtPassword = createPasswordField("Nhập mật khẩu mới...")));
+        // Date
+        txtDate = createTextField("");
+        txtDate.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        formCard.add(createFormGroup("Ngày tạo", txtDate));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Role
-        String[] roles = {"Staff", "Admin"};
-        formCard.add(createFormGroup("Vai trò", cmbRole = createComboBox(roles)));
+        // Note
+        txtNote = new JTextArea(4, 20);
+        txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtNote.setLineWrap(true);
+        txtNote.setWrapStyleWord(true);
+        txtNote.setBorder(new EmptyBorder(10, 12, 10, 12));
+        
+        JScrollPane noteScroll = new JScrollPane(txtNote);
+        noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        noteScroll.setPreferredSize(new Dimension(0, 120));
+        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        
+        formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
         
         formCard.add(Box.createVerticalGlue());
         
         formWrapper.add(formCard, BorderLayout.CENTER);
         
         return formWrapper;
-    }
-    
-    private void loadData() {
-        txtId.setText(String.valueOf(accountId));
-        txtUsername.setText(currentUsername);
-        txtFullName.setText(currentFullName);
-        cmbRole.setSelectedItem(currentRole);
     }
 
     private JPanel createFormGroup(String label, JComponent field) {
@@ -178,6 +171,26 @@ public class AccountEditUI extends JDialog {
         
         return group;
     }
+    
+    private JPanel createFormGroupWithComponent(String label, JComponent component) {
+        JPanel group = new JPanel();
+        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+        group.setOpaque(false);
+        group.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lbl.setForeground(TEXT_PRIMARY);
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        component.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        group.add(lbl);
+        group.add(Box.createVerticalStrut(8));
+        group.add(component);
+        
+        return group;
+    }
 
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
@@ -185,48 +198,6 @@ public class AccountEditUI extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (getText().isEmpty() && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_SECONDARY);
-                    g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                    g2.drawString(placeholder, 12, 26);
-                    g2.dispose();
-                }
-            }
-        };
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        field.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
-        field.setBorder(new CompoundBorder(
-            new LineBorder(BORDER_COLOR, 1, true),
-            new EmptyBorder(5, 12, 5, 12)
-        ));
-        
-        field.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                if (field.isEditable()) {
-                    field.setBorder(new CompoundBorder(
-                        new LineBorder(PRIMARY_COLOR, 2, true),
-                        new EmptyBorder(4, 11, 4, 11)
-                    ));
-                }
-            }
-            public void focusLost(FocusEvent e) {
-                field.setBorder(new CompoundBorder(
-                    new LineBorder(BORDER_COLOR, 1, true),
-                    new EmptyBorder(5, 12, 5, 12)
-                ));
-            }
-        });
-        
-        return field;
-    }
-    
-    private JPasswordField createPasswordField(String placeholder) {
-        JPasswordField field = new JPasswordField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getPassword().length == 0 && !hasFocus()) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setColor(TEXT_SECONDARY);
                     g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -272,6 +243,7 @@ public class AccountEditUI extends JDialog {
             BorderFactory.createEmptyBorder(2, 8, 2, 8)
         ));
         combo.setFocusable(false);
+        // Custom UI to remove focus border
         combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -301,11 +273,11 @@ public class AccountEditUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateAccount());
+        btnSave = createButton("Lưu phiếu nhập", Color.WHITE, PRIMARY_COLOR, false);
+        btnSave.addActionListener(e -> saveImport());
         
         footer.add(btnCancel);
-        footer.add(btnUpdate);
+        footer.add(btnSave);
         
         return footer;
     }
@@ -323,7 +295,7 @@ public class AccountEditUI extends JDialog {
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 } else {
-                    g2.setColor(getModel().isRollover() ? WARNING_HOVER : bgColor);
+                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                 }
                 
@@ -334,7 +306,7 @@ public class AccountEditUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 160, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -342,25 +314,18 @@ public class AccountEditUI extends JDialog {
         
         return button;
     }
-    
-    private void updateAccount() {
-        String username = txtUsername.getText().trim();
-        String fullName = txtFullName.getText().trim();
-        String role = (String) cmbRole.getSelectedItem();
-        
-        if (username.isEmpty() || fullName.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "Vui lòng nhập đầy đủ thông tin!",
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+
+    private void saveImport() {
+        if (txtTotalAmount.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập tổng tiền!");
+            txtTotalAmount.requestFocus();
             return;
         }
-        
-        // TODO: Update in database
-        JOptionPane.showMessageDialog(this,
-            "Cập nhật tài khoản thành công!\n\nUsername: " + username + "\nHọ tên: " + fullName + "\nVai trò: " + role,
-            "Thành công",
-            JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Thêm phiếu nhập thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
         dispose();
+    }
+    
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
 }

@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class CategoryEditUI extends JDialog {
+public class CategoryEditDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -30,7 +30,7 @@ public class CategoryEditUI extends JDialog {
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public CategoryEditUI(Frame parent, int id, String name) {
+    public CategoryEditDialog(Frame parent, int id, String name) {
         super(parent, "Sửa danh mục", true);
         this.categoryId = id;
         this.categoryName = name;

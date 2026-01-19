@@ -2,6 +2,9 @@ package ui;
 
 import javax.swing.*;
 import javax.swing.border.*;
+
+import static utils.ColorUtil.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import com.formdev.flatlaf.FlatLightLaf; 
@@ -20,9 +23,7 @@ import ui.imei.ImeiPanel;
 import ui.logs.LogsPanel;
 import ui.statistics.StatisticsPanel;
 
-import static ui.UIColor.*;
-
-public class MainUI extends JFrame {
+public class MainFrame extends JFrame {
     
     // Components
     private JPanel sidebarPanel;
@@ -59,7 +60,7 @@ public class MainUI extends JFrame {
         new Color(158, 158, 158)   // Logs - Gray
     };
     
-    public MainUI() {
+    public MainFrame() {
         initializeFrame();
         createComponents();
         setVisible(true);
@@ -382,6 +383,6 @@ public class MainUI extends JFrame {
             e.printStackTrace();
         }
         
-        SwingUtilities.invokeLater(() -> new MainUI());
+        SwingUtilities.invokeLater(() -> new MainFrame());
     }
 }

@@ -1,4 +1,4 @@
-package ui.category;
+package ui.supplier;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class CategoryAddUI extends JDialog {
+public class SupplierEditDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -16,29 +16,41 @@ public class CategoryAddUI extends JDialog {
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
+    private static final Color WARNING_COLOR = new Color(251, 191, 36);
     
     // Form fields
+    private JTextField txtId;
     private JTextField txtName;
-    private JTextArea txtDescription;
+    private JTextField txtPhone;
+    private JTextField txtEmail;
+    private JTextArea txtAddress;
     
-    private JButton btnSave;
+    // Data
+    private int supplierId;
+    private String supplierName;
+    
+    private JButton btnUpdate;
     private JButton btnCancel;
-
-    public CategoryAddUI(Frame parent) {
-        super(parent, "Thêm danh mục", true);
+    
+    public SupplierEditDialog(Frame parent, int id, String name) {
+        super(parent, "Sửa nhà cung cấp", true);
+        this.supplierId = id;
+        this.supplierName = name;
+        
         initializeDialog();
         createComponents();
+        loadData();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(480, 450);
+        setSize(540, 680);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND);
     }
-
+    
     private void createComponents() {
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
@@ -47,7 +59,7 @@ public class CategoryAddUI extends JDialog {
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
-
+    
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
@@ -56,7 +68,7 @@ public class CategoryAddUI extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("📂");
+        JLabel iconLabel = new JLabel("✏️");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
         
         JPanel titlePanel = new JPanel();
@@ -64,11 +76,11 @@ public class CategoryAddUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Thêm danh mục");
+        JLabel titleLabel = new JLabel("Sửa nhà cung cấp");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin danh mục bên dưới");
+        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin nhà cung cấp #" + supplierId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -82,6 +94,7 @@ public class CategoryAddUI extends JDialog {
         leftSection.add(titlePanel);
         
         header.add(leftSection, BorderLayout.WEST);
+        
         return header;
     }
     
@@ -105,24 +118,39 @@ public class CategoryAddUI extends JDialog {
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
         formCard.add(Box.createVerticalGlue());
-
-        // Name
-        formCard.add(createFormGroup("Tên danh mục", txtName = createTextField("Nhập tên danh mục...")));
+        
+        // ID (readonly)
+        txtId = createTextField("");
+        txtId.setEditable(false);
+        txtId.setBackground(new Color(243, 244, 246));
+        formCard.add(createFormGroup("ID nhà cung cấp", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description
-        txtDescription = new JTextArea(4, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
+        // Name
+        formCard.add(createFormGroup("Tên nhà cung cấp", txtName = createTextField("Nhập tên nhà cung cấp...")));
+        formCard.add(Box.createVerticalStrut(18));
         
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 100));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        // Phone
+        formCard.add(createFormGroup("Số điện thoại", txtPhone = createTextField("Nhập số điện thoại...")));
+        formCard.add(Box.createVerticalStrut(18));
         
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
+        // Email
+        formCard.add(createFormGroup("Email", txtEmail = createTextField("Nhập email...")));
+        formCard.add(Box.createVerticalStrut(18));
+        
+        // Address
+        txtAddress = new JTextArea(4, 20);
+        txtAddress.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtAddress.setLineWrap(true);
+        txtAddress.setWrapStyleWord(true);
+        txtAddress.setBorder(new EmptyBorder(10, 12, 10, 12));
+        
+        JScrollPane addressScroll = new JScrollPane(txtAddress);
+        addressScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        addressScroll.setPreferredSize(new Dimension(0, 100));
+        addressScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        
+        formCard.add(createFormGroupWithComponent("Địa chỉ (tùy chọn)", addressScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -130,7 +158,12 @@ public class CategoryAddUI extends JDialog {
         
         return formWrapper;
     }
-
+    
+    private void loadData() {
+        txtId.setText(String.valueOf(supplierId));
+        txtName.setText(supplierName);
+    }
+    
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -170,7 +203,7 @@ public class CategoryAddUI extends JDialog {
         
         return group;
     }
-
+    
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
@@ -219,11 +252,11 @@ public class CategoryAddUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu danh mục", Color.WHITE, PRIMARY_COLOR, false);
-        btnSave.addActionListener(e -> saveCategory());
+        btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
+        btnUpdate.addActionListener(e -> updateSupplier());
         
         footer.add(btnCancel);
-        footer.add(btnSave);
+        footer.add(btnUpdate);
         
         return footer;
     }
@@ -241,7 +274,12 @@ public class CategoryAddUI extends JDialog {
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 } else {
-                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
+                    Color hoverColor = new Color(
+                        Math.min(bgColor.getRed() + 20, 255),
+                        Math.min(bgColor.getGreen() + 20, 255),
+                        Math.min(bgColor.getBlue() + 20, 255)
+                    );
+                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                 }
                 
@@ -252,7 +290,7 @@ public class CategoryAddUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 150, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -260,14 +298,18 @@ public class CategoryAddUI extends JDialog {
         
         return button;
     }
-
-    private void saveCategory() {
+    
+    private void updateSupplier() {
         if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên danh mục!");
+            showError("Vui lòng nhập tên nhà cung cấp!");
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        
+        JOptionPane.showMessageDialog(this, 
+            "Cập nhật nhà cung cấp thành công!", 
+            "Thành công", 
+            JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
     

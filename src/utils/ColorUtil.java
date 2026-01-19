@@ -1,7 +1,7 @@
-package ui;
+package utils;
 
 import java.awt.Color;
-public class UIColor {
+public class ColorUtil {
     
     // Colors - Modern Dark Theme
     public static final Color PRIMARY_COLOR = new Color(45, 55, 72);
@@ -22,5 +22,5 @@ public class UIColor {
     public static final Color GREEN = new Color(22, 186, 44);
     
     // Prevent instantiation
-    private UIColor() {}
+    private ColorUtil() {}
 }

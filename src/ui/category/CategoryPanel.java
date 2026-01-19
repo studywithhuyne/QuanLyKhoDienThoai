@@ -2,12 +2,12 @@ package ui.category;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý Danh mục sản phẩm
  */
-public class CategoryPanel extends DataPanel {
+public class CategoryPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Tên danh mục"};
     private static final Object[][] DATA = {

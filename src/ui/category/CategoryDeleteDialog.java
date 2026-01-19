@@ -1,11 +1,12 @@
-package ui.product;
+package ui.category;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 
-public class ProductDeleteUI extends JDialog {
+public class CategoryDeleteDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color BACKGROUND = new Color(249, 250, 251);
@@ -17,19 +18,18 @@ public class ProductDeleteUI extends JDialog {
     private static final Color DANGER_HOVER = new Color(220, 38, 38);
     private static final Color DANGER_BG = new Color(254, 242, 242);
     
-    // Product data
-    private int productId;
-    private String productName;
+    // Data
+    private int categoryId;
+    private String categoryName;
     private boolean confirmed = false;
     
-    // Buttons
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public ProductDeleteUI(Frame parent, int id, String name) {
+    public CategoryDeleteDialog(Frame parent, int id, String name) {
         super(parent, "Xác nhận xóa", true);
-        this.productId = id;
-        this.productName = name;
+        this.categoryId = id;
+        this.categoryName = name;
         
         initializeDialog();
         createComponents();
@@ -47,7 +47,6 @@ public class ProductDeleteUI extends JDialog {
     private void createComponents() {
         JPanel contentPanel = createContent();
         add(contentPanel, BorderLayout.CENTER);
-        
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
@@ -57,38 +56,48 @@ public class ProductDeleteUI extends JDialog {
         wrapper.setBackground(BACKGROUND);
         wrapper.setBorder(new EmptyBorder(15, 30, 10, 30));
         
-        JPanel card = new JPanel();
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_BG);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
+                g2.dispose();
+            }
+        };
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(CARD_BG);
-        card.setBorder(new CompoundBorder(
-            new LineBorder(BORDER_COLOR, 1, true),
-            new EmptyBorder(30, 30, 30, 30)
-        ));
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(30, 30, 30, 30));
         
         card.add(Box.createVerticalGlue());
         
-        // Warning icon với background tròn
-        JPanel iconPanel = new JPanel();
-        iconPanel.setBackground(DANGER_BG);
-        iconPanel.setPreferredSize(new Dimension(70, 70));
-        iconPanel.setMaximumSize(new Dimension(70, 70));
-        iconPanel.setMinimumSize(new Dimension(70, 70));
-        iconPanel.setLayout(new GridBagLayout());
-        iconPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        JLabel iconLabel = new JLabel("⚠");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        iconLabel.setForeground(DANGER_COLOR);
-        iconPanel.add(iconLabel);
+        // Warning icon
+        JLabel iconLabel = new JLabel("⚠") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(DANGER_BG);
+                g2.fillOval(0, 0, getWidth(), getHeight());
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 25));
+        iconLabel.setPreferredSize(new Dimension(70, 70));
+        iconLabel.setMaximumSize(new Dimension(70, 70));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa sản phẩm?");
+        JLabel titleLabel = new JLabel("Xóa danh mục?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa sản phẩm<br><b>\"" + productName + "\"</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa danh mục<br><b>\"" + categoryName + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -100,7 +109,7 @@ public class ProductDeleteUI extends JDialog {
         warningLabel.setForeground(DANGER_COLOR);
         warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        card.add(iconPanel);
+        card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(titleLabel);
         card.add(Box.createVerticalStrut(12));
@@ -126,8 +135,8 @@ public class ProductDeleteUI extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa sản phẩm", Color.WHITE, DANGER_COLOR, false);
-        btnDelete.addActionListener(e -> deleteProduct());
+        btnDelete = createButton("Xóa danh mục", Color.WHITE, DANGER_COLOR, false);
+        btnDelete.addActionListener(e -> deleteCategory());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -136,42 +145,42 @@ public class ProductDeleteUI extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text);
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (isOutline) {
+                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                    g2.setColor(BORDER_COLOR);
+                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
+                } else {
+                    g2.setColor(getModel().isRollover() ? DANGER_HOVER : bgColor);
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                }
+                
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 110 : 150, 44));
+        button.setBorderPainted(false);
         button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true);
-        
-        if (isOutline) {
-            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        } else {
-            button.setBorder(new EmptyBorder(8, 16, 8, 16));
-            button.setBorderPainted(false);
-        }
-        
-        // Hover effect
-        Color hoverColor = isOutline ? new Color(243, 244, 246) : DANGER_HOVER;
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(hoverColor);
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(bgColor);
-            }
-        });
         
         return button;
     }
     
-    private void deleteProduct() {
+    private void deleteCategory() {
         confirmed = true;
         JOptionPane.showMessageDialog(this, 
-            "Xóa sản phẩm thành công!", 
+            "Xóa danh mục thành công!", 
             "Thành công", 
             JOptionPane.INFORMATION_MESSAGE);
         dispose();
@@ -179,9 +188,5 @@ public class ProductDeleteUI extends JDialog {
     
     public boolean isConfirmed() {
         return confirmed;
-    }
-    
-    public int getProductId() {
-        return productId;
     }
 }

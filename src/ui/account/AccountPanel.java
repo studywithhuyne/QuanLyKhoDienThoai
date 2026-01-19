@@ -2,12 +2,12 @@ package ui.account;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý Tài khoản
  */
-public class AccountPanel extends DataPanel {
+public class AccountPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Username", "Họ tên", "Vai trò", "Ngày tạo"};
     private static final Object[][] DATA = {

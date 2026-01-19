@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class BrandAddUI extends JDialog {
+public class BrandEditDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -16,29 +16,39 @@ public class BrandAddUI extends JDialog {
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
+    private static final Color WARNING_COLOR = new Color(251, 191, 36);
     
     // Form fields
+    private JTextField txtId;
     private JTextField txtName;
     private JTextArea txtDescription;
     
-    private JButton btnSave;
+    // Data
+    private int brandId;
+    private String brandName;
+    
+    private JButton btnUpdate;
     private JButton btnCancel;
-
-    public BrandAddUI(Frame parent) {
-        super(parent, "Thêm thương hiệu", true);
+    
+    public BrandEditDialog(Frame parent, int id, String name) {
+        super(parent, "Sửa thương hiệu", true);
+        this.brandId = id;
+        this.brandName = name;
+        
         initializeDialog();
         createComponents();
+        loadData();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(480, 450);
+        setSize(480, 500);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND);
     }
-
+    
     private void createComponents() {
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
@@ -47,7 +57,7 @@ public class BrandAddUI extends JDialog {
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
-
+    
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
@@ -56,7 +66,7 @@ public class BrandAddUI extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("🏷️");
+        JLabel iconLabel = new JLabel("✏️");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
         
         JPanel titlePanel = new JPanel();
@@ -64,11 +74,11 @@ public class BrandAddUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Thêm thương hiệu");
+        JLabel titleLabel = new JLabel("Sửa thương hiệu");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin thương hiệu bên dưới");
+        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin thương hiệu #" + brandId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -82,6 +92,7 @@ public class BrandAddUI extends JDialog {
         leftSection.add(titlePanel);
         
         header.add(leftSection, BorderLayout.WEST);
+        
         return header;
     }
     
@@ -105,7 +116,14 @@ public class BrandAddUI extends JDialog {
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
         formCard.add(Box.createVerticalGlue());
-
+        
+        // ID (readonly)
+        txtId = createTextField("");
+        txtId.setEditable(false);
+        txtId.setBackground(new Color(243, 244, 246));
+        formCard.add(createFormGroup("ID thương hiệu", txtId));
+        formCard.add(Box.createVerticalStrut(18));
+        
         // Name
         formCard.add(createFormGroup("Tên thương hiệu", txtName = createTextField("Nhập tên thương hiệu...")));
         formCard.add(Box.createVerticalStrut(18));
@@ -130,7 +148,12 @@ public class BrandAddUI extends JDialog {
         
         return formWrapper;
     }
-
+    
+    private void loadData() {
+        txtId.setText(String.valueOf(brandId));
+        txtName.setText(brandName);
+    }
+    
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -170,7 +193,7 @@ public class BrandAddUI extends JDialog {
         
         return group;
     }
-
+    
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
@@ -219,11 +242,11 @@ public class BrandAddUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu thương hiệu", Color.WHITE, PRIMARY_COLOR, false);
-        btnSave.addActionListener(e -> saveBrand());
+        btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
+        btnUpdate.addActionListener(e -> updateBrand());
         
         footer.add(btnCancel);
-        footer.add(btnSave);
+        footer.add(btnUpdate);
         
         return footer;
     }
@@ -241,7 +264,12 @@ public class BrandAddUI extends JDialog {
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 } else {
-                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
+                    Color hoverColor = new Color(
+                        Math.min(bgColor.getRed() + 20, 255),
+                        Math.min(bgColor.getGreen() + 20, 255),
+                        Math.min(bgColor.getBlue() + 20, 255)
+                    );
+                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                 }
                 
@@ -252,7 +280,7 @@ public class BrandAddUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 160, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -260,14 +288,18 @@ public class BrandAddUI extends JDialog {
         
         return button;
     }
-
-    private void saveBrand() {
+    
+    private void updateBrand() {
         if (txtName.getText().trim().isEmpty()) {
             showError("Vui lòng nhập tên thương hiệu!");
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm thương hiệu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        
+        JOptionPane.showMessageDialog(this, 
+            "Cập nhật thương hiệu thành công!", 
+            "Thành công", 
+            JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
     

@@ -4,15 +4,17 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import static utils.ColorUtil.*;
+
 import java.awt.*;
 
-import ui.Searchable;
-import static ui.UIColor.*;
+import ui.ISearchable;
 
 /**
  * Panel quản lý Logs - Chỉ xem, không có chức năng thêm/sửa/xóa
  */
-public class LogsPanel extends JPanel implements Searchable {
+public class LogsPanel extends JPanel implements ISearchable {
     
     private JFrame parentFrame;
     private JTable logsTable;

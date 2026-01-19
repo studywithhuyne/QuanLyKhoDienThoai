@@ -4,15 +4,16 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import static utils.ColorUtil.*;
+
 import java.awt.*;
 import java.awt.event.*;
-
-import static ui.UIColor.*;
 
 /**
  * Base Panel cho các màn hình quản lý dữ liệu với bảng
  */
-public class DataPanel extends JPanel implements Searchable {
+public class BasePanel extends JPanel implements ISearchable {
     
     protected JFrame parentFrame;
     protected JTable dataTable;
@@ -22,7 +23,7 @@ public class DataPanel extends JPanel implements Searchable {
     protected String[] columns;
     protected Object[][] data;
     
-    public DataPanel(JFrame parentFrame, String title, String[] columns, Object[][] data) {
+    public BasePanel(JFrame parentFrame, String title, String[] columns, Object[][] data) {
         this.parentFrame = parentFrame;
         this.title = title;
         this.columns = columns;

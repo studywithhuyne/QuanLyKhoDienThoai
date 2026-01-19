@@ -2,12 +2,12 @@ package ui.imei;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý IMEI (International Mobile Equipment Identity)
  */
-public class ImeiPanel extends DataPanel {
+public class ImeiPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "IMEI", "SKU", "Sản phẩm", "Trạng thái", "Ngày nhập"};
     private static final Object[][] DATA = {

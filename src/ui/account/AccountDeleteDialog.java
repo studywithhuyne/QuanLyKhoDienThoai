@@ -1,35 +1,31 @@
-package ui.category;
+package ui.account;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class CategoryDeleteUI extends JDialog {
+public class AccountDeleteDialog extends JDialog {
     
     // Colors - Modern Theme
+    private static final Color DANGER_COLOR = new Color(239, 68, 68);
+    private static final Color DANGER_HOVER = new Color(220, 38, 38);
     private static final Color BACKGROUND = new Color(249, 250, 251);
     private static final Color CARD_BG = Color.WHITE;
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
-    private static final Color DANGER_HOVER = new Color(220, 38, 38);
-    private static final Color DANGER_BG = new Color(254, 242, 242);
-    
-    // Data
-    private int categoryId;
-    private String categoryName;
-    private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public CategoryDeleteUI(Frame parent, int id, String name) {
-        super(parent, "Xác nhận xóa", true);
-        this.categoryId = id;
-        this.categoryName = name;
+    private int accountId;
+    private String accountUsername;
+
+    public AccountDeleteDialog(Frame parent, int id, String username) {
+        super(parent, "Xóa tài khoản", true);
+        this.accountId = id;
+        this.accountUsername = username;
         
         initializeDialog();
         createComponents();
@@ -37,26 +33,26 @@ public class CategoryDeleteUI extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(460, 380);
+        setSize(450, 320);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND);
     }
-    
+
     private void createComponents() {
         JPanel contentPanel = createContent();
         add(contentPanel, BorderLayout.CENTER);
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
-    
+
     private JPanel createContent() {
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(BACKGROUND);
-        wrapper.setBorder(new EmptyBorder(15, 30, 10, 30));
+        JPanel contentWrapper = new JPanel(new BorderLayout());
+        contentWrapper.setBackground(BACKGROUND);
+        contentWrapper.setBorder(new EmptyBorder(30, 30, 20, 30));
         
-        JPanel card = new JPanel() {
+        JPanel contentCard = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -66,77 +62,61 @@ public class CategoryDeleteUI extends JDialog {
                 g2.dispose();
             }
         };
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setOpaque(false);
-        card.setBorder(new EmptyBorder(30, 30, 30, 30));
+        contentCard.setLayout(new BoxLayout(contentCard, BoxLayout.Y_AXIS));
+        contentCard.setOpaque(false);
+        contentCard.setBorder(new EmptyBorder(30, 30, 30, 30));
         
-        card.add(Box.createVerticalGlue());
-        
-        // Warning icon
-        JLabel iconLabel = new JLabel("⚠") {
+        // Warning Icon
+        JLabel iconLabel = new JLabel("⚠️") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DANGER_BG);
-                g2.fillOval(0, 0, getWidth(), getHeight());
+                g2.setColor(new Color(DANGER_COLOR.getRed(), DANGER_COLOR.getGreen(), DANGER_COLOR.getBlue(), 30));
+                g2.fillOval(10, 0, 60, 60);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 25));
-        iconLabel.setPreferredSize(new Dimension(70, 70));
-        iconLabel.setMaximumSize(new Dimension(70, 70));
-        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        iconLabel.setPreferredSize(new Dimension(80, 60));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa danh mục?");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel titleLabel = new JLabel("Xác nhận xóa tài khoản?");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa danh mục<br><b>\"" + categoryName + "\"</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa tài khoản<br><b>\"" + accountUsername + "\"</b> (ID: " + accountId + ")?<br>Hành động này không thể hoàn tác.</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY);
-        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        // Warning text
-        JLabel warningLabel = new JLabel("Hành động này không thể hoàn tác!");
-        warningLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        warningLabel.setForeground(DANGER_COLOR);
-        warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentCard.add(iconLabel);
+        contentCard.add(Box.createVerticalStrut(15));
+        contentCard.add(titleLabel);
+        contentCard.add(Box.createVerticalStrut(12));
+        contentCard.add(messageLabel);
         
-        card.add(iconLabel);
-        card.add(Box.createVerticalStrut(20));
-        card.add(titleLabel);
-        card.add(Box.createVerticalStrut(12));
-        card.add(messageLabel);
-        card.add(Box.createVerticalStrut(15));
-        card.add(warningLabel);
+        contentWrapper.add(contentCard, BorderLayout.CENTER);
         
-        card.add(Box.createVerticalGlue());
-        
-        wrapper.add(card, BorderLayout.CENTER);
-        
-        return wrapper;
+        return contentWrapper;
     }
     
     private JPanel createFooter() {
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
         footer.setBackground(BACKGROUND);
-        footer.setBorder(new EmptyBorder(0, 30, 30, 30));
+        footer.setBorder(new EmptyBorder(0, 30, 25, 30));
         
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
-        btnCancel.addActionListener(e -> {
-            confirmed = false;
-            dispose();
-        });
+        btnCancel.addActionListener(e -> dispose());
         
-        btnDelete = createButton("Xóa danh mục", Color.WHITE, DANGER_COLOR, false);
-        btnDelete.addActionListener(e -> deleteCategory());
+        btnDelete = createButton("Xóa tài khoản", Color.WHITE, DANGER_COLOR, false);
+        btnDelete.addActionListener(e -> deleteAccount());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -168,7 +148,7 @@ public class CategoryDeleteUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 110 : 150, 44));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -177,16 +157,12 @@ public class CategoryDeleteUI extends JDialog {
         return button;
     }
     
-    private void deleteCategory() {
-        confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa danh mục thành công!", 
-            "Thành công", 
+    private void deleteAccount() {
+        // TODO: Delete from database
+        JOptionPane.showMessageDialog(this,
+            "Đã xóa tài khoản \"" + accountUsername + "\" thành công!",
+            "Thành công",
             JOptionPane.INFORMATION_MESSAGE);
         dispose();
-    }
-    
-    public boolean isConfirmed() {
-        return confirmed;
     }
 }
