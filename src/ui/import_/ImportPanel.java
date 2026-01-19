@@ -2,12 +2,12 @@ package ui.import_;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý Phiếu nhập hàng
  */
-public class ImportPanel extends DataPanel {
+public class ImportPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Nhà cung cấp", "Nhân viên", "Tổng tiền", "Ngày tạo"};
     private static final Object[][] DATA = {

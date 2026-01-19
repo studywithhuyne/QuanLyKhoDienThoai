@@ -1,4 +1,4 @@
-package ui.supplier;
+package ui.category;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class SupplierAddUI extends JDialog {
+public class CategoryAddDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -19,22 +19,20 @@ public class SupplierAddUI extends JDialog {
     
     // Form fields
     private JTextField txtName;
-    private JTextField txtPhone;
-    private JTextField txtEmail;
-    private JTextArea txtAddress;
+    private JTextArea txtDescription;
     
     private JButton btnSave;
     private JButton btnCancel;
 
-    public SupplierAddUI(Frame parent) {
-        super(parent, "Thêm nhà cung cấp", true);
+    public CategoryAddDialog(Frame parent) {
+        super(parent, "Thêm danh mục", true);
         initializeDialog();
         createComponents();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(540, 620);
+        setSize(480, 450);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -58,7 +56,7 @@ public class SupplierAddUI extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("🏭");
+        JLabel iconLabel = new JLabel("📂");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
         
         JPanel titlePanel = new JPanel();
@@ -66,11 +64,11 @@ public class SupplierAddUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Thêm nhà cung cấp");
+        JLabel titleLabel = new JLabel("Thêm danh mục");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin nhà cung cấp bên dưới");
+        JLabel subtitleLabel = new JLabel("Nhập thông tin danh mục bên dưới");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -109,30 +107,22 @@ public class SupplierAddUI extends JDialog {
         formCard.add(Box.createVerticalGlue());
 
         // Name
-        formCard.add(createFormGroup("Tên nhà cung cấp", txtName = createTextField("Nhập tên nhà cung cấp...")));
+        formCard.add(createFormGroup("Tên danh mục", txtName = createTextField("Nhập tên danh mục...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Phone
-        formCard.add(createFormGroup("Số điện thoại", txtPhone = createTextField("Nhập số điện thoại...")));
-        formCard.add(Box.createVerticalStrut(18));
+        // Description
+        txtDescription = new JTextArea(4, 20);
+        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtDescription.setLineWrap(true);
+        txtDescription.setWrapStyleWord(true);
+        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
         
-        // Email
-        formCard.add(createFormGroup("Email", txtEmail = createTextField("Nhập email...")));
-        formCard.add(Box.createVerticalStrut(18));
+        JScrollPane descScroll = new JScrollPane(txtDescription);
+        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        descScroll.setPreferredSize(new Dimension(0, 100));
+        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         
-        // Address
-        txtAddress = new JTextArea(4, 20);
-        txtAddress.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtAddress.setLineWrap(true);
-        txtAddress.setWrapStyleWord(true);
-        txtAddress.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane addressScroll = new JScrollPane(txtAddress);
-        addressScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        addressScroll.setPreferredSize(new Dimension(0, 120));
-        addressScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        
-        formCard.add(createFormGroupWithComponent("Địa chỉ (tùy chọn)", addressScroll));
+        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -229,8 +219,8 @@ public class SupplierAddUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu nhà cung cấp", Color.WHITE, PRIMARY_COLOR, false);
-        btnSave.addActionListener(e -> saveSupplier());
+        btnSave = createButton("Lưu danh mục", Color.WHITE, PRIMARY_COLOR, false);
+        btnSave.addActionListener(e -> saveCategory());
         
         footer.add(btnCancel);
         footer.add(btnSave);
@@ -262,7 +252,7 @@ public class SupplierAddUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 170, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 150, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -271,13 +261,13 @@ public class SupplierAddUI extends JDialog {
         return button;
     }
 
-    private void saveSupplier() {
+    private void saveCategory() {
         if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên nhà cung cấp!");
+            showError("Vui lòng nhập tên danh mục!");
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm nhà cung cấp thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Thêm danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
     

@@ -4,18 +4,20 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import static utils.ColorUtil.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
 import dao.ProductDAO;
-import ui.Searchable;
-import static ui.UIColor.*;
+import ui.ISearchable;
 
 /**
  * Panel quản lý Sản phẩm
  */
-public class ProductPanel extends JPanel implements Searchable {
+public class ProductPanel extends JPanel implements ISearchable {
     
     private JFrame parentFrame;
     private JTable productTable;
@@ -50,7 +52,7 @@ public class ProductPanel extends JPanel implements Searchable {
         JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
         
         // Add button action
-        addBtn.addActionListener(e -> new ProductAddUI(parentFrame));
+        addBtn.addActionListener(e -> new ProductAddDialog(parentFrame));
         
         // Edit button action
         editBtn.addActionListener(e -> {
@@ -64,7 +66,7 @@ public class ProductPanel extends JPanel implements Searchable {
             String name = (String) tableModel.getValueAt(modelRow, 1);
             String brand = (String) tableModel.getValueAt(modelRow, 2);
             String category = (String) tableModel.getValueAt(modelRow, 3);
-            new ProductEditUI(parentFrame, id, name, brand, category);
+            new ProductEditDialog(parentFrame, id, name, brand, category);
         });
         
         // Delete button action
@@ -77,7 +79,7 @@ public class ProductPanel extends JPanel implements Searchable {
             int modelRow = productTable.convertRowIndexToModel(selectedRow);
             int id = (int) tableModel.getValueAt(modelRow, 0);
             String name = (String) tableModel.getValueAt(modelRow, 1);
-            new ProductDeleteUI(parentFrame, id, name);
+            new ProductDeleteDialog(parentFrame, id, name);
         });
         
         // Refresh button action
@@ -215,7 +217,7 @@ public class ProductPanel extends JPanel implements Searchable {
         JMenuItem menuEdit = createMenuItem("✏️ Sửa", WARNING_COLOR);
         JMenuItem menuDelete = createMenuItem("🗑️ Xóa", DANGER_COLOR);
         
-        menuAdd.addActionListener(e -> new ProductAddUI(parentFrame));
+        menuAdd.addActionListener(e -> new ProductAddDialog(parentFrame));
         
         menuEdit.addActionListener(e -> {
             int selectedRow = productTable.getSelectedRow();
@@ -228,7 +230,7 @@ public class ProductPanel extends JPanel implements Searchable {
             String name = (String) tableModel.getValueAt(modelRow, 1);
             String brand = (String) tableModel.getValueAt(modelRow, 2);
             String category = (String) tableModel.getValueAt(modelRow, 3);
-            new ProductEditUI(parentFrame, id, name, brand, category);
+            new ProductEditDialog(parentFrame, id, name, brand, category);
         });
         
         menuDelete.addActionListener(e -> {
@@ -240,7 +242,7 @@ public class ProductPanel extends JPanel implements Searchable {
             int modelRow = productTable.convertRowIndexToModel(selectedRow);
             int id = (int) tableModel.getValueAt(modelRow, 0);
             String name = (String) tableModel.getValueAt(modelRow, 1);
-            new ProductDeleteUI(parentFrame, id, name);
+            new ProductDeleteDialog(parentFrame, id, name);
         });
         
         contextMenu.add(menuAdd);

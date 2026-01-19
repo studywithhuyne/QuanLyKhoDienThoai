@@ -5,10 +5,8 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class SalesAddUI extends JDialog {
+public class SalesEditDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -18,31 +16,45 @@ public class SalesAddUI extends JDialog {
     private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
     private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
     private static final Color BORDER_COLOR = new Color(229, 231, 235);
+    private static final Color WARNING_COLOR = new Color(251, 191, 36);
     
     // Form fields
+    private JTextField txtId;
     private JComboBox<String> cmbEmployee;
     private JTextField txtTotalAmount;
     private JTextField txtDate;
     private JTextArea txtNote;
     
-    private JButton btnSave;
+    // Data
+    private int salesId;
+    private String employee;
+    private String totalAmount;
+    private String date;
+    
+    private JButton btnUpdate;
     private JButton btnCancel;
-
-    public SalesAddUI(Frame parent) {
-        super(parent, "Thêm hóa đơn bán hàng", true);
+    
+    public SalesEditDialog(Frame parent, int id, String employee, String totalAmount, String date) {
+        super(parent, "Sửa hóa đơn bán hàng", true);
+        this.salesId = id;
+        this.employee = employee;
+        this.totalAmount = totalAmount;
+        this.date = date;
+        
         initializeDialog();
         createComponents();
+        loadData();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(540, 620);
+        setSize(540, 680);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND);
     }
-
+    
     private void createComponents() {
         JPanel headerPanel = createHeader();
         add(headerPanel, BorderLayout.NORTH);
@@ -51,7 +63,7 @@ public class SalesAddUI extends JDialog {
         JPanel footerPanel = createFooter();
         add(footerPanel, BorderLayout.SOUTH);
     }
-
+    
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
@@ -60,7 +72,7 @@ public class SalesAddUI extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("🛒");
+        JLabel iconLabel = new JLabel("✏️");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
         
         JPanel titlePanel = new JPanel();
@@ -68,11 +80,11 @@ public class SalesAddUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Thêm hóa đơn bán hàng");
+        JLabel titleLabel = new JLabel("Sửa hóa đơn bán hàng");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin hóa đơn bên dưới");
+        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin hóa đơn #" + salesId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -86,6 +98,7 @@ public class SalesAddUI extends JDialog {
         leftSection.add(titlePanel);
         
         header.add(leftSection, BorderLayout.WEST);
+        
         return header;
     }
     
@@ -109,7 +122,14 @@ public class SalesAddUI extends JDialog {
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
         formCard.add(Box.createVerticalGlue());
-
+        
+        // ID (readonly)
+        txtId = createTextField("");
+        txtId.setEditable(false);
+        txtId.setBackground(new Color(243, 244, 246));
+        formCard.add(createFormGroup("ID hóa đơn", txtId));
+        formCard.add(Box.createVerticalStrut(18));
+        
         // Employee
         String[] employees = {"Admin", "Jerry"};
         formCard.add(createFormGroup("Nhân viên bán", cmbEmployee = createComboBox(employees)));
@@ -120,9 +140,7 @@ public class SalesAddUI extends JDialog {
         formCard.add(Box.createVerticalStrut(18));
         
         // Date
-        txtDate = createTextField("");
-        txtDate.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
-        formCard.add(createFormGroup("Ngày tạo", txtDate));
+        formCard.add(createFormGroup("Ngày tạo", txtDate = createTextField("dd/MM/yyyy")));
         formCard.add(Box.createVerticalStrut(18));
         
         // Note
@@ -134,8 +152,8 @@ public class SalesAddUI extends JDialog {
         
         JScrollPane noteScroll = new JScrollPane(txtNote);
         noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        noteScroll.setPreferredSize(new Dimension(0, 120));
-        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        noteScroll.setPreferredSize(new Dimension(0, 100));
+        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         
         formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
         
@@ -145,7 +163,14 @@ public class SalesAddUI extends JDialog {
         
         return formWrapper;
     }
-
+    
+    private void loadData() {
+        txtId.setText(String.valueOf(salesId));
+        cmbEmployee.setSelectedItem(employee);
+        txtTotalAmount.setText(totalAmount);
+        txtDate.setText(date);
+    }
+    
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -185,7 +210,7 @@ public class SalesAddUI extends JDialog {
         
         return group;
     }
-
+    
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
@@ -237,7 +262,6 @@ public class SalesAddUI extends JDialog {
             BorderFactory.createEmptyBorder(2, 8, 2, 8)
         ));
         combo.setFocusable(false);
-        // Custom UI to remove focus border
         combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -267,11 +291,11 @@ public class SalesAddUI extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu hóa đơn", Color.WHITE, PRIMARY_COLOR, false);
-        btnSave.addActionListener(e -> saveSales());
+        btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
+        btnUpdate.addActionListener(e -> updateSales());
         
         footer.add(btnCancel);
-        footer.add(btnSave);
+        footer.add(btnUpdate);
         
         return footer;
     }
@@ -289,7 +313,12 @@ public class SalesAddUI extends JDialog {
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 } else {
-                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
+                    Color hoverColor = new Color(
+                        Math.min(bgColor.getRed() + 20, 255),
+                        Math.min(bgColor.getGreen() + 20, 255),
+                        Math.min(bgColor.getBlue() + 20, 255)
+                    );
+                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                 }
                 
@@ -300,7 +329,7 @@ public class SalesAddUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 160, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -308,14 +337,18 @@ public class SalesAddUI extends JDialog {
         
         return button;
     }
-
-    private void saveSales() {
+    
+    private void updateSales() {
         if (txtTotalAmount.getText().trim().isEmpty()) {
             showError("Vui lòng nhập tổng tiền!");
             txtTotalAmount.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm hóa đơn thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        
+        JOptionPane.showMessageDialog(this, 
+            "Cập nhật hóa đơn thành công!", 
+            "Thành công", 
+            JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
     

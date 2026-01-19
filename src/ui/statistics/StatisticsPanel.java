@@ -2,9 +2,10 @@ package ui.statistics;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import java.awt.*;
 
-import static ui.UIColor.*;
+import static utils.ColorUtil.*;
+
+import java.awt.*;
 
 /**
  * Panel thống kê - Thống kê nhập hàng, xuất hàng, tồn kho

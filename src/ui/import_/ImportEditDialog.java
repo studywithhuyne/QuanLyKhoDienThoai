@@ -1,4 +1,4 @@
-package ui.brand;
+package ui.import_;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class BrandEditUI extends JDialog {
+public class ImportEditDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
@@ -20,20 +20,29 @@ public class BrandEditUI extends JDialog {
     
     // Form fields
     private JTextField txtId;
-    private JTextField txtName;
-    private JTextArea txtDescription;
+    private JComboBox<String> cmbSupplier;
+    private JComboBox<String> cmbEmployee;
+    private JTextField txtTotalAmount;
+    private JTextField txtDate;
+    private JTextArea txtNote;
     
     // Data
-    private int brandId;
-    private String brandName;
+    private int importId;
+    private String supplier;
+    private String employee;
+    private String totalAmount;
+    private String date;
     
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public BrandEditUI(Frame parent, int id, String name) {
-        super(parent, "Sửa thương hiệu", true);
-        this.brandId = id;
-        this.brandName = name;
+    public ImportEditDialog(Frame parent, int id, String supplier, String employee, String totalAmount, String date) {
+        super(parent, "Sửa phiếu nhập kho", true);
+        this.importId = id;
+        this.supplier = supplier;
+        this.employee = employee;
+        this.totalAmount = totalAmount;
+        this.date = date;
         
         initializeDialog();
         createComponents();
@@ -42,7 +51,7 @@ public class BrandEditUI extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(480, 500);
+        setSize(540, 730);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -74,11 +83,11 @@ public class BrandEditUI extends JDialog {
         titlePanel.setBackground(CARD_BG);
         titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        JLabel titleLabel = new JLabel("Sửa thương hiệu");
+        JLabel titleLabel = new JLabel("Sửa phiếu nhập kho");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin thương hiệu #" + brandId);
+        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin phiếu nhập #" + importId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitleLabel.setForeground(TEXT_SECONDARY);
         
@@ -121,26 +130,40 @@ public class BrandEditUI extends JDialog {
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(new Color(243, 244, 246));
-        formCard.add(createFormGroup("ID thương hiệu", txtId));
+        formCard.add(createFormGroup("ID phiếu nhập", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Name
-        formCard.add(createFormGroup("Tên thương hiệu", txtName = createTextField("Nhập tên thương hiệu...")));
+        // Supplier
+        String[] suppliers = {"FPT Synnex", "Viettel Store", "CellphoneS B2B", "Anker Vietnam", "Baseus Official", "Ugreen Vietnam"};
+        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier = createComboBox(suppliers)));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description
-        txtDescription = new JTextArea(4, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
+        // Employee
+        String[] employees = {"Admin", "Jerry"};
+        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee = createComboBox(employees)));
+        formCard.add(Box.createVerticalStrut(18));
         
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 100));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        // Total Amount
+        formCard.add(createFormGroup("Tổng tiền", txtTotalAmount = createTextField("Nhập tổng tiền...")));
+        formCard.add(Box.createVerticalStrut(18));
         
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
+        // Date
+        formCard.add(createFormGroup("Ngày tạo", txtDate = createTextField("dd/MM/yyyy")));
+        formCard.add(Box.createVerticalStrut(18));
+        
+        // Note
+        txtNote = new JTextArea(4, 20);
+        txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtNote.setLineWrap(true);
+        txtNote.setWrapStyleWord(true);
+        txtNote.setBorder(new EmptyBorder(10, 12, 10, 12));
+        
+        JScrollPane noteScroll = new JScrollPane(txtNote);
+        noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        noteScroll.setPreferredSize(new Dimension(0, 100));
+        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        
+        formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -150,8 +173,11 @@ public class BrandEditUI extends JDialog {
     }
     
     private void loadData() {
-        txtId.setText(String.valueOf(brandId));
-        txtName.setText(brandName);
+        txtId.setText(String.valueOf(importId));
+        cmbSupplier.setSelectedItem(supplier);
+        cmbEmployee.setSelectedItem(employee);
+        txtTotalAmount.setText(totalAmount);
+        txtDate.setText(date);
     }
     
     private JPanel createFormGroup(String label, JComponent field) {
@@ -234,6 +260,38 @@ public class BrandEditUI extends JDialog {
         return field;
     }
     
+    private JComboBox<String> createComboBox(String[] items) {
+        JComboBox<String> combo = new JComboBox<>(items);
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        combo.setBackground(CARD_BG);
+        combo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(2, 8, 2, 8)
+        ));
+        combo.setFocusable(false);
+        combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton button = super.createArrowButton();
+                button.setBackground(CARD_BG);
+                button.setBorder(BorderFactory.createEmptyBorder());
+                return button;
+            }
+        });
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBorder(new EmptyBorder(5, 10, 5, 10));
+                setBackground(isSelected ? new Color(99, 102, 241, 30) : CARD_BG);
+                return this;
+            }
+        });
+        return combo;
+    }
+    
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         footer.setBackground(BACKGROUND);
@@ -243,7 +301,7 @@ public class BrandEditUI extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateBrand());
+        btnUpdate.addActionListener(e -> updateImport());
         
         footer.add(btnCancel);
         footer.add(btnUpdate);
@@ -289,15 +347,15 @@ public class BrandEditUI extends JDialog {
         return button;
     }
     
-    private void updateBrand() {
-        if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên thương hiệu!");
-            txtName.requestFocus();
+    private void updateImport() {
+        if (txtTotalAmount.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập tổng tiền!");
+            txtTotalAmount.requestFocus();
             return;
         }
         
         JOptionPane.showMessageDialog(this, 
-            "Cập nhật thương hiệu thành công!", 
+            "Cập nhật phiếu nhập thành công!", 
             "Thành công", 
             JOptionPane.INFORMATION_MESSAGE);
         dispose();

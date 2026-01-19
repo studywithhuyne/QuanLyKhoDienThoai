@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.supplier;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-public class SalesDeleteUI extends JDialog {
+public class SupplierDeleteDialog extends JDialog {
     
     // Colors - Modern Theme
     private static final Color BACKGROUND = new Color(249, 250, 251);
@@ -19,17 +19,17 @@ public class SalesDeleteUI extends JDialog {
     private static final Color DANGER_BG = new Color(254, 242, 242);
     
     // Data
-    private int salesId;
-    private String employee;
+    private int supplierId;
+    private String supplierName;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public SalesDeleteUI(Frame parent, int id, String employee) {
+    public SupplierDeleteDialog(Frame parent, int id, String name) {
         super(parent, "Xác nhận xóa", true);
-        this.salesId = id;
-        this.employee = employee;
+        this.supplierId = id;
+        this.supplierName = name;
         
         initializeDialog();
         createComponents();
@@ -91,13 +91,13 @@ public class SalesDeleteUI extends JDialog {
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa hóa đơn?");
+        JLabel titleLabel = new JLabel("Xóa nhà cung cấp?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa hóa đơn<br><b>#" + salesId + " - NV: " + employee + "</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa nhà cung cấp<br><b>\"" + supplierName + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -135,8 +135,8 @@ public class SalesDeleteUI extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa hóa đơn", Color.WHITE, DANGER_COLOR, false);
-        btnDelete.addActionListener(e -> deleteSales());
+        btnDelete = createButton("Xóa NCC", Color.WHITE, DANGER_COLOR, false);
+        btnDelete.addActionListener(e -> deleteSupplier());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -168,7 +168,7 @@ public class SalesDeleteUI extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 110 : 150, 44));
+        button.setPreferredSize(new Dimension(isOutline ? 110 : 130, 44));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -177,10 +177,10 @@ public class SalesDeleteUI extends JDialog {
         return button;
     }
     
-    private void deleteSales() {
+    private void deleteSupplier() {
         confirmed = true;
         JOptionPane.showMessageDialog(this, 
-            "Xóa hóa đơn thành công!", 
+            "Xóa nhà cung cấp thành công!", 
             "Thành công", 
             JOptionPane.INFORMATION_MESSAGE);
         dispose();

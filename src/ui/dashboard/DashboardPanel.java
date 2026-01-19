@@ -2,9 +2,10 @@ package ui.dashboard;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import java.awt.*;
 
-import static ui.UIColor.*;
+import static utils.ColorUtil.*;
+
+import java.awt.*;
 
 /**
  * Panel hiển thị Dashboard - Trang chủ

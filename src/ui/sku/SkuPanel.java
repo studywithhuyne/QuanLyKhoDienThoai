@@ -2,12 +2,12 @@ package ui.sku;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý SKU (Stock Keeping Unit)
  */
-public class SkuPanel extends DataPanel {
+public class SkuPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Mã SKU", "Sản phẩm", "Thuộc tính", "Giá nhập", "Giá bán", "Tồn kho"};
     private static final Object[][] DATA = {

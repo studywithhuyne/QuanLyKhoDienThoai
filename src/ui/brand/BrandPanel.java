@@ -2,12 +2,12 @@ package ui.brand;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý Thương hiệu (Hãng sản phẩm)
  */
-public class BrandPanel extends DataPanel {
+public class BrandPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thương hiệu"};
     private static final Object[][] DATA = {

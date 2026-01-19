@@ -2,12 +2,12 @@ package ui.attribute;
 
 import javax.swing.*;
 
-import ui.DataPanel;
+import ui.BasePanel;
 
 /**
  * Panel quản lý Thuộc tính sản phẩm
  */
-public class AttributePanel extends DataPanel {
+public class AttributePanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thuộc tính", "Giá trị"};
     private static final Object[][] DATA = {
