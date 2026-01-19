@@ -156,7 +156,7 @@ public class ProductPanel extends JPanel implements ISearchable {
         productTable.setShowGrid(false);
         productTable.setIntercellSpacing(new Dimension(0, 0));
         productTable.setBackground(CARD_BG);
-        productTable.setSelectionBackground(new Color(79, 70, 229, 30));
+        productTable.setSelectionBackground(SELECTION_BG);
         productTable.setSelectionForeground(TEXT_PRIMARY);
         productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
@@ -173,7 +173,7 @@ public class ProductPanel extends JPanel implements ISearchable {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? CARD_BG : new Color(249, 250, 251));
+                    c.setBackground(row % 2 == 0 ? CARD_BG : TABLE_ROW_ALT);
                 }
                 setBorder(new EmptyBorder(0, 15, 0, 15));
                 return c;

@@ -115,7 +115,7 @@ public class BasePanel extends JPanel implements ISearchable {
         dataTable.setShowGrid(false);
         dataTable.setIntercellSpacing(new Dimension(0, 0));
         dataTable.setBackground(CARD_BG);
-        dataTable.setSelectionBackground(new Color(79, 70, 229, 30));
+        dataTable.setSelectionBackground(SELECTION_BG);
         dataTable.setSelectionForeground(TEXT_PRIMARY);
         
         // Header style
@@ -131,7 +131,7 @@ public class BasePanel extends JPanel implements ISearchable {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? CARD_BG : new Color(249, 250, 251));
+                    c.setBackground(row % 2 == 0 ? CARD_BG : TABLE_ROW_ALT);
                 }
                 setBorder(new EmptyBorder(0, 15, 0, 15));
                 return c;

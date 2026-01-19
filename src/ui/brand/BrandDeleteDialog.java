@@ -6,17 +6,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import static utils.ColorUtil.*;
+
 public class BrandDeleteDialog extends JDialog {
-    
-    // Colors - Modern Theme
-    private static final Color BACKGROUND = new Color(249, 250, 251);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
-    private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
-    private static final Color DANGER_HOVER = new Color(220, 38, 38);
-    private static final Color DANGER_BG = new Color(254, 242, 242);
     
     // Data
     private int brandId;
@@ -41,7 +33,7 @@ public class BrandDeleteDialog extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND);
+        getContentPane().setBackground(DIALOG_BG);
     }
     
     private void createComponents() {
@@ -53,7 +45,7 @@ public class BrandDeleteDialog extends JDialog {
     
     private JPanel createContent() {
         JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(BACKGROUND);
+        wrapper.setBackground(DIALOG_BG);
         wrapper.setBorder(new EmptyBorder(15, 30, 10, 30));
         
         JPanel card = new JPanel() {
@@ -99,14 +91,14 @@ public class BrandDeleteDialog extends JDialog {
         // Message
         JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa thương hiệu<br><b>\"" + brandName + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        messageLabel.setForeground(TEXT_SECONDARY);
+        messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Warning text
         JLabel warningLabel = new JLabel("Hành động này không thể hoàn tác!");
         warningLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        warningLabel.setForeground(DANGER_COLOR);
+        warningLabel.setForeground(DANGER_RED);
         warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         card.add(iconLabel);
@@ -126,16 +118,16 @@ public class BrandDeleteDialog extends JDialog {
     
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        footer.setBackground(BACKGROUND);
+        footer.setBackground(DIALOG_BG);
         footer.setBorder(new EmptyBorder(0, 30, 30, 30));
         
-        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
+        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
         
-        btnDelete = createButton("Xóa thương hiệu", Color.WHITE, DANGER_COLOR, false);
+        btnDelete = createButton("Xóa thương hiệu", Color.WHITE, DANGER_RED, false);
         btnDelete.addActionListener(e -> deleteBrand());
         
         footer.add(btnCancel);
@@ -152,7 +144,7 @@ public class BrandDeleteDialog extends JDialog {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
                 if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
+                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));

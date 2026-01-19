@@ -109,7 +109,7 @@ public class LogsPanel extends JPanel implements ISearchable {
         logsTable.setShowGrid(false);
         logsTable.setIntercellSpacing(new Dimension(0, 0));
         logsTable.setBackground(CARD_BG);
-        logsTable.setSelectionBackground(new Color(79, 70, 229, 30));
+        logsTable.setSelectionBackground(SELECTION_BG);
         logsTable.setSelectionForeground(TEXT_PRIMARY);
         
         // Header style
@@ -125,7 +125,7 @@ public class LogsPanel extends JPanel implements ISearchable {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? CARD_BG : new Color(249, 250, 251));
+                    c.setBackground(row % 2 == 0 ? CARD_BG : TABLE_ROW_ALT);
                 }
                 setBorder(new EmptyBorder(0, 15, 0, 15));
                 return c;

@@ -11,11 +11,11 @@ public class AttributePanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thuộc tính", "Giá trị"};
     private static final Object[][] DATA = {
-        {1, "Màu sắc", "Đen, Trắng, Xanh, Hồng"},
-        {2, "Dung lượng", "64GB, 128GB, 256GB, 512GB, 1TB"},
-        {3, "RAM", "4GB, 6GB, 8GB, 12GB, 16GB"},
-        {4, "Chiều dài cáp", "0.5m, 1m, 1.5m, 2m, 3m"},
-        {5, "Công suất sạc", "20W, 30W, 45W, 65W, 100W"},
+        {1, "Màu sắc", "Đen"},
+        {2, "Dung lượng", "64GB"},
+        {3, "RAM", "4GB"},
+        {4, "Chiều dài cáp", "0.5m"},
+        {5, "Công suất sạc", "20W"},
     };
     
     public AttributePanel(JFrame parentFrame) {

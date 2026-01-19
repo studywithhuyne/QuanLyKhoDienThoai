@@ -138,7 +138,7 @@ public class MainFrame extends JFrame {
         // Separator
         menuPanel.add(Box.createVerticalStrut(10));
         JSeparator separator = new JSeparator();
-        separator.setForeground(new Color(55, 65, 81));
+        separator.setForeground(MENU_SEPARATOR);
         separator.setMaximumSize(new Dimension(220, 1));
         menuPanel.add(separator);
         menuPanel.add(Box.createVerticalStrut(20));
@@ -150,7 +150,7 @@ public class MainFrame extends JFrame {
         menuLabelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         JLabel menuLabel = new JLabel("MENU");
         menuLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        menuLabel.setForeground(new Color(148, 163, 184));
+        menuLabel.setForeground(MENU_LABEL);
         menuLabelPanel.add(menuLabel);
         menuPanel.add(menuLabelPanel);
         menuPanel.add(Box.createVerticalStrut(10));
@@ -215,7 +215,7 @@ public class MainFrame extends JFrame {
         
         JLabel textLabel = new JLabel(text);
         textLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        textLabel.setForeground(new Color(241, 245, 249));
+        textLabel.setForeground(MENU_TEXT);
         
         button.add(iconPanel);
         button.add(textLabel);
@@ -262,7 +262,7 @@ public class MainFrame extends JFrame {
         userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JSeparator separator = new JSeparator();
-        separator.setForeground(new Color(55, 65, 81));
+        separator.setForeground(MENU_SEPARATOR);
         separator.setMaximumSize(new Dimension(230, 1));
         userPanel.add(separator);
         userPanel.add(Box.createVerticalStrut(15));
@@ -290,7 +290,7 @@ public class MainFrame extends JFrame {
         
         JLabel roleLabel = new JLabel("Quản trị viên");
         roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        roleLabel.setForeground(new Color(148, 163, 184));
+        roleLabel.setForeground(MENU_LABEL);
         
         textPanel.add(nameLabel);
         textPanel.add(roleLabel);

@@ -4,17 +4,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import static utils.ColorUtil.*;
 
 public class ProductAddDialog extends JDialog {
-    
-    // Colors - Modern Theme
-    private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
-    private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
-    private static final Color BACKGROUND = new Color(249, 250, 251);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
-    private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
     
     // Form fields
     private JTextField txtName;
@@ -37,7 +29,7 @@ public class ProductAddDialog extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND);
+        getContentPane().setBackground(DIALOG_BG);
     }
 
     private void createComponents() {
@@ -71,7 +63,7 @@ public class ProductAddDialog extends JDialog {
         
         JLabel subtitleLabel = new JLabel("Nhập thông tin sản phẩm bên dưới");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY);
+        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
         
         titlePanel.add(titleLabel);
         titlePanel.add(Box.createVerticalStrut(3));
@@ -88,7 +80,7 @@ public class ProductAddDialog extends JDialog {
     
     private JPanel createForm() {
         JPanel formWrapper = new JPanel(new BorderLayout());
-        formWrapper.setBackground(BACKGROUND);
+        formWrapper.setBackground(DIALOG_BG);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
         JPanel formCard = new JPanel();
@@ -192,7 +184,7 @@ public class ProductAddDialog extends JDialog {
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 field.setBorder(new CompoundBorder(
-                    new LineBorder(PRIMARY_COLOR, 2, true),
+                    new LineBorder(DARK_BLUE, 2, true),
                     new EmptyBorder(4, 11, 4, 11)
                 ));
             }
@@ -232,7 +224,7 @@ public class ProductAddDialog extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 setBorder(new EmptyBorder(5, 10, 5, 10));
-                setBackground(isSelected ? new Color(99, 102, 241, 30) : CARD_BG);
+                setBackground(isSelected ? PRIMARY_ALPHA : CARD_BG);
                 return this;
             }
         });
@@ -241,13 +233,13 @@ public class ProductAddDialog extends JDialog {
     
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        footer.setBackground(BACKGROUND);
+        footer.setBackground(DIALOG_BG);
         footer.setBorder(new EmptyBorder(10, 25, 25, 25));
         
-        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
+        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu sản phẩm", Color.WHITE, PRIMARY_COLOR, false);
+        btnSave = createButton("Lưu sản phẩm", Color.WHITE, DARK_BLUE, false);
         btnSave.addActionListener(e -> saveProduct());
         
         footer.add(btnCancel);
@@ -274,7 +266,7 @@ public class ProductAddDialog extends JDialog {
         }
         
         // Hover effect đơn giản
-        Color hoverColor = isOutline ? new Color(243, 244, 246) : PRIMARY_HOVER;
+        Color hoverColor = isOutline ? CONTENT_BG : PRIMARY_HOVER;
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {

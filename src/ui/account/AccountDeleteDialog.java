@@ -5,16 +5,9 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+import static utils.ColorUtil.*;
+
 public class AccountDeleteDialog extends JDialog {
-    
-    // Colors - Modern Theme
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
-    private static final Color DANGER_HOVER = new Color(220, 38, 38);
-    private static final Color BACKGROUND = new Color(249, 250, 251);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
-    private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
     
     private JButton btnDelete;
     private JButton btnCancel;
@@ -37,7 +30,7 @@ public class AccountDeleteDialog extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND);
+        getContentPane().setBackground(DIALOG_BG);
     }
 
     private void createComponents() {
@@ -49,7 +42,7 @@ public class AccountDeleteDialog extends JDialog {
 
     private JPanel createContent() {
         JPanel contentWrapper = new JPanel(new BorderLayout());
-        contentWrapper.setBackground(BACKGROUND);
+        contentWrapper.setBackground(DIALOG_BG);
         contentWrapper.setBorder(new EmptyBorder(30, 30, 20, 30));
         
         JPanel contentCard = new JPanel() {
@@ -72,7 +65,7 @@ public class AccountDeleteDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(DANGER_COLOR.getRed(), DANGER_COLOR.getGreen(), DANGER_COLOR.getBlue(), 30));
+                g2.setColor(new Color(DANGER_RED.getRed(), DANGER_RED.getGreen(), DANGER_RED.getBlue(), 30));
                 g2.fillOval(10, 0, 60, 60);
                 g2.dispose();
                 super.paintComponent(g);
@@ -92,7 +85,7 @@ public class AccountDeleteDialog extends JDialog {
         // Message
         JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa tài khoản<br><b>\"" + accountUsername + "\"</b> (ID: " + accountId + ")?<br>Hành động này không thể hoàn tác.</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        messageLabel.setForeground(TEXT_SECONDARY);
+        messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
@@ -109,13 +102,13 @@ public class AccountDeleteDialog extends JDialog {
     
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
-        footer.setBackground(BACKGROUND);
+        footer.setBackground(DIALOG_BG);
         footer.setBorder(new EmptyBorder(0, 30, 25, 30));
         
-        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
+        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnDelete = createButton("Xóa tài khoản", Color.WHITE, DANGER_COLOR, false);
+        btnDelete = createButton("Xóa tài khoản", Color.WHITE, DANGER_RED, false);
         btnDelete.addActionListener(e -> deleteAccount());
         
         footer.add(btnCancel);
@@ -132,7 +125,7 @@ public class AccountDeleteDialog extends JDialog {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
                 if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
+                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
