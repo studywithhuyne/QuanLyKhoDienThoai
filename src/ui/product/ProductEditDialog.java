@@ -4,20 +4,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import static utils.ColorUtil.*;
 
 public class ProductEditDialog extends JDialog {
-    
-    // Colors - Modern Theme
-    private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
-    private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
-    private static final Color BACKGROUND = new Color(249, 250, 251);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
-    private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
-    private static final Color WARNING_COLOR = new Color(251, 191, 36);
-    private static final Color WARNING_HOVER = new Color(245, 158, 11);
-    private static final Color DANGER_COLOR = new Color(239, 68, 68);
     
     // Form fields
     private JTextField txtId;
@@ -54,7 +43,7 @@ public class ProductEditDialog extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND);
+        getContentPane().setBackground(DIALOG_BG);
     }
     
     private void createComponents() {
@@ -90,7 +79,7 @@ public class ProductEditDialog extends JDialog {
         
         JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin sản phẩm #" + productId);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY);
+        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
         
         titlePanel.add(titleLabel);
         titlePanel.add(Box.createVerticalStrut(3));
@@ -108,7 +97,7 @@ public class ProductEditDialog extends JDialog {
     
     private JPanel createForm() {
         JPanel formWrapper = new JPanel(new BorderLayout());
-        formWrapper.setBackground(BACKGROUND);
+        formWrapper.setBackground(DIALOG_BG);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
         JPanel formCard = new JPanel();
@@ -124,7 +113,7 @@ public class ProductEditDialog extends JDialog {
         // Product ID (readonly)
         txtId = createTextField("");
         txtId.setEditable(false);
-        txtId.setBackground(new Color(243, 244, 246));
+        txtId.setBackground(CONTENT_BG);
         formCard.add(createFormGroup("ID sản phẩm", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
@@ -225,7 +214,7 @@ public class ProductEditDialog extends JDialog {
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 field.setBorder(new CompoundBorder(
-                    new LineBorder(PRIMARY_COLOR, 2, true),
+                    new LineBorder(DARK_BLUE, 2, true),
                     new EmptyBorder(4, 11, 4, 11)
                 ));
             }
@@ -265,7 +254,7 @@ public class ProductEditDialog extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 setBorder(new EmptyBorder(5, 10, 5, 10));
-                setBackground(isSelected ? new Color(99, 102, 241, 30) : CARD_BG);
+                setBackground(isSelected ? PRIMARY_ALPHA : CARD_BG);
                 return this;
             }
         });
@@ -274,10 +263,10 @@ public class ProductEditDialog extends JDialog {
     
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        footer.setBackground(BACKGROUND);
+        footer.setBackground(DIALOG_BG);
         footer.setBorder(new EmptyBorder(10, 25, 25, 25));
         
-        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
+        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
@@ -307,7 +296,7 @@ public class ProductEditDialog extends JDialog {
         }
         
         // Hover effect
-        Color hoverColor = isOutline ? new Color(243, 244, 246) : WARNING_HOVER;
+        Color hoverColor = isOutline ? CONTENT_BG : WARNING_HOVER;
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {

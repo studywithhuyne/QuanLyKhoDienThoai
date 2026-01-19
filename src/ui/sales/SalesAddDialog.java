@@ -1,5 +1,7 @@
 package ui.sales;
 
+import static utils.ColorUtil.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -9,15 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SalesAddDialog extends JDialog {
-    
-    // Colors - Modern Theme
-    private static final Color PRIMARY_COLOR = new Color(99, 102, 241);
-    private static final Color PRIMARY_HOVER = new Color(129, 140, 248);
-    private static final Color BACKGROUND = new Color(249, 250, 251);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(17, 24, 39);
-    private static final Color TEXT_SECONDARY = new Color(107, 114, 128);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
     
     // Form fields
     private JComboBox<String> cmbEmployee;
@@ -40,7 +33,7 @@ public class SalesAddDialog extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND);
+        getContentPane().setBackground(DIALOG_BG);
     }
 
     private void createComponents() {
@@ -74,7 +67,7 @@ public class SalesAddDialog extends JDialog {
         
         JLabel subtitleLabel = new JLabel("Nhập thông tin hóa đơn bên dưới");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY);
+        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
         
         titlePanel.add(titleLabel);
         titlePanel.add(Box.createVerticalStrut(3));
@@ -91,7 +84,7 @@ public class SalesAddDialog extends JDialog {
     
     private JPanel createForm() {
         JPanel formWrapper = new JPanel(new BorderLayout());
-        formWrapper.setBackground(BACKGROUND);
+        formWrapper.setBackground(DIALOG_BG);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
         JPanel formCard = new JPanel() {
@@ -193,7 +186,7 @@ public class SalesAddDialog extends JDialog {
                 super.paintComponent(g);
                 if (getText().isEmpty() && !hasFocus()) {
                     Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_SECONDARY);
+                    g2.setColor(TEXT_SECONDARY_DARK);
                     g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                     g2.drawString(placeholder, 12, 26);
                     g2.dispose();
@@ -211,7 +204,7 @@ public class SalesAddDialog extends JDialog {
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 field.setBorder(new CompoundBorder(
-                    new LineBorder(PRIMARY_COLOR, 2, true),
+                    new LineBorder(DARK_BLUE, 2, true),
                     new EmptyBorder(4, 11, 4, 11)
                 ));
             }
@@ -252,7 +245,7 @@ public class SalesAddDialog extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 setBorder(new EmptyBorder(5, 10, 5, 10));
-                setBackground(isSelected ? new Color(99, 102, 241, 30) : CARD_BG);
+                setBackground(isSelected ? PRIMARY_ALPHA : CARD_BG);
                 return this;
             }
         });
@@ -261,13 +254,13 @@ public class SalesAddDialog extends JDialog {
     
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        footer.setBackground(BACKGROUND);
+        footer.setBackground(DIALOG_BG);
         footer.setBorder(new EmptyBorder(10, 25, 25, 25));
         
-        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY, CARD_BG, true);
+        btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu hóa đơn", Color.WHITE, PRIMARY_COLOR, false);
+        btnSave = createButton("Lưu hóa đơn", Color.WHITE, DARK_BLUE, false);
         btnSave.addActionListener(e -> saveSales());
         
         footer.add(btnCancel);
@@ -284,7 +277,7 @@ public class SalesAddDialog extends JDialog {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
                 if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? new Color(243, 244, 246) : bgColor);
+                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                     g2.setColor(BORDER_COLOR);
                     g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
