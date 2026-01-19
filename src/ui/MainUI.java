@@ -4,6 +4,21 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import com.formdev.flatlaf.FlatLightLaf; 
+
+import ui.dashboard.DashboardPanel;
+import ui.product.ProductPanel;
+import ui.import_.ImportPanel;
+import ui.sales.SalesPanel;
+import ui.supplier.SupplierPanel;
+import ui.brand.BrandPanel;
+import ui.category.CategoryPanel;
+import ui.account.AccountPanel;
+import ui.attribute.AttributePanel;
+import ui.sku.SkuPanel;
+import ui.imei.ImeiPanel;
+import ui.logs.LogsPanel;
+import ui.statistics.StatisticsPanel;
 
 import static ui.UIColor.*;
 
@@ -17,18 +32,31 @@ public class MainUI extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainContentPanel;
     
-    // Menu items
-    private String[] menuItems = {"Dashboard", "Sản phẩm", "Nhập kho", "Bán hàng", "Nhà cung cấp", "Thương hiệu", "Danh mục", "Tài khoản"};
-    private String[] menuIcons = {"📊", "📱", "📥", "🛒", "🏭", "🏷️", "📂", "👤"};
+    // Menu items - Đã bổ sung đầy đủ theo bảng phân công
+    private String[] menuItems = {
+        "Dashboard", "Sản phẩm", "Thuộc tính", "SKU", "IMEI",
+        "Nhập kho", "Bán hàng", "Nhà cung cấp", 
+        "Thương hiệu", "Danh mục", "Tài khoản", "Thống kê", "Logs"
+    };
+    private String[] menuIcons = {
+        "📊", "📱", "🔧", "📦", "🔢",
+        "📥", "🛒", "🏭", 
+        "🏷️", "📂", "👤", "📈", "📋"
+    };
     private Color[] menuIconColors = {
         new Color(64, 156, 255),   // Dashboard - Vivid Blue
         new Color(46, 213, 115),   // Sản phẩm - Vivid Green
+        new Color(156, 136, 255),  // Thuộc tính - Vivid Purple
+        new Color(255, 193, 7),    // SKU - Vivid Amber
+        new Color(0, 188, 212),    // IMEI - Vivid Cyan
         new Color(255, 159, 67),   // Nhập kho - Vivid Orange
         new Color(255, 71, 87),    // Bán hàng - Vivid Red
         new Color(83, 82, 237),    // Nhà cung cấp - Vivid Indigo
         new Color(255, 107, 129),  // Thương hiệu - Vivid Pink
         new Color(112, 161, 255),  // Danh mục - Vivid Light Blue
-        new Color(236, 204, 104)   // Tài khoản - Vivid Yellow
+        new Color(236, 204, 104),  // Tài khoản - Vivid Yellow
+        new Color(76, 175, 80),    // Thống kê - Vivid Green
+        new Color(158, 158, 158)   // Logs - Gray
     };
     
     public MainUI() {
@@ -67,44 +95,52 @@ public class MainUI extends JFrame {
         // Add panels for each menu item - Sử dụng các class panel riêng biệt
         mainContentPanel.add(new DashboardPanel(), "Dashboard");
         mainContentPanel.add(new ProductPanel(this), "Sản phẩm");
+        mainContentPanel.add(new AttributePanel(this), "Thuộc tính");
+        mainContentPanel.add(new SkuPanel(this), "SKU");
+        mainContentPanel.add(new ImeiPanel(this), "IMEI");
         mainContentPanel.add(new ImportPanel(this), "Nhập kho");
         mainContentPanel.add(new SalesPanel(this), "Bán hàng");
         mainContentPanel.add(new SupplierPanel(this), "Nhà cung cấp");
         mainContentPanel.add(new BrandPanel(this), "Thương hiệu");
         mainContentPanel.add(new CategoryPanel(this), "Danh mục");
         mainContentPanel.add(new AccountPanel(this), "Tài khoản");
+        mainContentPanel.add(new StatisticsPanel(this), "Thống kê");
+        mainContentPanel.add(new LogsPanel(this), "Logs");
         
         rightPanel.add(mainContentPanel, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.CENTER);
     }
     
     private JPanel createSidebar() {
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(SIDEBAR_BG);
-        sidebar.setPreferredSize(new Dimension(260, getHeight()));
-        sidebar.setBorder(new EmptyBorder(0, 0, 0, 0));
+        // Main sidebar container
+        JPanel sidebarContainer = new JPanel(new BorderLayout());
+        sidebarContainer.setBackground(SIDEBAR_BG);
+        sidebarContainer.setPreferredSize(new Dimension(260, getHeight()));
         
-        // Logo section
+        // Logo section (fixed at top)
         JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 25));
         logoPanel.setBackground(SIDEBAR_BG);
-        logoPanel.setMaximumSize(new Dimension(260, 80));
-        logoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        logoPanel.setPreferredSize(new Dimension(260, 80));
         
         JLabel logoText = new JLabel("KHO HÀNG ĐIỆN THOẠI");
         logoText.setFont(new Font("Segoe UI", Font.BOLD, 18));
         logoText.setForeground(Color.WHITE);
-        
         logoPanel.add(logoText);
-        sidebar.add(logoPanel);
+        
+        sidebarContainer.add(logoPanel, BorderLayout.NORTH);
+        
+        // Scrollable menu panel
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setBackground(SIDEBAR_BG);
         
         // Separator
-        sidebar.add(Box.createVerticalStrut(10));
+        menuPanel.add(Box.createVerticalStrut(10));
         JSeparator separator = new JSeparator();
         separator.setForeground(new Color(55, 65, 81));
         separator.setMaximumSize(new Dimension(220, 1));
-        sidebar.add(separator);
-        sidebar.add(Box.createVerticalStrut(20));
+        menuPanel.add(separator);
+        menuPanel.add(Box.createVerticalStrut(20));
         
         // Menu section label
         JPanel menuLabelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
@@ -115,14 +151,14 @@ public class MainUI extends JFrame {
         menuLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         menuLabel.setForeground(new Color(148, 163, 184));
         menuLabelPanel.add(menuLabel);
-        sidebar.add(menuLabelPanel);
-        sidebar.add(Box.createVerticalStrut(10));
+        menuPanel.add(menuLabelPanel);
+        menuPanel.add(Box.createVerticalStrut(10));
         
         // Menu items
         for (int i = 0; i < menuItems.length; i++) {
             JButton menuButton = createMenuButton(menuIcons[i], menuItems[i], menuIconColors[i]);
-            sidebar.add(menuButton);
-            sidebar.add(Box.createVerticalStrut(5));
+            menuPanel.add(menuButton);
+            menuPanel.add(Box.createVerticalStrut(5));
             
             // Set first button as active
             if (i == 0) {
@@ -130,13 +166,28 @@ public class MainUI extends JFrame {
             }
         }
         
-        // Spacer
-        sidebar.add(Box.createVerticalGlue());
+        // Add some padding at bottom of menu
+        menuPanel.add(Box.createVerticalStrut(20));
         
-        // User section
-        sidebar.add(createUserSection());
+        // Create scroll pane for menu
+        JScrollPane menuScrollPane = new JScrollPane(menuPanel);
+        menuScrollPane.setBorder(null);
+        menuScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        menuScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        menuScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        menuScrollPane.setBackground(SIDEBAR_BG);
+        menuScrollPane.getViewport().setBackground(SIDEBAR_BG);
         
-        return sidebar;
+        // Style scrollbar
+        menuScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
+        menuScrollPane.getVerticalScrollBar().setBackground(SIDEBAR_BG);
+        
+        sidebarContainer.add(menuScrollPane, BorderLayout.CENTER);
+        
+        // User section (fixed at bottom)
+        sidebarContainer.add(createUserSection(), BorderLayout.SOUTH);
+        
+        return sidebarContainer;
     }
     
     private JButton createMenuButton(String icon, String text, Color iconColor) {
@@ -279,20 +330,14 @@ public class MainUI extends JFrame {
         JPanel rightSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         rightSection.setBackground(CARD_BG);
         
-        // Search field
-        JTextField searchField = new JTextField();
-        searchField.setPreferredSize(new Dimension(250, 40));
-        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        searchField.setBorder(new CompoundBorder(new LineBorder(BORDER_COLOR, 1, true), new EmptyBorder(5, 15, 5, 15)));
-        searchField.putClientProperty("JTextField.placeholderText", "Tìm kiếm...");
-        rightSection.add(searchField);
+
         
         // Notification button
         JButton notifBtn = createIconButton("🔔", "Thông báo");
         rightSection.add(notifBtn);
         
         // Settings button
-        JButton settingsBtn = createIconButton("⚙️", "Cài đặt");
+        JButton settingsBtn = createIconButton("⚙", "Cài đặt");
         rightSection.add(settingsBtn);
         
         header.add(rightSection, BorderLayout.EAST);
@@ -328,9 +373,11 @@ public class MainUI extends JFrame {
     
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            FlatLightLaf.setup();
+            
             System.setProperty("awt.useSystemAAFontSettings", "on");
             System.setProperty("swing.aatext", "true");
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

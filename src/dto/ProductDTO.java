@@ -9,9 +9,7 @@ public class ProductDTO {
     private String name;
     private LocalDateTime createdAt;
 
-    // Constructors
-    public ProductDTO() {
-    }
+    public ProductDTO() {}
 
     public ProductDTO(int id, int brandId, int categoryId, String name, LocalDateTime createdAt) {
         this.id = id;
