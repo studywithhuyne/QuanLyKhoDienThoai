@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.BrandDAO;
+import dto.BrandDTO;
 import static utils.ColorUtil.*;
 
 public class BrandAddDialog extends JDialog {
@@ -16,9 +18,12 @@ public class BrandAddDialog extends JDialog {
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private BrandPanel brandPanel;
 
-    public BrandAddDialog(Frame parent) {
+    public BrandAddDialog(Frame parent, BrandPanel brandPanel) {
         super(parent, "Thêm thương hiệu", true);
+        this.brandPanel = brandPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
@@ -260,8 +265,22 @@ public class BrandAddDialog extends JDialog {
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm thương hiệu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        BrandDTO brand = new BrandDTO();
+        brand.setName(txtName.getText().trim());
+        
+        BrandDAO brandDAO = new BrandDAO();
+        boolean success = brandDAO.AddBrand(brand);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Thêm thương hiệu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (brandPanel != null) {
+                brandPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Thêm thương hiệu thất bại! Tên có thể đã tồn tại.");
+        }
     }
     
     private void showError(String message) {

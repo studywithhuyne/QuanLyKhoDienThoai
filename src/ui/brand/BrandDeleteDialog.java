@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.BrandDAO;
 import static utils.ColorUtil.*;
 
 public class BrandDeleteDialog extends JDialog {
@@ -18,10 +19,13 @@ public class BrandDeleteDialog extends JDialog {
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public BrandDeleteDialog(Frame parent, int id, String name) {
+    private BrandPanel brandPanel;
+    
+    public BrandDeleteDialog(Frame parent, int id, String name, BrandPanel brandPanel) {
         super(parent, "Xác nhận xóa", true);
         this.brandId = id;
         this.brandName = name;
+        this.brandPanel = brandPanel;
         
         initializeDialog();
         createComponents();
@@ -170,12 +174,25 @@ public class BrandDeleteDialog extends JDialog {
     }
     
     private void deleteBrand() {
-        confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa thương hiệu thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        BrandDAO brandDAO = new BrandDAO();
+        boolean success = brandDAO.DeleteBrand(brandId);
+        
+        if (success) {
+            confirmed = true;
+            JOptionPane.showMessageDialog(this, 
+                "Xóa thương hiệu thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (brandPanel != null) {
+                brandPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Xóa thương hiệu thất bại!", 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public boolean isConfirmed() {

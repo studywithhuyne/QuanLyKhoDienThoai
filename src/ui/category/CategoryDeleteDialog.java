@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.CategoryDAO;
 import static utils.ColorUtil.*;
 
 public class CategoryDeleteDialog extends JDialog {
@@ -18,10 +19,13 @@ public class CategoryDeleteDialog extends JDialog {
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public CategoryDeleteDialog(Frame parent, int id, String name) {
+    private CategoryPanel categoryPanel;
+    
+    public CategoryDeleteDialog(Frame parent, int id, String name, CategoryPanel categoryPanel) {
         super(parent, "Xác nhận xóa", true);
         this.categoryId = id;
         this.categoryName = name;
+        this.categoryPanel = categoryPanel;
         
         initializeDialog();
         createComponents();
@@ -170,12 +174,25 @@ public class CategoryDeleteDialog extends JDialog {
     }
     
     private void deleteCategory() {
-        confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa danh mục thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        CategoryDAO categoryDAO = new CategoryDAO();
+        boolean success = categoryDAO.DeleteCategory(categoryId);
+        
+        if (success) {
+            confirmed = true;
+            JOptionPane.showMessageDialog(this, 
+                "Xóa danh mục thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (categoryPanel != null) {
+                categoryPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Xóa danh mục thất bại!", 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public boolean isConfirmed() {

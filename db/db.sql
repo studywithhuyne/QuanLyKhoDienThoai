@@ -25,14 +25,16 @@ CREATE TABLE attributes (
 
 -- 3. brands
 CREATE TABLE brands (
-    id      INT AUTO_INCREMENT PRIMARY KEY,
-    name    VARCHAR(50) NOT NULL UNIQUE
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(50) NOT NULL UNIQUE,
+    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 4. categories
 CREATE TABLE categories (
-    id      INT AUTO_INCREMENT PRIMARY KEY,
-    name    VARCHAR(50) NOT NULL UNIQUE
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(50) NOT NULL UNIQUE,
+    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 5. suppliers
@@ -75,6 +77,7 @@ CREATE TABLE products (
     brand_id        INT NOT NULL,
     category_id     INT NOT NULL,
     name            VARCHAR(255) NOT NULL UNIQUE,
+    is_deleted      BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (brand_id)    REFERENCES brands(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)

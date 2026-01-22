@@ -2,6 +2,10 @@ package ui.product;
 
 import javax.swing.*;
 import javax.swing.border.*;
+
+import dao.ProductDAO;
+import dto.ProductDTO;
+
 import java.awt.*;
 import java.awt.event.*;
 import static utils.ColorUtil.*;
@@ -13,7 +17,6 @@ public class ProductEditDialog extends JDialog {
     private JTextField txtName;
     private JComboBox<String> cmbBrand;
     private JComboBox<String> cmbCategory;
-    private JTextArea txtDescription;
     
     // Product data
     private int productId;
@@ -25,12 +28,15 @@ public class ProductEditDialog extends JDialog {
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public ProductEditDialog(Frame parent, int id, String name, String brand, String category) {
+    private ProductPanel productPanel;
+    
+    public ProductEditDialog(Frame parent, int id, String name, String brand, String category, ProductPanel productPanel) {
         super(parent, "Sửa thông tin sản phẩm", true);
         this.productId = id;
         this.productName = name;
         this.productBrand = brand;
         this.productCategory = category;
+        this.productPanel = productPanel;
         
         initializeDialog();
         createComponents();
@@ -39,7 +45,7 @@ public class ProductEditDialog extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(540, 730);
+        setSize(480, 620);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -129,22 +135,7 @@ public class ProductEditDialog extends JDialog {
         // Category
         String[] categories = {"Điện thoại", "Cáp sạc", "Cường lực", "Sạc dự phòng", "Củ sạc", "Loa"};
         formCard.add(createFormGroup("Danh mục", cmbCategory = createComboBox(categories)));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Description
-        txtDescription = new JTextArea(6, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 150));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
-        
+        formCard.add(Box.createVerticalStrut(18));        
         formCard.add(Box.createVerticalGlue());
         
         formWrapper.add(formCard, BorderLayout.CENTER);
@@ -318,11 +309,28 @@ public class ProductEditDialog extends JDialog {
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Cập nhật sản phẩm thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        ProductDTO updateProduct = new ProductDTO();
+        updateProduct.setId(this.productId); 
+        updateProduct.setName(txtName.getText().trim());
+        
+        updateProduct.setBrandId(cmbBrand.getSelectedIndex() + 1);
+        updateProduct.setCategoryId(cmbCategory.getSelectedIndex() + 1);
+        
+        ProductDAO dao = new ProductDAO();
+        boolean isSuccess = dao.EditProduct(updateProduct);
+        
+        if (isSuccess) {
+            JOptionPane.showMessageDialog(this, 
+                "Cập nhật sản phẩm thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (productPanel != null) {
+                productPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Cập nhật thất bại!");
+        }
     }
     
     private void showError(String message) {
@@ -333,5 +341,4 @@ public class ProductEditDialog extends JDialog {
     public String getProductName() { return txtName.getText().trim(); }
     public String getBrand() { return (String) cmbBrand.getSelectedItem(); }
     public String getCategory() { return (String) cmbCategory.getSelectedItem(); }
-    public String getDescription() { return txtDescription.getText().trim(); }
 }
