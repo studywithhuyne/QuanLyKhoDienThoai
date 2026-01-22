@@ -2,8 +2,15 @@ package ui.product;
 
 import javax.swing.*;
 import javax.swing.border.*;
+
+import dao.ProductDAO;
+import dto.ProductDTO;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static utils.ColorUtil.*;
 
 public class ProductAddDialog extends JDialog {
@@ -12,20 +19,22 @@ public class ProductAddDialog extends JDialog {
     private JTextField txtName;
     private JComboBox<String> cmbBrand;
     private JComboBox<String> cmbCategory;
-    private JTextArea txtDescription; 
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private ProductPanel productPanel;
 
-    public ProductAddDialog(Frame parent) {
+    public ProductAddDialog(Frame parent, ProductPanel productPanel) {
         super(parent, "Thêm sản phẩm mới", true);
+        this.productPanel = productPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(540, 680); 
+        setSize(480, 530); 
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -105,22 +114,7 @@ public class ProductAddDialog extends JDialog {
         // Category
         String[] categories = {"Điện thoại", "Cáp sạc", "Cường lực", "Sạc dự phòng", "Củ sạc", "Loa"};
         formCard.add(createFormGroup("Danh mục", cmbCategory = createComboBox(categories)));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Description
-        txtDescription = new JTextArea(6, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 150)); 
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
-        
+        formCard.add(Box.createVerticalStrut(18));        
         formCard.add(Box.createVerticalGlue());
         
         formWrapper.add(formCard, BorderLayout.CENTER);
@@ -287,8 +281,30 @@ public class ProductAddDialog extends JDialog {
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        ProductDTO newProduct = new ProductDTO();
+        newProduct.setName(txtName.getText());
+        newProduct.setBrandId(cmbBrand.getSelectedIndex() + 1);
+        newProduct.setCategoryId(cmbCategory.getSelectedIndex() + 1);
+        newProduct.setCreatedAt(LocalDateTime.now());
+
+        ProductDAO dao = new ProductDAO();
+        boolean isSuccess = dao.AddProduct(newProduct);
+
+        // 4. Xử lý kết quả
+        if (isSuccess) {
+            JOptionPane.showMessageDialog(this, 
+                "Thêm sản phẩm thành công!", 
+                "Thông báo", 
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            if (productPanel != null) {
+                productPanel.loadData();
+            }
+            dispose(); 
+            
+        } else {
+            showError("Lưu thất bại! Vui lòng kiểm tra kết nối Database.");
+        }
     }
     
     private void showError(String message) {

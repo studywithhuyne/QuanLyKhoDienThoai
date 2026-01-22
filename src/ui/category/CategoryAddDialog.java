@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.CategoryDAO;
+import dto.CategoryDTO;
 import static utils.ColorUtil.*;
 
 public class CategoryAddDialog extends JDialog {
@@ -16,9 +18,12 @@ public class CategoryAddDialog extends JDialog {
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private CategoryPanel categoryPanel;
 
-    public CategoryAddDialog(Frame parent) {
+    public CategoryAddDialog(Frame parent, CategoryPanel categoryPanel) {
         super(parent, "Thêm danh mục", true);
+        this.categoryPanel = categoryPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
@@ -260,8 +265,22 @@ public class CategoryAddDialog extends JDialog {
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        CategoryDTO category = new CategoryDTO();
+        category.setName(txtName.getText().trim());
+        
+        CategoryDAO categoryDAO = new CategoryDAO();
+        boolean success = categoryDAO.AddCategory(category);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Thêm danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (categoryPanel != null) {
+                categoryPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Thêm danh mục thất bại! Tên có thể đã tồn tại.");
+        }
     }
     
     private void showError(String message) {

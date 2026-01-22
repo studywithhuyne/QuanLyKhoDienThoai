@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.BrandDAO;
+import dto.BrandDTO;
 import static utils.ColorUtil.*;
 
 public class BrandEditDialog extends JDialog {
@@ -22,10 +24,13 @@ public class BrandEditDialog extends JDialog {
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public BrandEditDialog(Frame parent, int id, String name) {
+    private BrandPanel brandPanel;
+    
+    public BrandEditDialog(Frame parent, int id, String name, BrandPanel brandPanel) {
         super(parent, "Sửa thương hiệu", true);
         this.brandId = id;
         this.brandName = name;
+        this.brandPanel = brandPanel;
         
         initializeDialog();
         createComponents();
@@ -288,11 +293,25 @@ public class BrandEditDialog extends JDialog {
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Cập nhật thương hiệu thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        BrandDTO brand = new BrandDTO();
+        brand.setID(brandId);
+        brand.setName(txtName.getText().trim());
+        
+        BrandDAO brandDAO = new BrandDAO();
+        boolean success = brandDAO.EditBrand(brand);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, 
+                "Cập nhật thương hiệu thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (brandPanel != null) {
+                brandPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Cập nhật thương hiệu thất bại!");
+        }
     }
     
     private void showError(String message) {

@@ -2,6 +2,10 @@ package ui.product;
 
 import javax.swing.*;
 import javax.swing.border.*;
+
+import dao.ProductDAO;
+import dto.ProductDTO;
+
 import java.awt.*;
 import java.awt.event.*;
 import static utils.ColorUtil.*;
@@ -17,10 +21,13 @@ public class ProductDeleteDialog extends JDialog {
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public ProductDeleteDialog(Frame parent, int id, String name) {
+    private ProductPanel productPanel;
+    
+    public ProductDeleteDialog(Frame parent, int id, String name, ProductPanel productPanel) {
         super(parent, "Xác nhận xóa", true);
         this.productId = id;
         this.productName = name;
+        this.productPanel = productPanel;
         
         initializeDialog();
         createComponents();
@@ -161,11 +168,20 @@ public class ProductDeleteDialog extends JDialog {
     
     private void deleteProduct() {
         confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa sản phẩm thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        ProductDTO deleteProduct = new ProductDTO();
+        deleteProduct.setId(this.productId); 
+        ProductDAO dao = new ProductDAO();
+        boolean isSuccess = dao.DeleteProduct(deleteProduct);
+        if (isSuccess) {
+        	JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        	if (productPanel != null) {
+        	    productPanel.loadData();
+        	}
+        	dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Xóa sản phẩm thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public boolean isConfirmed() {

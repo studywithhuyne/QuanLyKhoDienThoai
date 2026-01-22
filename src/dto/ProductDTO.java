@@ -2,11 +2,14 @@ package dto;
 
 import java.time.LocalDateTime;
 
+import javax.swing.JTextField;
+
 public class ProductDTO {
     private int id;
     private int brandId;
     private int categoryId;
     private String name;
+    private boolean isDeleted;
     private LocalDateTime createdAt;
 
     public ProductDTO() {}
@@ -16,6 +19,16 @@ public class ProductDTO {
         this.brandId = brandId;
         this.categoryId = categoryId;
         this.name = name;
+        this.isDeleted = false;
+        this.createdAt = createdAt;
+    }
+
+    public ProductDTO(int id, int brandId, int categoryId, String name, boolean isDeleted, LocalDateTime createdAt) {
+        this.id = id;
+        this.brandId = brandId;
+        this.categoryId = categoryId;
+        this.name = name;
+        this.isDeleted = isDeleted;
         this.createdAt = createdAt;
     }
 
@@ -23,6 +36,7 @@ public class ProductDTO {
         this.brandId = brandId;
         this.categoryId = categoryId;
         this.name = name;
+        this.isDeleted = false;
     }
 
     // Getters and Setters
@@ -54,8 +68,8 @@ public class ProductDTO {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String string) {
+        this.name = string;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -66,6 +80,14 @@ public class ProductDTO {
         this.createdAt = createdAt;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
         return "ProductDTO{" +
@@ -73,6 +95,7 @@ public class ProductDTO {
                 ", brandId=" + brandId +
                 ", categoryId=" + categoryId +
                 ", name='" + name + '\'' +
+                ", isDeleted=" + isDeleted +
                 ", createdAt=" + createdAt +
                 '}';
     }
