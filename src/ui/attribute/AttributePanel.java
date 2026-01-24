@@ -1,24 +1,62 @@
 package ui.attribute;
 
 import javax.swing.*;
+import java.util.List;
 
-import ui.BasePanel;
+import dao.AttributeDAO;
+import dto.AttributeOptionDTO;
+import ui.BaseCrudPanel;
 
 /**
  * Panel quản lý Thuộc tính sản phẩm
  */
-public class AttributePanel extends BasePanel {
+public class AttributePanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thuộc tính", "Giá trị"};
-    private static final Object[][] DATA = {
-        {1, "Màu sắc", "Đen"},
-        {2, "Dung lượng", "64GB"},
-        {3, "RAM", "4GB"},
-        {4, "Chiều dài cáp", "0.5m"},
-        {5, "Công suất sạc", "20W"},
-    };
     
     public AttributePanel(JFrame parentFrame) {
-        super(parentFrame, "Thuộc tính", COLUMNS, DATA);
+        super(parentFrame, "thuộc tính", COLUMNS);
+    }
+    
+    @Override
+    public void loadData() {
+        AttributeDAO attributeDAO = new AttributeDAO();
+        List<AttributeOptionDTO> options = attributeDAO.GetAllAttributeOptions();
+        tableModel.setRowCount(0);
+        for (AttributeOptionDTO option : options) {
+            tableModel.addRow(new Object[]{
+                option.getID(), 
+                option.getAttributeName(), 
+                option.getValue()
+            });
+        }
+    }
+    
+    @Override
+    protected void setupColumnWidths() {
+        setFixedColumnWidth(0, 80);   // ID
+        setFlexibleColumnWidth(1, 150, 250); // Tên thuộc tính
+        setFlexibleColumnWidth(2, 150, 300); // Giá trị
+    }
+    
+    @Override
+    protected void onAddAction() {
+        new AttributeAddDialog(parentFrame, this);
+    }
+    
+    @Override
+    protected void onEditAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String attributeName = (String) getValueAt(modelRow, 1);
+        String value = (String) getValueAt(modelRow, 2);
+        new AttributeEditDialog(parentFrame, id, attributeName, value, this);
+    }
+    
+    @Override
+    protected void onDeleteAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String attributeName = (String) getValueAt(modelRow, 1);
+        String value = (String) getValueAt(modelRow, 2);
+        new AttributeDeleteDialog(parentFrame, id, attributeName + ": " + value, this);
     }
 }

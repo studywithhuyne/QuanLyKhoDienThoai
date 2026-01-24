@@ -40,9 +40,9 @@ public class MainFrame extends JFrame {
         "Thương hiệu", "Danh mục", "Tài khoản", "Thống kê", "Logs"
     };
     private String[] menuIcons = {
-        "📊", "📱", "🔧", "📦", "🔢",
-        "📥", "🛒", "🏭", 
-        "🏷️", "📂", "👤", "📈", "📋"
+        "●", "●", "●", "●", "●",
+        "●", "●", "●", 
+        "●", "●", "●", "●", "●"
     };
     private Color[] menuIconColors = {
         new Color(64, 156, 255),   // Dashboard - Vivid Blue
@@ -193,7 +193,7 @@ public class MainFrame extends JFrame {
     
     private JButton createMenuButton(String icon, String text, Color iconColor) {
         JButton button = new JButton();
-        button.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        button.setLayout(new GridBagLayout());
         button.setMaximumSize(new Dimension(260, 48));
         button.setPreferredSize(new Dimension(260, 48));
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -203,22 +203,40 @@ public class MainFrame extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setOpaque(true);
         
-        // Icon with colored background
-        JPanel iconPanel = new JPanel(new GridBagLayout());
-        iconPanel.setPreferredSize(new Dimension(32, 32));
-        iconPanel.setOpaque(true);
-        iconPanel.setBackground(new Color(iconColor.getRed(), iconColor.getGreen(), iconColor.getBlue(), 40));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridy = 0;
         
-        JLabel iconLabel = new JLabel(icon);
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
-        iconPanel.add(iconLabel);
+        // Icon - vẽ hình tròn thực sự thay vì dùng ký tự text
+        JPanel iconPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(iconColor);
+                int size = 10;
+                int x = (getWidth() - size) / 2;
+                int y = (getHeight() - size) / 2;
+                g2d.fillOval(x, y, size, size);
+            }
+        };
+        iconPanel.setOpaque(false);
+        iconPanel.setPreferredSize(new Dimension(20, 20));
         
+        // Text label  
         JLabel textLabel = new JLabel(text);
         textLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         textLabel.setForeground(MENU_TEXT);
         
-        button.add(iconPanel);
-        button.add(textLabel);
+        gbc.gridx = 0;
+        gbc.insets = new Insets(0, 20, 0, 12);
+        button.add(iconPanel, gbc);
+        
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        button.add(textLabel, gbc);
         
         button.addActionListener(e -> {
             setActiveButton(button);

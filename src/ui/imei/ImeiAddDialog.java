@@ -1,36 +1,51 @@
-package ui.category;
+package ui.imei;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
 
-import dao.CategoryDAO;
-import dto.CategoryDTO;
+import dao.ImeiDAO;
+import dao.SkuDAO;
+import dao.ImportReceiptDAO;
+import dto.ImeiDTO;
+import dto.SkuDTO;
+import dto.ImportReceiptDTO;
 import static utils.ColorUtil.*;
 
-public class CategoryAddDialog extends JDialog {
+public class ImeiAddDialog extends JDialog {
     
-    // Form fields
-    private JTextField txtName;
-    private JTextArea txtDescription;
+    private JComboBox<SkuDTO> cboSku;
+    private JComboBox<ImportReceiptDTO> cboImportReceipt;
+    private JTextField txtImei;
     
     private JButton btnSave;
     private JButton btnCancel;
     
-    private CategoryPanel categoryPanel;
+    private ImeiPanel imeiPanel;
+    private List<SkuDTO> skus;
+    private List<ImportReceiptDTO> receipts;
 
-    public CategoryAddDialog(Frame parent, CategoryPanel categoryPanel) {
-        super(parent, "Thêm danh mục", true);
-        this.categoryPanel = categoryPanel;
+    public ImeiAddDialog(Frame parent, ImeiPanel imeiPanel) {
+        super(parent, "Thêm IMEI", true);
+        this.imeiPanel = imeiPanel;
+        loadData();
         initializeDialog();
         createComponents();
         setVisible(true);
     }
     
+    private void loadData() {
+        SkuDAO skuDAO = new SkuDAO();
+        skus = skuDAO.GetAllSku();
+        ImportReceiptDAO receiptDAO = new ImportReceiptDAO();
+        receipts = receiptDAO.GetAllImportReceipt();
+    }
+    
     private void initializeDialog() {
-        setSize(480, 450);
+        setSize(500, 520);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -38,12 +53,9 @@ public class CategoryAddDialog extends JDialog {
     }
 
     private void createComponents() {
-        JPanel headerPanel = createHeader();
-        add(headerPanel, BorderLayout.NORTH);
-        JPanel formPanel = createForm();
-        add(formPanel, BorderLayout.CENTER);
-        JPanel footerPanel = createFooter();
-        add(footerPanel, BorderLayout.SOUTH);
+        add(createHeader(), BorderLayout.NORTH);
+        add(createForm(), BorderLayout.CENTER);
+        add(createFooter(), BorderLayout.SOUTH);
     }
 
     private JPanel createHeader() {
@@ -58,7 +70,7 @@ public class CategoryAddDialog extends JDialog {
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
         
-        JLabel titleLabel = new JLabel("Thêm danh mục");
+        JLabel titleLabel = new JLabel("Thêm IMEI");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
@@ -87,30 +99,54 @@ public class CategoryAddDialog extends JDialog {
         formCard.setOpaque(false);
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
-        formCard.add(Box.createVerticalGlue());
-
-        // Name
-        formCard.add(createFormGroup("Tên danh mục", txtName = createTextField("Nhập tên danh mục...")));
+        // SKU ComboBox
+        cboSku = new JComboBox<>();
+        cboSku.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboSku.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        cboSku.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        for (SkuDTO sku : skus) {
+            cboSku.addItem(sku);
+        }
+        cboSku.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof SkuDTO) {
+                    SkuDTO sku = (SkuDTO) value;
+                    setText(sku.getCode() + " - " + sku.getProductName());
+                }
+                return this;
+            }
+        });
+        formCard.add(createFormGroup("SKU", cboSku));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Description
-        txtDescription = new JTextArea(4, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
+        // Import Receipt ComboBox
+        cboImportReceipt = new JComboBox<>();
+        cboImportReceipt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboImportReceipt.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        cboImportReceipt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        for (ImportReceiptDTO receipt : receipts) {
+            cboImportReceipt.addItem(receipt);
+        }
+        cboImportReceipt.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof ImportReceiptDTO) {
+                    ImportReceiptDTO r = (ImportReceiptDTO) value;
+                    setText("#" + r.getID() + " - " + r.getSupplierName());
+                }
+                return this;
+            }
+        });
+        formCard.add(createFormGroup("Phiếu nhập", cboImportReceipt));
+        formCard.add(Box.createVerticalStrut(18));
         
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 100));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
-        
-        formCard.add(Box.createVerticalGlue());
+        // IMEI
+        formCard.add(createFormGroup("Mã IMEI", txtImei = createTextField("Nhập mã IMEI...")));
         
         formWrapper.add(formCard, BorderLayout.CENTER);
-        
         return formWrapper;
     }
 
@@ -130,26 +166,6 @@ public class CategoryAddDialog extends JDialog {
         group.add(lbl);
         group.add(Box.createVerticalStrut(8));
         group.add(field);
-        
-        return group;
-    }
-    
-    private JPanel createFormGroupWithComponent(String label, JComponent component) {
-        JPanel group = new JPanel();
-        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
-        group.setOpaque(false);
-        group.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(TEXT_PRIMARY);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        group.add(lbl);
-        group.add(Box.createVerticalStrut(8));
-        group.add(component);
         
         return group;
     }
@@ -202,8 +218,8 @@ public class CategoryAddDialog extends JDialog {
         btnCancel = createButton("Hủy bỏ", TEXT_SECONDARY_DARK, CARD_BG, true);
         btnCancel.addActionListener(e -> dispose());
         
-        btnSave = createButton("Lưu danh mục", Color.WHITE, DARK_BLUE, false);
-        btnSave.addActionListener(e -> saveCategory());
+        btnSave = createButton("Lưu IMEI", Color.WHITE, DARK_BLUE, false);
+        btnSave.addActionListener(e -> saveImei());
         
         footer.add(btnCancel);
         footer.add(btnSave);
@@ -235,7 +251,7 @@ public class CategoryAddDialog extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 150, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 130, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -244,27 +260,50 @@ public class CategoryAddDialog extends JDialog {
         return button;
     }
 
-    private void saveCategory() {
-        if (txtName.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên danh mục!");
-            txtName.requestFocus();
+    private void saveImei() {
+        if (cboSku.getSelectedItem() == null) {
+            showError("Vui lòng chọn SKU!");
             return;
         }
         
-        CategoryDTO category = new CategoryDTO();
-        category.setName(txtName.getText().trim());
+        if (cboImportReceipt.getSelectedItem() == null) {
+            showError("Vui lòng chọn phiếu nhập!");
+            return;
+        }
         
-        CategoryDAO categoryDAO = new CategoryDAO();
-        boolean success = categoryDAO.AddCategory(category);
+        if (txtImei.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập mã IMEI!");
+            txtImei.requestFocus();
+            return;
+        }
+        
+        SkuDTO selectedSku = (SkuDTO) cboSku.getSelectedItem();
+        ImportReceiptDTO selectedReceipt = (ImportReceiptDTO) cboImportReceipt.getSelectedItem();
+        
+        ImeiDAO imeiDAO = new ImeiDAO();
+        
+        if (imeiDAO.IsImeiExists(txtImei.getText().trim())) {
+            showError("Mã IMEI đã tồn tại!");
+            txtImei.requestFocus();
+            return;
+        }
+        
+        ImeiDTO imei = new ImeiDTO();
+        imei.setSkuId(selectedSku.getID());
+        imei.setImportReceiptId(selectedReceipt.getID());
+        imei.setImei(txtImei.getText().trim());
+        imei.setStatus("available");
+        
+        boolean success = imeiDAO.AddImei(imei);
         
         if (success) {
-            JOptionPane.showMessageDialog(this, "Thêm danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            if (categoryPanel != null) {
-                categoryPanel.loadData();
+            JOptionPane.showMessageDialog(this, "Thêm IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (imeiPanel != null) {
+                imeiPanel.loadData();
             }
             dispose();
         } else {
-            showError("Thêm danh mục thất bại! Tên có thể đã tồn tại.");
+            showError("Thêm IMEI thất bại!");
         }
     }
     

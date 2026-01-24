@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.SupplierDAO;
+import dto.SupplierDTO;
 import static utils.ColorUtil.*;
 
 public class SupplierEditDialog extends JDialog {
@@ -20,14 +22,23 @@ public class SupplierEditDialog extends JDialog {
     // Data
     private int supplierId;
     private String supplierName;
+    private String supplierPhone;
+    private String supplierEmail;
+    private String supplierAddress;
     
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public SupplierEditDialog(Frame parent, int id, String name) {
+    private SupplierPanel supplierPanel;
+    
+    public SupplierEditDialog(Frame parent, int id, String name, String phone, String email, String address, SupplierPanel supplierPanel) {
         super(parent, "Sửa nhà cung cấp", true);
         this.supplierId = id;
         this.supplierName = name;
+        this.supplierPhone = phone;
+        this.supplierEmail = email;
+        this.supplierAddress = address;
+        this.supplierPanel = supplierPanel;
         
         initializeDialog();
         createComponents();
@@ -60,32 +71,17 @@ public class SupplierEditDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("✏️");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Sửa nhà cung cấp");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin nhà cung cấp #" + supplierId);
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         
         return header;
     }
@@ -154,6 +150,9 @@ public class SupplierEditDialog extends JDialog {
     private void loadData() {
         txtId.setText(String.valueOf(supplierId));
         txtName.setText(supplierName);
+        txtPhone.setText(supplierPhone != null ? supplierPhone : "");
+        txtEmail.setText(supplierEmail != null ? supplierEmail : "");
+        txtAddress.setText(supplierAddress != null ? supplierAddress : "");
     }
     
     private JPanel createFormGroup(String label, JComponent field) {
@@ -298,11 +297,34 @@ public class SupplierEditDialog extends JDialog {
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Cập nhật nhà cung cấp thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        SupplierDAO supplierDAO = new SupplierDAO();
+        if (supplierDAO.IsNameExistsExcept(txtName.getText().trim(), supplierId)) {
+            showError("Tên nhà cung cấp đã tồn tại!");
+            txtName.requestFocus();
+            return;
+        }
+        
+        SupplierDTO supplier = new SupplierDTO();
+        supplier.setID(supplierId);
+        supplier.setName(txtName.getText().trim());
+        supplier.setPhone(txtPhone.getText().trim());
+        supplier.setEmail(txtEmail.getText().trim());
+        supplier.setAddress(txtAddress.getText().trim());
+        
+        boolean success = supplierDAO.EditSupplier(supplier);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, 
+                "Cập nhật nhà cung cấp thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (supplierPanel != null) {
+                supplierPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Cập nhật nhà cung cấp thất bại!");
+        }
     }
     
     private void showError(String message) {

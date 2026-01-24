@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.SupplierDAO;
+import dto.SupplierDTO;
 import static utils.ColorUtil.*;
 
 public class SupplierAddDialog extends JDialog {
@@ -18,9 +20,12 @@ public class SupplierAddDialog extends JDialog {
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private SupplierPanel supplierPanel;
 
-    public SupplierAddDialog(Frame parent) {
+    public SupplierAddDialog(Frame parent, SupplierPanel supplierPanel) {
         super(parent, "Thêm nhà cung cấp", true);
+        this.supplierPanel = supplierPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
@@ -51,32 +56,17 @@ public class SupplierAddDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("🏭");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Thêm nhà cung cấp");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin nhà cung cấp bên dưới");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         return header;
     }
     
@@ -270,8 +260,31 @@ public class SupplierAddDialog extends JDialog {
             txtName.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm nhà cung cấp thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        SupplierDAO supplierDAO = new SupplierDAO();
+        if (supplierDAO.IsNameExists(txtName.getText().trim())) {
+            showError("Tên nhà cung cấp đã tồn tại!");
+            txtName.requestFocus();
+            return;
+        }
+        
+        SupplierDTO supplier = new SupplierDTO();
+        supplier.setName(txtName.getText().trim());
+        supplier.setPhone(txtPhone.getText().trim());
+        supplier.setEmail(txtEmail.getText().trim());
+        supplier.setAddress(txtAddress.getText().trim());
+        
+        boolean success = supplierDAO.AddSupplier(supplier);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Thêm nhà cung cấp thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (supplierPanel != null) {
+                supplierPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Thêm nhà cung cấp thất bại!");
+        }
     }
     
     private void showError(String message) {

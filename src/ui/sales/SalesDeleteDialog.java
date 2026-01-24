@@ -8,28 +8,32 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.InvoiceDAO;
+
 public class SalesDeleteDialog extends JDialog {
     
     // Data
     private int salesId;
-    private String employee;
+    private String salesInfo;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public SalesDeleteDialog(Frame parent, int id, String employee) {
+    private SalesPanel salesPanel;
+
+    public SalesDeleteDialog(Frame parent, int id, String salesInfo, SalesPanel salesPanel) {
         super(parent, "Xác nhận xóa", true);
         this.salesId = id;
-        this.employee = employee;
-        
+        this.salesInfo = salesInfo;
+        this.salesPanel = salesPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(460, 380);
+        setSize(420, 350);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -89,25 +93,18 @@ public class SalesDeleteDialog extends JDialog {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa hóa đơn<br><b>#" + salesId + " - NV: " + employee + "</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa<br><b>" + salesInfo + "</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Warning text
-        JLabel warningLabel = new JLabel("Hành động này không thể hoàn tác!");
-        warningLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        warningLabel.setForeground(DANGER_RED);
-        warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(titleLabel);
         card.add(Box.createVerticalStrut(12));
         card.add(messageLabel);
-        card.add(Box.createVerticalStrut(15));
-        card.add(warningLabel);
         
         card.add(Box.createVerticalGlue());
         
@@ -170,12 +167,25 @@ public class SalesDeleteDialog extends JDialog {
     }
     
     private void deleteSales() {
-        confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa hóa đơn thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        InvoiceDAO invoiceDAO = new InvoiceDAO();
+        boolean success = invoiceDAO.DeleteInvoice(salesId);
+        
+        if (success) {
+            confirmed = true;
+            JOptionPane.showMessageDialog(this, 
+                "Xóa hóa đơn thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (salesPanel != null) {
+                salesPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Xóa hóa đơn thất bại!", 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public boolean isConfirmed() {

@@ -1,25 +1,69 @@
 package ui.sku;
 
 import javax.swing.*;
+import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-import ui.BasePanel;
+import dao.SkuDAO;
+import dto.SkuDTO;
+import ui.BaseCrudPanel;
 
 /**
  * Panel quản lý SKU (Stock Keeping Unit)
  */
-public class SkuPanel extends BasePanel {
+public class SkuPanel extends BaseCrudPanel {
     
-    private static final String[] COLUMNS = {"ID", "Mã SKU", "Sản phẩm", "Thuộc tính", "Giá nhập", "Giá bán", "Tồn kho"};
-    private static final Object[][] DATA = {
-        {1, "IP17PM-BLK-256", "iPhone 17 Pro Max", "Đen, 256GB", "28,000,000₫", "32,990,000₫", 5},
-        {2, "IP17PM-WHT-256", "iPhone 17 Pro Max", "Trắng, 256GB", "28,000,000₫", "32,990,000₫", 3},
-        {3, "IP17PM-BLK-512", "iPhone 17 Pro Max", "Đen, 512GB", "32,000,000₫", "36,990,000₫", 2},
-        {4, "SS-S26U-BLK-256", "Samsung Galaxy S26 Ultra", "Đen, 256GB", "25,000,000₫", "29,990,000₫", 8},
-        {5, "SS-S26U-WHT-512", "Samsung Galaxy S26 Ultra", "Trắng, 512GB", "29,000,000₫", "33,990,000₫", 4},
-        {6, "ANK-PL3-1M", "Anker PowerLine III Flow USB-C", "1m", "200,000₫", "350,000₫", 50},
-    };
+    private static final String[] COLUMNS = {"ID", "Mã SKU", "Sản phẩm", "Thuộc tính", "Giá", "Tồn kho"};
     
     public SkuPanel(JFrame parentFrame) {
-        super(parentFrame, "SKU", COLUMNS, DATA);
+        super(parentFrame, "SKU", COLUMNS);
+    }
+    
+    @Override
+    public void loadData() {
+        SkuDAO skuDAO = new SkuDAO();
+        List<SkuDTO> skus = skuDAO.GetAllSku();
+        tableModel.setRowCount(0);
+        NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+        for (SkuDTO sku : skus) {
+            tableModel.addRow(new Object[]{
+                sku.getID(), 
+                sku.getCode(),
+                sku.getProductName(),
+                sku.getAttributes(),
+                currencyFormat.format(sku.getPrice()) + "₫",
+                sku.getStock()
+            });
+        }
+    }
+    
+    @Override
+    protected void setupColumnWidths() {
+        setFixedColumnWidth(0, 60);   // ID
+        setFlexibleColumnWidth(1, 120, 180); // Mã SKU
+        setFlexibleColumnWidth(2, 150, 250); // Sản phẩm
+        setFlexibleColumnWidth(3, 150, 300); // Thuộc tính
+        setFlexibleColumnWidth(4, 100, 150); // Giá
+        setFixedColumnWidth(5, 80);   // Tồn kho
+    }
+    
+    @Override
+    protected void onAddAction() {
+        new SkuAddDialog(parentFrame, this);
+    }
+    
+    @Override
+    protected void onEditAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String code = (String) getValueAt(modelRow, 1);
+        new SkuEditDialog(parentFrame, id, code, this);
+    }
+    
+    @Override
+    protected void onDeleteAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String code = (String) getValueAt(modelRow, 1);
+        new SkuDeleteDialog(parentFrame, id, code, this);
     }
 }

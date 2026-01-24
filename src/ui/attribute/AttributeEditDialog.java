@@ -1,46 +1,56 @@
-package ui.sales;
-
-import static utils.ColorUtil.*;
+package ui.attribute;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
 
-import dao.InvoiceDAO;
-import dto.InvoiceDTO;
+import dao.AttributeDAO;
+import dto.AttributeDTO;
+import dto.AttributeOptionDTO;
+import static utils.ColorUtil.*;
 
-public class SalesEditDialog extends JDialog {
+public class AttributeEditDialog extends JDialog {
     
     // Form fields
     private JTextField txtId;
-    private JTextField txtEmployee;
-    private JTextField txtTotalAmount;
-    private JTextField txtDate;
-    private JTextArea txtNote;
+    private JComboBox<AttributeDTO> cboAttribute;
+    private JTextField txtValue;
     
     // Data
-    private int salesId;
+    private int optionId;
+    private String attributeName;
+    private String optionValue;
     
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    private SalesPanel salesPanel;
+    private AttributePanel attributePanel;
+    private List<AttributeDTO> attributes;
     
-    public SalesEditDialog(Frame parent, int id, String staffName, SalesPanel salesPanel) {
-        super(parent, "Sửa hóa đơn bán hàng", true);
-        this.salesId = id;
-        this.salesPanel = salesPanel;
+    public AttributeEditDialog(Frame parent, int id, String attributeName, String value, AttributePanel attributePanel) {
+        super(parent, "Sửa giá trị thuộc tính", true);
+        this.optionId = id;
+        this.attributeName = attributeName;
+        this.optionValue = value;
+        this.attributePanel = attributePanel;
         
+        loadAttributes();
         initializeDialog();
         createComponents();
         loadData();
         setVisible(true);
     }
     
+    private void loadAttributes() {
+        AttributeDAO attributeDAO = new AttributeDAO();
+        attributes = attributeDAO.GetAllAttribute();
+    }
+    
     private void initializeDialog() {
-        setSize(540, 680);
+        setSize(480, 520);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -68,7 +78,7 @@ public class SalesEditDialog extends JDialog {
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
         
-        JLabel titleLabel = new JLabel("Sửa hóa đơn bán hàng");
+        JLabel titleLabel = new JLabel("Sửa giá trị thuộc tính");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
@@ -104,37 +114,32 @@ public class SalesEditDialog extends JDialog {
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(CONTENT_BG);
-        formCard.add(createFormGroup("ID hóa đơn", txtId));
+        formCard.add(createFormGroup("ID", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Employee (readonly)
-        txtEmployee = createTextField("");
-        txtEmployee.setEditable(false);
-        txtEmployee.setBackground(CONTENT_BG);
-        formCard.add(createFormGroup("Nhân viên bán", txtEmployee));
+        // Attribute ComboBox
+        cboAttribute = new JComboBox<>();
+        cboAttribute.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboAttribute.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        cboAttribute.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        for (AttributeDTO attr : attributes) {
+            cboAttribute.addItem(attr);
+        }
+        cboAttribute.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof AttributeDTO) {
+                    setText(((AttributeDTO) value).getName());
+                }
+                return this;
+            }
+        });
+        formCard.add(createFormGroup("Thuộc tính", cboAttribute));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Total Amount
-        formCard.add(createFormGroup("Tổng tiền", txtTotalAmount = createTextField("Nhập tổng tiền...")));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Date
-        formCard.add(createFormGroup("Ngày tạo", txtDate = createTextField("dd/MM/yyyy")));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Note
-        txtNote = new JTextArea(4, 20);
-        txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNote.setLineWrap(true);
-        txtNote.setWrapStyleWord(true);
-        txtNote.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane noteScroll = new JScrollPane(txtNote);
-        noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        noteScroll.setPreferredSize(new Dimension(0, 100));
-        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        
-        formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
+        // Value
+        formCard.add(createFormGroup("Giá trị", txtValue = createTextField("Nhập giá trị...")));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -144,17 +149,16 @@ public class SalesEditDialog extends JDialog {
     }
     
     private void loadData() {
-        // Load invoice data from database
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        InvoiceDTO invoice = invoiceDAO.GetInvoiceById(salesId);
+        txtId.setText(String.valueOf(optionId));
+        txtValue.setText(optionValue);
         
-        if (invoice != null) {
-            txtId.setText(String.valueOf(invoice.getID()));
-            txtEmployee.setText(invoice.getStaffName());
-            txtTotalAmount.setText(String.valueOf((long) invoice.getTotalAmount()));
-            
-            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
-            txtDate.setText(invoice.getCreatedAt() != null ? dateFormat.format(invoice.getCreatedAt()) : "");
+        // Select the correct attribute in combo box
+        for (int i = 0; i < cboAttribute.getItemCount(); i++) {
+            AttributeDTO attr = cboAttribute.getItemAt(i);
+            if (attr.getName().equals(attributeName)) {
+                cboAttribute.setSelectedIndex(i);
+                break;
+            }
         }
     }
     
@@ -177,27 +181,7 @@ public class SalesEditDialog extends JDialog {
         
         return group;
     }
-    
-    private JPanel createFormGroupWithComponent(String label, JComponent component) {
-        JPanel group = new JPanel();
-        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
-        group.setOpaque(false);
-        group.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(TEXT_PRIMARY);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        group.add(lbl);
-        group.add(Box.createVerticalStrut(8));
-        group.add(component);
-        
-        return group;
-    }
-    
+
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
@@ -238,38 +222,6 @@ public class SalesEditDialog extends JDialog {
         return field;
     }
     
-    private JComboBox<String> createComboBox(String[] items) {
-        JComboBox<String> combo = new JComboBox<>(items);
-        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
-        combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
-        combo.setBackground(CARD_BG);
-        combo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
-            BorderFactory.createEmptyBorder(2, 8, 2, 8)
-        ));
-        combo.setFocusable(false);
-        combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
-                JButton button = super.createArrowButton();
-                button.setBackground(CARD_BG);
-                button.setBorder(BorderFactory.createEmptyBorder());
-                return button;
-            }
-        });
-        combo.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setBorder(new EmptyBorder(5, 10, 5, 10));
-                setBackground(isSelected ? PRIMARY_ALPHA : CARD_BG);
-                return this;
-            }
-        });
-        return combo;
-    }
-    
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         footer.setBackground(DIALOG_BG);
@@ -279,7 +231,7 @@ public class SalesEditDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateSales());
+        btnUpdate.addActionListener(e -> updateAttribute());
         
         footer.add(btnCancel);
         footer.add(btnUpdate);
@@ -316,7 +268,7 @@ public class SalesEditDialog extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 120, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -325,41 +277,39 @@ public class SalesEditDialog extends JDialog {
         return button;
     }
     
-    private void updateSales() {
-        if (txtTotalAmount.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tổng tiền!");
-            txtTotalAmount.requestFocus();
+    private void updateAttribute() {
+        if (cboAttribute.getSelectedItem() == null) {
+            showError("Vui lòng chọn thuộc tính!");
             return;
         }
         
-        double totalAmount;
-        try {
-            totalAmount = Double.parseDouble(txtTotalAmount.getText().trim().replace(",", ""));
-        } catch (NumberFormatException e) {
-            showError("Tổng tiền không hợp lệ!");
-            txtTotalAmount.requestFocus();
+        if (txtValue.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập giá trị!");
+            txtValue.requestFocus();
             return;
         }
         
-        // Update in database
-        InvoiceDTO invoice = new InvoiceDTO();
-        invoice.setID(salesId);
-        invoice.setTotalAmount(totalAmount);
+        AttributeDTO selectedAttr = (AttributeDTO) cboAttribute.getSelectedItem();
         
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        boolean success = invoiceDAO.EditInvoice(invoice);
+        AttributeOptionDTO option = new AttributeOptionDTO();
+        option.setID(optionId);
+        option.setAttributeId(selectedAttr.getID());
+        option.setValue(txtValue.getText().trim());
+        
+        AttributeDAO attributeDAO = new AttributeDAO();
+        boolean success = attributeDAO.EditAttributeOption(option);
         
         if (success) {
             JOptionPane.showMessageDialog(this, 
-                "Cập nhật hóa đơn thành công!", 
+                "Cập nhật thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
-            if (salesPanel != null) {
-                salesPanel.loadData();
+            if (attributePanel != null) {
+                attributePanel.loadData();
             }
             dispose();
         } else {
-            showError("Cập nhật hóa đơn thất bại!");
+            showError("Cập nhật thất bại!");
         }
     }
     

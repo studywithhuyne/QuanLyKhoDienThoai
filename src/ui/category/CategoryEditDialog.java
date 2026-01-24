@@ -63,32 +63,17 @@ public class CategoryEditDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("✏️");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Sửa danh mục");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin danh mục #" + categoryId);
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         
         return header;
     }

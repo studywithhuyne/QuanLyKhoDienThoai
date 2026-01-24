@@ -1,4 +1,4 @@
-package ui.supplier;
+package ui.attribute;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -6,26 +6,26 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SupplierDAO;
+import dao.AttributeDAO;
 import static utils.ColorUtil.*;
 
-public class SupplierDeleteDialog extends JDialog {
+public class AttributeDeleteDialog extends JDialog {
     
     // Data
-    private int supplierId;
-    private String supplierName;
+    private int optionId;
+    private String optionName;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    private SupplierPanel supplierPanel;
+    private AttributePanel attributePanel;
     
-    public SupplierDeleteDialog(Frame parent, int id, String name, SupplierPanel supplierPanel) {
+    public AttributeDeleteDialog(Frame parent, int id, String name, AttributePanel attributePanel) {
         super(parent, "Xác nhận xóa", true);
-        this.supplierId = id;
-        this.supplierName = name;
-        this.supplierPanel = supplierPanel;
+        this.optionId = id;
+        this.optionName = name;
+        this.attributePanel = attributePanel;
         
         initializeDialog();
         createComponents();
@@ -87,13 +87,13 @@ public class SupplierDeleteDialog extends JDialog {
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa nhà cung cấp?");
+        JLabel titleLabel = new JLabel("Xóa giá trị thuộc tính?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa nhà cung cấp<br><b>\"" + supplierName + "\"</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa<br><b>\"" + optionName + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -124,8 +124,8 @@ public class SupplierDeleteDialog extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa NCC", Color.WHITE, DANGER_RED, false);
-        btnDelete.addActionListener(e -> deleteSupplier());
+        btnDelete = createButton("Xóa", Color.WHITE, DANGER_RED, false);
+        btnDelete.addActionListener(e -> deleteAttribute());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -157,7 +157,7 @@ public class SupplierDeleteDialog extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 110 : 130, 44));
+        button.setPreferredSize(new Dimension(isOutline ? 110 : 120, 44));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -166,23 +166,23 @@ public class SupplierDeleteDialog extends JDialog {
         return button;
     }
     
-    private void deleteSupplier() {
-        SupplierDAO supplierDAO = new SupplierDAO();
-        boolean success = supplierDAO.DeleteSupplier(supplierId);
+    private void deleteAttribute() {
+        AttributeDAO attributeDAO = new AttributeDAO();
+        boolean success = attributeDAO.DeleteAttributeOption(optionId);
         
         if (success) {
             confirmed = true;
             JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thành công!", 
+                "Xóa thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
-            if (supplierPanel != null) {
-                supplierPanel.loadData();
+            if (attributePanel != null) {
+                attributePanel.loadData();
             }
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thất bại! Có thể đang được sử dụng.", 
+                "Xóa thất bại!", 
                 "Lỗi", 
                 JOptionPane.ERROR_MESSAGE);
         }

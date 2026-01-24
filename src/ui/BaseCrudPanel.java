@@ -45,10 +45,10 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         buttonsPanel.setBackground(CONTENT_BG);
         
-        JButton addBtn = createActionButton("➕ Thêm mới", DARK_BLUE);
-        JButton editBtn = createActionButton("✏️ Sửa", WARNING_COLOR);
-        JButton deleteBtn = createActionButton("🗑️ Xóa", DANGER_COLOR);
-        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        JButton addBtn = createActionButton("Thêm mới", DARK_BLUE);
+        JButton editBtn = createActionButton("Sửa", WARNING_COLOR);
+        JButton deleteBtn = createActionButton("Xóa", DANGER_COLOR);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
         
         // Add button action
         addBtn.addActionListener(e -> onAddAction());
@@ -189,9 +189,9 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         contextMenu.setBackground(CARD_BG);
         contextMenu.setBorder(new LineBorder(BORDER_COLOR, 1, true));
         
-        JMenuItem menuAdd = createMenuItem("➕ Thêm mới", DARK_BLUE);
-        JMenuItem menuEdit = createMenuItem("✏️ Sửa", WARNING_COLOR);
-        JMenuItem menuDelete = createMenuItem("🗑️ Xóa", DANGER_COLOR);
+        JMenuItem menuAdd = createMenuItem("Thêm mới", DARK_BLUE);
+        JMenuItem menuEdit = createMenuItem("Sửa", WARNING_COLOR);
+        JMenuItem menuDelete = createMenuItem("Xóa", DANGER_COLOR);
         
         menuAdd.addActionListener(e -> onAddAction());
         
@@ -220,7 +220,6 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         });
         
         contextMenu.add(menuAdd);
-        contextMenu.addSeparator();
         contextMenu.add(menuEdit);
         contextMenu.add(menuDelete);
         
@@ -296,18 +295,17 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         menuItem.setFont(new Font(Font.DIALOG, Font.BOLD, 13));
         menuItem.setForeground(TEXT_PRIMARY);
         menuItem.setBackground(CARD_BG);
+        menuItem.setOpaque(true);
         menuItem.setBorder(new EmptyBorder(8, 15, 8, 15));
         menuItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        menuItem.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
+        // Sử dụng ChangeListener thay vì MouseListener để xử lý hover state ổn định hơn
+        menuItem.getModel().addChangeListener(e -> {
+            ButtonModel model = menuItem.getModel();
+            if (model.isArmed() || model.isRollover()) {
                 menuItem.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 30));
                 menuItem.setForeground(color);
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
+            } else {
                 menuItem.setBackground(CARD_BG);
                 menuItem.setForeground(TEXT_PRIMARY);
             }

@@ -7,35 +7,36 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
+
+import dao.ImportReceiptDAO;
+import dao.SupplierDAO;
+import dto.ImportReceiptDTO;
+import dto.SupplierDTO;
 
 public class ImportEditDialog extends JDialog {
     
     // Form fields
     private JTextField txtId;
-    private JComboBox<String> cmbSupplier;
-    private JComboBox<String> cmbEmployee;
+    private JComboBox<SupplierDTO> cmbSupplier;
+    private JTextField txtEmployee;
     private JTextField txtTotalAmount;
     private JTextField txtDate;
     private JTextArea txtNote;
     
     // Data
     private int importId;
-    private String supplier;
-    private String employee;
-    private String totalAmount;
-    private String date;
+    private int currentSupplierId;
     
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    public ImportEditDialog(Frame parent, int id, String supplier, String employee, String totalAmount, String date) {
+    private ImportPanel importPanel;
+
+    public ImportEditDialog(Frame parent, int id, String supplierName, ImportPanel importPanel) {
         super(parent, "Sửa phiếu nhập kho", true);
         this.importId = id;
-        this.supplier = supplier;
-        this.employee = employee;
-        this.totalAmount = totalAmount;
-        this.date = date;
-        
+        this.importPanel = importPanel;
         initializeDialog();
         createComponents();
         loadData();
@@ -43,7 +44,7 @@ public class ImportEditDialog extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(540, 730);
+        setSize(540, 710);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -67,32 +68,17 @@ public class ImportEditDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("✏️");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Sửa phiếu nhập kho");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Chỉnh sửa thông tin phiếu nhập #" + importId);
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         
         return header;
     }
@@ -126,13 +112,16 @@ public class ImportEditDialog extends JDialog {
         formCard.add(Box.createVerticalStrut(18));
         
         // Supplier
-        String[] suppliers = {"FPT Synnex", "Viettel Store", "CellphoneS B2B", "Anker Vietnam", "Baseus Official", "Ugreen Vietnam"};
-        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier = createComboBox(suppliers)));
+        cmbSupplier = new JComboBox<>();
+        styleComboBox(cmbSupplier);
+        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Employee
-        String[] employees = {"Admin", "Jerry"};
-        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee = createComboBox(employees)));
+        // Employee (readonly)
+        txtEmployee = createTextField("");
+        txtEmployee.setEditable(false);
+        txtEmployee.setBackground(CONTENT_BG);
+        formCard.add(createFormGroup("Nhân viên nhập", txtEmployee));
         formCard.add(Box.createVerticalStrut(18));
         
         // Total Amount
@@ -144,7 +133,7 @@ public class ImportEditDialog extends JDialog {
         formCard.add(Box.createVerticalStrut(18));
         
         // Note
-        txtNote = new JTextArea(4, 20);
+        txtNote = new JTextArea(8, 20);
         txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtNote.setLineWrap(true);
         txtNote.setWrapStyleWord(true);
@@ -152,8 +141,8 @@ public class ImportEditDialog extends JDialog {
         
         JScrollPane noteScroll = new JScrollPane(txtNote);
         noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        noteScroll.setPreferredSize(new Dimension(0, 100));
-        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        noteScroll.setPreferredSize(new Dimension(0, 200));
+        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
         
         formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
         
@@ -165,11 +154,36 @@ public class ImportEditDialog extends JDialog {
     }
     
     private void loadData() {
-        txtId.setText(String.valueOf(importId));
-        cmbSupplier.setSelectedItem(supplier);
-        cmbEmployee.setSelectedItem(employee);
-        txtTotalAmount.setText(totalAmount);
-        txtDate.setText(date);
+        // Load suppliers into combobox
+        SupplierDAO supplierDAO = new SupplierDAO();
+        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        cmbSupplier.removeAllItems();
+        for (SupplierDTO supplier : suppliers) {
+            cmbSupplier.addItem(supplier);
+        }
+        
+        // Load receipt data from database
+        ImportReceiptDAO importDAO = new ImportReceiptDAO();
+        ImportReceiptDTO receipt = importDAO.GetImportReceiptById(importId);
+        
+        if (receipt != null) {
+            txtId.setText(String.valueOf(receipt.getID()));
+            currentSupplierId = receipt.getSupplierId();
+            
+            // Select current supplier
+            for (int i = 0; i < cmbSupplier.getItemCount(); i++) {
+                if (cmbSupplier.getItemAt(i).getID() == currentSupplierId) {
+                    cmbSupplier.setSelectedIndex(i);
+                    break;
+                }
+            }
+            
+            txtEmployee.setText(receipt.getStaffName());
+            txtTotalAmount.setText(String.valueOf((long) receipt.getTotalAmount()));
+            
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+            txtDate.setText(receipt.getCreatedAt() != null ? dateFormat.format(receipt.getCreatedAt()) : "");
+        }
     }
     
     private JPanel createFormGroup(String label, JComponent field) {
@@ -254,6 +268,11 @@ public class ImportEditDialog extends JDialog {
     
     private JComboBox<String> createComboBox(String[] items) {
         JComboBox<String> combo = new JComboBox<>(items);
+        styleComboBox(combo);
+        return combo;
+    }
+    
+    private <T> void styleComboBox(JComboBox<T> combo) {
         combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
@@ -281,7 +300,6 @@ public class ImportEditDialog extends JDialog {
                 return this;
             }
         });
-        return combo;
     }
     
     private JPanel createFooter() {
@@ -340,17 +358,49 @@ public class ImportEditDialog extends JDialog {
     }
     
     private void updateImport() {
+        SupplierDTO selectedSupplier = (SupplierDTO) cmbSupplier.getSelectedItem();
+        
+        if (selectedSupplier == null) {
+            showError("Vui lòng chọn nhà cung cấp!");
+            return;
+        }
+        
         if (txtTotalAmount.getText().trim().isEmpty()) {
             showError("Vui lòng nhập tổng tiền!");
             txtTotalAmount.requestFocus();
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Cập nhật phiếu nhập thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        double totalAmount;
+        try {
+            totalAmount = Double.parseDouble(txtTotalAmount.getText().trim().replace(",", ""));
+        } catch (NumberFormatException e) {
+            showError("Tổng tiền không hợp lệ!");
+            txtTotalAmount.requestFocus();
+            return;
+        }
+        
+        // Update in database
+        ImportReceiptDTO receipt = new ImportReceiptDTO();
+        receipt.setID(importId);
+        receipt.setSupplierId(selectedSupplier.getID());
+        receipt.setTotalAmount(totalAmount);
+        
+        ImportReceiptDAO importDAO = new ImportReceiptDAO();
+        boolean success = importDAO.EditImportReceipt(receipt);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, 
+                "Cập nhật phiếu nhập thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (importPanel != null) {
+                importPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Cập nhật phiếu nhập thất bại!");
+        }
     }
     
     private void showError(String message) {

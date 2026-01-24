@@ -99,19 +99,12 @@ public class BrandDeleteDialog extends JDialog {
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Warning text
-        JLabel warningLabel = new JLabel("Hành động này không thể hoàn tác!");
-        warningLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        warningLabel.setForeground(DANGER_RED);
-        warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(titleLabel);
         card.add(Box.createVerticalStrut(12));
         card.add(messageLabel);
-        card.add(Box.createVerticalStrut(15));
-        card.add(warningLabel);
         
         card.add(Box.createVerticalGlue());
         

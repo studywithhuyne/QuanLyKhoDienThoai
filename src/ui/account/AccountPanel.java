@@ -2,7 +2,12 @@ package ui.account;
 
 import javax.swing.*;
 
+import dao.AccountDAO;
+import dto.AccountDTO;
 import ui.BasePanel;
+
+import java.util.List;
+import java.text.SimpleDateFormat;
 
 /**
  * Panel quản lý Tài khoản
@@ -10,12 +15,32 @@ import ui.BasePanel;
 public class AccountPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Username", "Họ tên", "Vai trò", "Ngày tạo"};
-    private static final Object[][] DATA = {
-        {1, "admin", "Quản lý", "Admin", "01/01/2026"},
-        {2, "jerry", "Jerry", "Staff", "01/01/2026"},
-    };
     
     public AccountPanel(JFrame parentFrame) {
-        super(parentFrame, "Tài khoản", COLUMNS, DATA);
+        super(parentFrame, "Tài khoản", COLUMNS, new Object[][]{});
+        loadData();
+    }
+    
+    public void loadData() {
+        AccountDAO accountDAO = new AccountDAO();
+        List<AccountDTO> accounts = accountDAO.GetAllAccount();
+        
+        tableModel.setRowCount(0);
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        
+        for (AccountDTO account : accounts) {
+            String createdAt = account.getCreatedAt() != null ? 
+                formatter.format(account.getCreatedAt()) : "";
+            String role = account.getRole().equals("admin") ? "Admin" : "Staff";
+            
+            tableModel.addRow(new Object[]{
+                account.getID(),
+                account.getUsername(),
+                account.getFullname(),
+                role,
+                createdAt
+            });
+        }
     }
 }

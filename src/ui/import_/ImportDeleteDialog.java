@@ -8,28 +8,32 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.ImportReceiptDAO;
+
 public class ImportDeleteDialog extends JDialog {
     
     // Data
     private int importId;
-    private String supplier;
+    private String importInfo;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    public ImportDeleteDialog(Frame parent, int id, String supplier) {
+    private ImportPanel importPanel;
+
+    public ImportDeleteDialog(Frame parent, int id, String importInfo, ImportPanel importPanel) {
         super(parent, "Xác nhận xóa", true);
         this.importId = id;
-        this.supplier = supplier;
-        
+        this.importInfo = importInfo;
+        this.importPanel = importPanel;
         initializeDialog();
         createComponents();
         setVisible(true);
     }
     
     private void initializeDialog() {
-        setSize(460, 380);
+        setSize(420, 350);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -89,25 +93,18 @@ public class ImportDeleteDialog extends JDialog {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa phiếu nhập<br><b>#" + importId + " - " + supplier + "</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa<br><b>" + importInfo + "</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Warning text
-        JLabel warningLabel = new JLabel("Hành động này không thể hoàn tác!");
-        warningLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        warningLabel.setForeground(DANGER_RED);
-        warningLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(titleLabel);
         card.add(Box.createVerticalStrut(12));
         card.add(messageLabel);
-        card.add(Box.createVerticalStrut(15));
-        card.add(warningLabel);
         
         card.add(Box.createVerticalGlue());
         
@@ -170,12 +167,25 @@ public class ImportDeleteDialog extends JDialog {
     }
     
     private void deleteImport() {
-        confirmed = true;
-        JOptionPane.showMessageDialog(this, 
-            "Xóa phiếu nhập thành công!", 
-            "Thành công", 
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        ImportReceiptDAO importDAO = new ImportReceiptDAO();
+        boolean success = importDAO.DeleteImportReceipt(importId);
+        
+        if (success) {
+            confirmed = true;
+            JOptionPane.showMessageDialog(this, 
+                "Xóa phiếu nhập thành công!", 
+                "Thành công", 
+                JOptionPane.INFORMATION_MESSAGE);
+            if (importPanel != null) {
+                importPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Xóa phiếu nhập thất bại!", 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public boolean isConfirmed() {

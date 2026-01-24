@@ -1,31 +1,29 @@
-package ui.supplier;
+package ui.sku;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SupplierDAO;
+import dao.SkuDAO;
 import static utils.ColorUtil.*;
 
-public class SupplierDeleteDialog extends JDialog {
+public class SkuDeleteDialog extends JDialog {
     
-    // Data
-    private int supplierId;
-    private String supplierName;
+    private int skuId;
+    private String skuCode;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    private SupplierPanel supplierPanel;
+    private SkuPanel skuPanel;
     
-    public SupplierDeleteDialog(Frame parent, int id, String name, SupplierPanel supplierPanel) {
+    public SkuDeleteDialog(Frame parent, int id, String code, SkuPanel skuPanel) {
         super(parent, "Xác nhận xóa", true);
-        this.supplierId = id;
-        this.supplierName = name;
-        this.supplierPanel = supplierPanel;
+        this.skuId = id;
+        this.skuCode = code;
+        this.skuPanel = skuPanel;
         
         initializeDialog();
         createComponents();
@@ -41,10 +39,8 @@ public class SupplierDeleteDialog extends JDialog {
     }
     
     private void createComponents() {
-        JPanel contentPanel = createContent();
-        add(contentPanel, BorderLayout.CENTER);
-        JPanel footerPanel = createFooter();
-        add(footerPanel, BorderLayout.SOUTH);
+        add(createContent(), BorderLayout.CENTER);
+        add(createFooter(), BorderLayout.SOUTH);
     }
     
     private JPanel createContent() {
@@ -68,7 +64,6 @@ public class SupplierDeleteDialog extends JDialog {
         
         card.add(Box.createVerticalGlue());
         
-        // Warning icon
         JLabel iconLabel = new JLabel("⚠") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -86,20 +81,18 @@ public class SupplierDeleteDialog extends JDialog {
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Title
-        JLabel titleLabel = new JLabel("Xóa nhà cung cấp?");
+        JLabel titleLabel = new JLabel("Xóa SKU?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa nhà cung cấp<br><b>\"" + supplierName + "\"</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa SKU<br><b>\"" + skuCode + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        
+
         card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(titleLabel);
@@ -109,7 +102,6 @@ public class SupplierDeleteDialog extends JDialog {
         card.add(Box.createVerticalGlue());
         
         wrapper.add(card, BorderLayout.CENTER);
-        
         return wrapper;
     }
     
@@ -124,8 +116,8 @@ public class SupplierDeleteDialog extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa NCC", Color.WHITE, DANGER_RED, false);
-        btnDelete.addActionListener(e -> deleteSupplier());
+        btnDelete = createButton("Xóa SKU", Color.WHITE, DANGER_RED, false);
+        btnDelete.addActionListener(e -> deleteSku());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -166,25 +158,19 @@ public class SupplierDeleteDialog extends JDialog {
         return button;
     }
     
-    private void deleteSupplier() {
-        SupplierDAO supplierDAO = new SupplierDAO();
-        boolean success = supplierDAO.DeleteSupplier(supplierId);
+    private void deleteSku() {
+        SkuDAO skuDAO = new SkuDAO();
+        boolean success = skuDAO.DeleteSku(skuId);
         
         if (success) {
             confirmed = true;
-            JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thành công!", 
-                "Thành công", 
-                JOptionPane.INFORMATION_MESSAGE);
-            if (supplierPanel != null) {
-                supplierPanel.loadData();
+            JOptionPane.showMessageDialog(this, "Xóa SKU thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (skuPanel != null) {
+                skuPanel.loadData();
             }
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thất bại! Có thể đang được sử dụng.", 
-                "Lỗi", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Xóa SKU thất bại! SKU có thể đang được sử dụng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     

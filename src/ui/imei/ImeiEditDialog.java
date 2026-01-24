@@ -1,61 +1,70 @@
-package ui.sales;
-
-import static utils.ColorUtil.*;
+package ui.imei;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
+import java.text.ParseException;
 
-import dao.InvoiceDAO;
-import dto.InvoiceDTO;
+import dao.ImeiDAO;
+import dto.ImeiDTO;
+import static utils.ColorUtil.*;
 
-public class SalesEditDialog extends JDialog {
+public class ImeiEditDialog extends JDialog {
     
-    // Form fields
     private JTextField txtId;
-    private JTextField txtEmployee;
-    private JTextField txtTotalAmount;
-    private JTextField txtDate;
-    private JTextArea txtNote;
+    private JTextField txtImei;
+    private JComboBox<String> cboStatus;
+    private JTextField txtCreatedAt;
     
-    // Data
-    private int salesId;
+    private int imeiId;
+    private String imeiCode;
     
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    private SalesPanel salesPanel;
-    
-    public SalesEditDialog(Frame parent, int id, String staffName, SalesPanel salesPanel) {
-        super(parent, "Sửa hóa đơn bán hàng", true);
-        this.salesId = id;
-        this.salesPanel = salesPanel;
-        
+    private ImeiPanel imeiPanel;
+    private ImeiDTO currentImei;
+
+    public ImeiEditDialog(Frame parent, int id, String imei, ImeiPanel imeiPanel) {
+        super(parent, "Sửa IMEI", true);
+        this.imeiId = id;
+        this.imeiCode = imei;
+        this.imeiPanel = imeiPanel;
+        loadImeiData();
         initializeDialog();
         createComponents();
         loadData();
         setVisible(true);
     }
     
+    private void loadImeiData() {
+        ImeiDAO imeiDAO = new ImeiDAO();
+        for (ImeiDTO imei : imeiDAO.GetAllImei()) {
+            if (imei.getID() == imeiId) {
+                currentImei = imei;
+                break;
+            }
+        }
+    }
+    
     private void initializeDialog() {
-        setSize(540, 680);
+        setSize(500, 620);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
         getContentPane().setBackground(DIALOG_BG);
     }
-    
+
     private void createComponents() {
-        JPanel headerPanel = createHeader();
-        add(headerPanel, BorderLayout.NORTH);
-        JPanel formPanel = createForm();
-        add(formPanel, BorderLayout.CENTER);
-        JPanel footerPanel = createFooter();
-        add(footerPanel, BorderLayout.SOUTH);
+        add(createHeader(), BorderLayout.NORTH);
+        add(createForm(), BorderLayout.CENTER);
+        add(createFooter(), BorderLayout.SOUTH);
     }
-    
+
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD_BG);
@@ -68,14 +77,13 @@ public class SalesEditDialog extends JDialog {
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
         
-        JLabel titleLabel = new JLabel("Sửa hóa đơn bán hàng");
+        JLabel titleLabel = new JLabel("Sửa IMEI");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
         titlePanel.add(titleLabel);
         
         header.add(titlePanel, BorderLayout.WEST);
-        
         return header;
     }
     
@@ -98,66 +106,60 @@ public class SalesEditDialog extends JDialog {
         formCard.setOpaque(false);
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
-        formCard.add(Box.createVerticalGlue());
-        
         // ID (readonly)
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(CONTENT_BG);
-        formCard.add(createFormGroup("ID hóa đơn", txtId));
+        formCard.add(createFormGroup("ID", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Employee (readonly)
-        txtEmployee = createTextField("");
-        txtEmployee.setEditable(false);
-        txtEmployee.setBackground(CONTENT_BG);
-        formCard.add(createFormGroup("Nhân viên bán", txtEmployee));
+        // IMEI
+        formCard.add(createFormGroup("Mã IMEI", txtImei = createTextField("Nhập mã IMEI...")));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Total Amount
-        formCard.add(createFormGroup("Tổng tiền", txtTotalAmount = createTextField("Nhập tổng tiền...")));
+        // Status
+        cboStatus = new JComboBox<>(new String[]{"available", "sold", "warranty", "defective"});
+        cboStatus.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboStatus.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
+        cboStatus.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        cboStatus.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    switch (value.toString()) {
+                        case "available": setText("Còn hàng"); break;
+                        case "sold": setText("Đã bán"); break;
+                        case "warranty": setText("Bảo hành"); break;
+                        case "defective": setText("Lỗi"); break;
+                    }
+                }
+                return this;
+            }
+        });
+        formCard.add(createFormGroup("Trạng thái", cboStatus));
         formCard.add(Box.createVerticalStrut(18));
         
-        // Date
-        formCard.add(createFormGroup("Ngày tạo", txtDate = createTextField("dd/MM/yyyy")));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Note
-        txtNote = new JTextArea(4, 20);
-        txtNote.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNote.setLineWrap(true);
-        txtNote.setWrapStyleWord(true);
-        txtNote.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane noteScroll = new JScrollPane(txtNote);
-        noteScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        noteScroll.setPreferredSize(new Dimension(0, 100));
-        noteScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        
-        formCard.add(createFormGroupWithComponent("Ghi chú (tùy chọn)", noteScroll));
-        
-        formCard.add(Box.createVerticalGlue());
+        // Ngày nhập
+        formCard.add(createFormGroup("Ngày nhập (dd/MM/yyyy)", txtCreatedAt = createTextField("dd/MM/yyyy")));
         
         formWrapper.add(formCard, BorderLayout.CENTER);
-        
         return formWrapper;
     }
     
     private void loadData() {
-        // Load invoice data from database
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        InvoiceDTO invoice = invoiceDAO.GetInvoiceById(salesId);
-        
-        if (invoice != null) {
-            txtId.setText(String.valueOf(invoice.getID()));
-            txtEmployee.setText(invoice.getStaffName());
-            txtTotalAmount.setText(String.valueOf((long) invoice.getTotalAmount()));
+        txtId.setText(String.valueOf(imeiId));
+        if (currentImei != null) {
+            txtImei.setText(currentImei.getImei());
+            cboStatus.setSelectedItem(currentImei.getStatus());
             
-            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
-            txtDate.setText(invoice.getCreatedAt() != null ? dateFormat.format(invoice.getCreatedAt()) : "");
+            if (currentImei.getCreatedAt() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                txtCreatedAt.setText(sdf.format(currentImei.getCreatedAt()));
+            }
         }
     }
-    
+
     private JPanel createFormGroup(String label, JComponent field) {
         JPanel group = new JPanel();
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -177,27 +179,7 @@ public class SalesEditDialog extends JDialog {
         
         return group;
     }
-    
-    private JPanel createFormGroupWithComponent(String label, JComponent component) {
-        JPanel group = new JPanel();
-        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
-        group.setOpaque(false);
-        group.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(TEXT_PRIMARY);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        group.add(lbl);
-        group.add(Box.createVerticalStrut(8));
-        group.add(component);
-        
-        return group;
-    }
-    
+
     private JTextField createTextField(String placeholder) {
         JTextField field = new JTextField() {
             @Override
@@ -238,38 +220,6 @@ public class SalesEditDialog extends JDialog {
         return field;
     }
     
-    private JComboBox<String> createComboBox(String[] items) {
-        JComboBox<String> combo = new JComboBox<>(items);
-        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
-        combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
-        combo.setBackground(CARD_BG);
-        combo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
-            BorderFactory.createEmptyBorder(2, 8, 2, 8)
-        ));
-        combo.setFocusable(false);
-        combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
-                JButton button = super.createArrowButton();
-                button.setBackground(CARD_BG);
-                button.setBorder(BorderFactory.createEmptyBorder());
-                return button;
-            }
-        });
-        combo.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setBorder(new EmptyBorder(5, 10, 5, 10));
-                setBackground(isSelected ? PRIMARY_ALPHA : CARD_BG);
-                return this;
-            }
-        });
-        return combo;
-    }
-    
     private JPanel createFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         footer.setBackground(DIALOG_BG);
@@ -279,7 +229,7 @@ public class SalesEditDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         
         btnUpdate = createButton("Cập nhật", Color.WHITE, WARNING_COLOR, false);
-        btnUpdate.addActionListener(e -> updateSales());
+        btnUpdate.addActionListener(e -> updateImei());
         
         footer.add(btnCancel);
         footer.add(btnUpdate);
@@ -316,7 +266,7 @@ public class SalesEditDialog extends JDialog {
         
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
-        button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
+        button.setPreferredSize(new Dimension(isOutline ? 100 : 130, 42));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
@@ -324,42 +274,58 @@ public class SalesEditDialog extends JDialog {
         
         return button;
     }
-    
-    private void updateSales() {
-        if (txtTotalAmount.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tổng tiền!");
-            txtTotalAmount.requestFocus();
+
+    private void updateImei() {
+        if (txtImei.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập mã IMEI!");
+            txtImei.requestFocus();
             return;
         }
         
-        double totalAmount;
+        if (txtCreatedAt.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập ngày nhập!");
+            txtCreatedAt.requestFocus();
+            return;
+        }
+        
+        // Parse ngày nhập
+        Timestamp createdAt;
         try {
-            totalAmount = Double.parseDouble(txtTotalAmount.getText().trim().replace(",", ""));
-        } catch (NumberFormatException e) {
-            showError("Tổng tiền không hợp lệ!");
-            txtTotalAmount.requestFocus();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            sdf.setLenient(false);
+            java.util.Date date = sdf.parse(txtCreatedAt.getText().trim());
+            createdAt = new Timestamp(date.getTime());
+        } catch (ParseException e) {
+            showError("Ngày nhập không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy");
+            txtCreatedAt.requestFocus();
             return;
         }
         
-        // Update in database
-        InvoiceDTO invoice = new InvoiceDTO();
-        invoice.setID(salesId);
-        invoice.setTotalAmount(totalAmount);
+        ImeiDAO imeiDAO = new ImeiDAO();
         
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        boolean success = invoiceDAO.EditInvoice(invoice);
+        if (imeiDAO.IsImeiExistsExcept(txtImei.getText().trim(), imeiId)) {
+            showError("Mã IMEI đã tồn tại!");
+            txtImei.requestFocus();
+            return;
+        }
+        
+        ImeiDTO imei = new ImeiDTO();
+        imei.setID(imeiId);
+        imei.setSkuId(currentImei.getSkuId());
+        imei.setImei(txtImei.getText().trim());
+        imei.setStatus((String) cboStatus.getSelectedItem());
+        imei.setCreatedAt(createdAt);
+        
+        boolean success = imeiDAO.EditImei(imei);
         
         if (success) {
-            JOptionPane.showMessageDialog(this, 
-                "Cập nhật hóa đơn thành công!", 
-                "Thành công", 
-                JOptionPane.INFORMATION_MESSAGE);
-            if (salesPanel != null) {
-                salesPanel.loadData();
+            JOptionPane.showMessageDialog(this, "Cập nhật IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (imeiPanel != null) {
+                imeiPanel.loadData();
             }
             dispose();
         } else {
-            showError("Cập nhật hóa đơn thất bại!");
+            showError("Cập nhật IMEI thất bại!");
         }
     }
     

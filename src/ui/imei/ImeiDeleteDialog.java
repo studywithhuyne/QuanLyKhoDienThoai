@@ -1,31 +1,29 @@
-package ui.supplier;
+package ui.imei;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SupplierDAO;
+import dao.ImeiDAO;
 import static utils.ColorUtil.*;
 
-public class SupplierDeleteDialog extends JDialog {
+public class ImeiDeleteDialog extends JDialog {
     
-    // Data
-    private int supplierId;
-    private String supplierName;
+    private int imeiId;
+    private String imeiCode;
     private boolean confirmed = false;
     
     private JButton btnDelete;
     private JButton btnCancel;
     
-    private SupplierPanel supplierPanel;
+    private ImeiPanel imeiPanel;
     
-    public SupplierDeleteDialog(Frame parent, int id, String name, SupplierPanel supplierPanel) {
+    public ImeiDeleteDialog(Frame parent, int id, String imei, ImeiPanel imeiPanel) {
         super(parent, "Xác nhận xóa", true);
-        this.supplierId = id;
-        this.supplierName = name;
-        this.supplierPanel = supplierPanel;
+        this.imeiId = id;
+        this.imeiCode = imei;
+        this.imeiPanel = imeiPanel;
         
         initializeDialog();
         createComponents();
@@ -41,10 +39,8 @@ public class SupplierDeleteDialog extends JDialog {
     }
     
     private void createComponents() {
-        JPanel contentPanel = createContent();
-        add(contentPanel, BorderLayout.CENTER);
-        JPanel footerPanel = createFooter();
-        add(footerPanel, BorderLayout.SOUTH);
+        add(createContent(), BorderLayout.CENTER);
+        add(createFooter(), BorderLayout.SOUTH);
     }
     
     private JPanel createContent() {
@@ -68,7 +64,6 @@ public class SupplierDeleteDialog extends JDialog {
         
         card.add(Box.createVerticalGlue());
         
-        // Warning icon
         JLabel iconLabel = new JLabel("⚠") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -86,19 +81,16 @@ public class SupplierDeleteDialog extends JDialog {
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Title
-        JLabel titleLabel = new JLabel("Xóa nhà cung cấp?");
+        JLabel titleLabel = new JLabel("Xóa IMEI?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Message
-        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa nhà cung cấp<br><b>\"" + supplierName + "\"</b>?</center></html>");
+        JLabel messageLabel = new JLabel("<html><center>Bạn có chắc chắn muốn xóa IMEI<br><b>\"" + imeiCode + "\"</b>?</center></html>");
         messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         messageLabel.setForeground(TEXT_SECONDARY_DARK);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
         
         card.add(iconLabel);
         card.add(Box.createVerticalStrut(20));
@@ -109,7 +101,6 @@ public class SupplierDeleteDialog extends JDialog {
         card.add(Box.createVerticalGlue());
         
         wrapper.add(card, BorderLayout.CENTER);
-        
         return wrapper;
     }
     
@@ -124,8 +115,8 @@ public class SupplierDeleteDialog extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa NCC", Color.WHITE, DANGER_RED, false);
-        btnDelete.addActionListener(e -> deleteSupplier());
+        btnDelete = createButton("Xóa IMEI", Color.WHITE, DANGER_RED, false);
+        btnDelete.addActionListener(e -> deleteImei());
         
         footer.add(btnCancel);
         footer.add(btnDelete);
@@ -166,25 +157,19 @@ public class SupplierDeleteDialog extends JDialog {
         return button;
     }
     
-    private void deleteSupplier() {
-        SupplierDAO supplierDAO = new SupplierDAO();
-        boolean success = supplierDAO.DeleteSupplier(supplierId);
+    private void deleteImei() {
+        ImeiDAO imeiDAO = new ImeiDAO();
+        boolean success = imeiDAO.DeleteImei(imeiId);
         
         if (success) {
             confirmed = true;
-            JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thành công!", 
-                "Thành công", 
-                JOptionPane.INFORMATION_MESSAGE);
-            if (supplierPanel != null) {
-                supplierPanel.loadData();
+            JOptionPane.showMessageDialog(this, "Xóa IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (imeiPanel != null) {
+                imeiPanel.loadData();
             }
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, 
-                "Xóa nhà cung cấp thất bại! Có thể đang được sử dụng.", 
-                "Lỗi", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Xóa IMEI thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     

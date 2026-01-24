@@ -9,23 +9,35 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import dao.AccountDAO;
+import dao.ImportReceiptDAO;
+import dao.SupplierDAO;
+import dto.AccountDTO;
+import dto.ImportReceiptDTO;
+import dto.SupplierDTO;
 
 public class ImportAddDialog extends JDialog {
     
     // Form fields
-    private JComboBox<String> cmbSupplier;
-    private JComboBox<String> cmbEmployee;
+    private JComboBox<SupplierDTO> cmbSupplier;
+    private JComboBox<AccountDTO> cmbEmployee;
     private JTextField txtTotalAmount;
     private JTextField txtDate;
     private JTextArea txtNote;
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private ImportPanel importPanel;
 
-    public ImportAddDialog(Frame parent) {
+    public ImportAddDialog(Frame parent, ImportPanel importPanel) {
         super(parent, "Thêm phiếu nhập kho", true);
+        this.importPanel = importPanel;
         initializeDialog();
         createComponents();
+        loadComboBoxData();
         setVisible(true);
     }
     
@@ -54,32 +66,17 @@ public class ImportAddDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("📥");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Thêm phiếu nhập kho");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin phiếu nhập bên dưới");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         return header;
     }
     
@@ -105,13 +102,15 @@ public class ImportAddDialog extends JDialog {
         formCard.add(Box.createVerticalGlue());
 
         // Supplier
-        String[] suppliers = {"FPT Synnex", "Viettel Store", "CellphoneS B2B", "Anker Vietnam", "Baseus Official", "Ugreen Vietnam"};
-        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier = createComboBox(suppliers)));
+        cmbSupplier = new JComboBox<>();
+        styleComboBox(cmbSupplier);
+        formCard.add(createFormGroup("Nhà cung cấp", cmbSupplier));
         formCard.add(Box.createVerticalStrut(18));
         
         // Employee
-        String[] employees = {"Admin", "Jerry"};
-        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee = createComboBox(employees)));
+        cmbEmployee = new JComboBox<>();
+        styleComboBox(cmbEmployee);
+        formCard.add(createFormGroup("Nhân viên nhập", cmbEmployee));
         formCard.add(Box.createVerticalStrut(18));
         
         // Total Amount
@@ -225,8 +224,7 @@ public class ImportAddDialog extends JDialog {
         return field;
     }
     
-    private JComboBox<String> createComboBox(String[] items) {
-        JComboBox<String> combo = new JComboBox<>(items);
+    private <T> void styleComboBox(JComboBox<T> combo) {
         combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
@@ -236,7 +234,6 @@ public class ImportAddDialog extends JDialog {
             BorderFactory.createEmptyBorder(2, 8, 2, 8)
         ));
         combo.setFocusable(false);
-        // Custom UI to remove focus border
         combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -255,7 +252,24 @@ public class ImportAddDialog extends JDialog {
                 return this;
             }
         });
-        return combo;
+    }
+    
+    private void loadComboBoxData() {
+        // Load suppliers
+        SupplierDAO supplierDAO = new SupplierDAO();
+        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        cmbSupplier.removeAllItems();
+        for (SupplierDTO supplier : suppliers) {
+            cmbSupplier.addItem(supplier);
+        }
+        
+        // Load employees
+        AccountDAO accountDAO = new AccountDAO();
+        List<AccountDTO> accounts = accountDAO.GetAllAccount();
+        cmbEmployee.removeAllItems();
+        for (AccountDTO account : accounts) {
+            cmbEmployee.addItem(account);
+        }
     }
     
     private JPanel createFooter() {
@@ -309,13 +323,52 @@ public class ImportAddDialog extends JDialog {
     }
 
     private void saveImport() {
+        SupplierDTO selectedSupplier = (SupplierDTO) cmbSupplier.getSelectedItem();
+        AccountDTO selectedEmployee = (AccountDTO) cmbEmployee.getSelectedItem();
+        
+        if (selectedSupplier == null) {
+            showError("Vui lòng chọn nhà cung cấp!");
+            return;
+        }
+        
+        if (selectedEmployee == null) {
+            showError("Vui lòng chọn nhân viên!");
+            return;
+        }
+        
         if (txtTotalAmount.getText().trim().isEmpty()) {
             showError("Vui lòng nhập tổng tiền!");
             txtTotalAmount.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm phiếu nhập thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        double totalAmount;
+        try {
+            totalAmount = Double.parseDouble(txtTotalAmount.getText().trim().replace(",", ""));
+        } catch (NumberFormatException e) {
+            showError("Tổng tiền không hợp lệ!");
+            txtTotalAmount.requestFocus();
+            return;
+        }
+        
+        // Create DTO and save to database
+        ImportReceiptDTO receipt = new ImportReceiptDTO();
+        receipt.setSupplierId(selectedSupplier.getID());
+        receipt.setStaffId(selectedEmployee.getID());
+        receipt.setTotalAmount(totalAmount);
+        
+        ImportReceiptDAO importDAO = new ImportReceiptDAO();
+        int newId = importDAO.AddImportReceipt(receipt);
+        
+        if (newId > 0) {
+            JOptionPane.showMessageDialog(this, "Thêm phiếu nhập thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (importPanel != null) {
+                importPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Thêm phiếu nhập thất bại!");
+        }
     }
     
     private void showError(String message) {

@@ -9,22 +9,32 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import dao.AccountDAO;
+import dao.InvoiceDAO;
+import dto.AccountDTO;
+import dto.InvoiceDTO;
 
 public class SalesAddDialog extends JDialog {
     
     // Form fields
-    private JComboBox<String> cmbEmployee;
+    private JComboBox<AccountDTO> cmbEmployee;
     private JTextField txtTotalAmount;
     private JTextField txtDate;
     private JTextArea txtNote;
     
     private JButton btnSave;
     private JButton btnCancel;
+    
+    private SalesPanel salesPanel;
 
-    public SalesAddDialog(Frame parent) {
+    public SalesAddDialog(Frame parent, SalesPanel salesPanel) {
         super(parent, "Thêm hóa đơn bán hàng", true);
+        this.salesPanel = salesPanel;
         initializeDialog();
         createComponents();
+        loadComboBoxData();
         setVisible(true);
     }
     
@@ -53,32 +63,17 @@ public class SalesAddDialog extends JDialog {
             new EmptyBorder(20, 25, 20, 25)
         ));
         
-        JLabel iconLabel = new JLabel("🛒");
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
-        titlePanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         JLabel titleLabel = new JLabel("Thêm hóa đơn bán hàng");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
-        JLabel subtitleLabel = new JLabel("Nhập thông tin hóa đơn bên dưới");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitleLabel.setForeground(TEXT_SECONDARY_DARK);
-        
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(3));
-        titlePanel.add(subtitleLabel);
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftSection.setBackground(CARD_BG);
-        leftSection.add(iconLabel);
-        leftSection.add(titlePanel);
-        
-        header.add(leftSection, BorderLayout.WEST);
+        header.add(titlePanel, BorderLayout.WEST);
         return header;
     }
     
@@ -104,8 +99,9 @@ public class SalesAddDialog extends JDialog {
         formCard.add(Box.createVerticalGlue());
 
         // Employee
-        String[] employees = {"Admin", "Jerry"};
-        formCard.add(createFormGroup("Nhân viên bán", cmbEmployee = createComboBox(employees)));
+        cmbEmployee = new JComboBox<>();
+        styleComboBox(cmbEmployee);
+        formCard.add(createFormGroup("Nhân viên bán", cmbEmployee));
         formCard.add(Box.createVerticalStrut(18));
         
         // Total Amount
@@ -219,8 +215,7 @@ public class SalesAddDialog extends JDialog {
         return field;
     }
     
-    private JComboBox<String> createComboBox(String[] items) {
-        JComboBox<String> combo = new JComboBox<>(items);
+    private <T> void styleComboBox(JComboBox<T> combo) {
         combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         combo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
@@ -230,7 +225,6 @@ public class SalesAddDialog extends JDialog {
             BorderFactory.createEmptyBorder(2, 8, 2, 8)
         ));
         combo.setFocusable(false);
-        // Custom UI to remove focus border
         combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -249,7 +243,16 @@ public class SalesAddDialog extends JDialog {
                 return this;
             }
         });
-        return combo;
+    }
+    
+    private void loadComboBoxData() {
+        // Load employees
+        AccountDAO accountDAO = new AccountDAO();
+        List<AccountDTO> accounts = accountDAO.GetAllAccount();
+        cmbEmployee.removeAllItems();
+        for (AccountDTO account : accounts) {
+            cmbEmployee.addItem(account);
+        }
     }
     
     private JPanel createFooter() {
@@ -303,13 +306,45 @@ public class SalesAddDialog extends JDialog {
     }
 
     private void saveSales() {
+        AccountDTO selectedEmployee = (AccountDTO) cmbEmployee.getSelectedItem();
+        
+        if (selectedEmployee == null) {
+            showError("Vui lòng chọn nhân viên!");
+            return;
+        }
+        
         if (txtTotalAmount.getText().trim().isEmpty()) {
             showError("Vui lòng nhập tổng tiền!");
             txtTotalAmount.requestFocus();
             return;
         }
-        JOptionPane.showMessageDialog(this, "Thêm hóa đơn thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        
+        double totalAmount;
+        try {
+            totalAmount = Double.parseDouble(txtTotalAmount.getText().trim().replace(",", ""));
+        } catch (NumberFormatException e) {
+            showError("Tổng tiền không hợp lệ!");
+            txtTotalAmount.requestFocus();
+            return;
+        }
+        
+        // Create DTO and save to database
+        InvoiceDTO invoice = new InvoiceDTO();
+        invoice.setStaffId(selectedEmployee.getID());
+        invoice.setTotalAmount(totalAmount);
+        
+        InvoiceDAO invoiceDAO = new InvoiceDAO();
+        int newId = invoiceDAO.AddInvoice(invoice);
+        
+        if (newId > 0) {
+            JOptionPane.showMessageDialog(this, "Thêm hóa đơn thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (salesPanel != null) {
+                salesPanel.loadData();
+            }
+            dispose();
+        } else {
+            showError("Thêm hóa đơn thất bại!");
+        }
     }
     
     private void showError(String message) {

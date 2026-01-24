@@ -5,6 +5,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.AccountDAO;
 import static utils.ColorUtil.*;
 
 public class AccountDeleteDialog extends JDialog {
@@ -14,11 +15,14 @@ public class AccountDeleteDialog extends JDialog {
     
     private int accountId;
     private String accountUsername;
+    
+    private AccountPanel accountPanel;
 
-    public AccountDeleteDialog(Frame parent, int id, String username) {
+    public AccountDeleteDialog(Frame parent, int id, String username, AccountPanel accountPanel) {
         super(parent, "Xóa tài khoản", true);
         this.accountId = id;
         this.accountUsername = username;
+        this.accountPanel = accountPanel;
         
         initializeDialog();
         createComponents();
@@ -151,11 +155,23 @@ public class AccountDeleteDialog extends JDialog {
     }
     
     private void deleteAccount() {
-        // TODO: Delete from database
-        JOptionPane.showMessageDialog(this,
-            "Đã xóa tài khoản \"" + accountUsername + "\" thành công!",
-            "Thành công",
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        AccountDAO accountDAO = new AccountDAO();
+        boolean success = accountDAO.DeleteAccount(accountId);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this,
+                "Đã xóa tài khoản \"" + accountUsername + "\" thành công!",
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE);
+            if (accountPanel != null) {
+                accountPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Xóa tài khoản thất bại!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

@@ -40,7 +40,10 @@ CREATE TABLE categories (
 -- 5. suppliers
 CREATE TABLE suppliers (
     id      INT AUTO_INCREMENT PRIMARY KEY,
-    name    VARCHAR(50) NOT NULL UNIQUE
+    name    VARCHAR(50) NOT NULL UNIQUE,
+    phone   VARCHAR(20),
+    email   VARCHAR(100),
+    address VARCHAR(255)
 );
 
 -- 6. attribute_options
@@ -138,6 +141,15 @@ CREATE TABLE invoice_details (
     FOREIGN KEY (imei_id)    REFERENCES phone_imeis(id)
 );
 
+-- 15. category_attribute
+CREATE TABLE category_attribute (
+    category_id     INT NOT NULL,
+    attribute_id    INT NOT NULL,
+    PRIMARY KEY (category_id, attribute_id),
+    FOREIGN KEY (category_id)  REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE
+);
+
 
 -- =======================================================
 -- 2. DỮ LIỆU MẪU (DUMMY DATA)
@@ -158,9 +170,13 @@ INSERT INTO brands (name) VALUES
 ('Anker'), ('Baseus'), ('Belkin'), ('Sony'), ('Ugreen');
 
 -- Suppliers
-INSERT INTO suppliers (name) VALUES
-('FPT Synnex'), ('Viettel Store'), ('CellphoneS B2B'),
-('Anker Vietnam'), ('Baseus Official'), ('Ugreen Vietnam');
+INSERT INTO suppliers (name, phone, email, address) VALUES
+('FPT Synnex', '1900 6600', 'sales@fptdistribution.com.vn', '52-54 Lê Đại Hành, Q.11, TP.HCM'),
+('Viettel Store', '1800 8123', 'cskh@viettelstore.vn', '285 Cách Mạng Tháng 8, Q.10, TP.HCM'),
+('CellphoneS B2B', '1800 2097', 'b2b@cellphones.com.vn', '315 Nguyễn Văn Trỗi, Q.Tân Bình, TP.HCM'),
+('Anker Vietnam', '028 3975 8888', 'support@anker.vn', '141 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM'),
+('Baseus Official', '028 3636 8888', 'info@baseus.vn', '78 Lê Lai, Q.1, TP.HCM'),
+('Ugreen Vietnam', '028 3822 8899', 'sales@ugreen.vn', '100 Nguyễn Thị Minh Khai, Q.3, TP.HCM');
 
 -- Accounts
 INSERT INTO accounts (username, password, fullname, role) VALUES
@@ -175,6 +191,21 @@ INSERT INTO accounts (username, password, fullname, role) VALUES
 INSERT INTO attributes (id, name) VALUES
 (1, 'ram'), (2, 'rom'), (3, 'color'), (4, 'length'),
 (5, 'wattage'), (6, 'power_bank'), (7, 'compatibility');
+
+-- Liên kết Category - Attribute
+INSERT INTO category_attribute (category_id, attribute_id) VALUES
+-- Điện thoại (1): ram, rom, color
+(1, 1), (1, 2), (1, 3),
+-- Cáp sạc (2): length, compatibility
+(2, 4), (2, 7),
+-- Cường lực (3): compatibility
+(3, 7),
+-- Sạc dự phòng (4): power_bank, wattage, compatibility
+(4, 5), (4, 6), (4, 7),
+-- Củ sạc (5): wattage, compatibility
+(5, 5), (5, 7),
+-- Loa (6): color, wattage
+(6, 3), (6, 5);
 
 INSERT INTO attribute_options (id, attribute_id, value) VALUES
 -- RAM

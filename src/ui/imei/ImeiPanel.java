@@ -1,24 +1,68 @@
 package ui.imei;
 
 import javax.swing.*;
+import java.util.List;
+import java.text.SimpleDateFormat;
 
-import ui.BasePanel;
+import dao.ImeiDAO;
+import dto.ImeiDTO;
+import ui.BaseCrudPanel;
 
 /**
  * Panel quản lý IMEI (International Mobile Equipment Identity)
  */
-public class ImeiPanel extends BasePanel {
+public class ImeiPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "IMEI", "SKU", "Sản phẩm", "Trạng thái", "Ngày nhập"};
-    private static final Object[][] DATA = {
-        {1, "352789100456789", "IP17PM-BLK-256", "iPhone 17 Pro Max", "Còn hàng", "02/01/2026"},
-        {2, "352789100456790", "IP17PM-BLK-256", "iPhone 17 Pro Max", "Đã bán", "02/01/2026"},
-        {3, "352789100456791", "IP17PM-WHT-256", "iPhone 17 Pro Max", "Còn hàng", "02/01/2026"},
-        {4, "354678912345678", "SS-S26U-BLK-256", "Samsung Galaxy S26 Ultra", "Còn hàng", "03/01/2026"},
-        {5, "354678912345679", "SS-S26U-BLK-256", "Samsung Galaxy S26 Ultra", "Đã bán", "03/01/2026"},
-    };
     
     public ImeiPanel(JFrame parentFrame) {
-        super(parentFrame, "IMEI", COLUMNS, DATA);
+        super(parentFrame, "IMEI", COLUMNS);
+    }
+    
+    @Override
+    public void loadData() {
+        ImeiDAO imeiDAO = new ImeiDAO();
+        List<ImeiDTO> imeis = imeiDAO.GetAllImei();
+        tableModel.setRowCount(0);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        for (ImeiDTO imei : imeis) {
+            tableModel.addRow(new Object[]{
+                imei.getID(), 
+                imei.getImei(),
+                imei.getSkuCode(),
+                imei.getProductName(),
+                imei.getStatusDisplay(),
+                imei.getCreatedAt() != null ? dateFormat.format(imei.getCreatedAt()) : ""
+            });
+        }
+    }
+    
+    @Override
+    protected void setupColumnWidths() {
+        setFixedColumnWidth(0, 60);   // ID
+        setFlexibleColumnWidth(1, 150, 200); // IMEI
+        setFlexibleColumnWidth(2, 120, 180); // SKU
+        setFlexibleColumnWidth(3, 150, 250); // Sản phẩm
+        setFlexibleColumnWidth(4, 100, 120); // Trạng thái
+        setFlexibleColumnWidth(5, 100, 120); // Ngày nhập
+    }
+    
+    @Override
+    protected void onAddAction() {
+        new ImeiAddDialog(parentFrame, this);
+    }
+    
+    @Override
+    protected void onEditAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String imei = (String) getValueAt(modelRow, 1);
+        new ImeiEditDialog(parentFrame, id, imei, this);
+    }
+    
+    @Override
+    protected void onDeleteAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String imei = (String) getValueAt(modelRow, 1);
+        new ImeiDeleteDialog(parentFrame, id, imei, this);
     }
 }

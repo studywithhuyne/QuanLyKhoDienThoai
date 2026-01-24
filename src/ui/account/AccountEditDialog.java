@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.AccountDAO;
+import dto.AccountDTO;
 import static utils.ColorUtil.*;
 
 public class AccountEditDialog extends JDialog {
@@ -25,13 +27,16 @@ public class AccountEditDialog extends JDialog {
     private String currentUsername;
     private String currentFullName;
     private String currentRole;
+    
+    private AccountPanel accountPanel;
 
-    public AccountEditDialog(Frame parent, int id, String username, String fullName, String role) {
+    public AccountEditDialog(Frame parent, int id, String username, String fullName, String role, AccountPanel accountPanel) {
         super(parent, "Sửa tài khoản", true);
         this.accountId = id;
         this.currentUsername = username;
         this.currentFullName = fullName;
         this.currentRole = role;
+        this.accountPanel = accountPanel;
         
         initializeDialog();
         createComponents();
@@ -348,11 +353,38 @@ public class AccountEditDialog extends JDialog {
             return;
         }
         
-        // TODO: Update in database
-        JOptionPane.showMessageDialog(this,
-            "Cập nhật tài khoản thành công!\n\nUsername: " + username + "\nHọ tên: " + fullName + "\nVai trò: " + role,
-            "Thành công",
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+        AccountDAO accountDAO = new AccountDAO();
+        if (accountDAO.IsUsernameExistsExcept(username, accountId)) {
+            JOptionPane.showMessageDialog(this,
+                "Tên đăng nhập đã tồn tại!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+            txtUsername.requestFocus();
+            return;
+        }
+        
+        AccountDTO account = new AccountDTO();
+        account.setID(accountId);
+        account.setUsername(username);
+        account.setFullname(fullName);
+        account.setRole(role.equals("Admin") ? "admin" : "staff");
+        
+        boolean success = accountDAO.EditAccount(account);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this,
+                "Cập nhật tài khoản thành công!",
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE);
+            if (accountPanel != null) {
+                accountPanel.loadData();
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Cập nhật tài khoản thất bại!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

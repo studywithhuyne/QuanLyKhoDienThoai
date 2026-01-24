@@ -1,25 +1,67 @@
 package ui.supplier;
 
 import javax.swing.*;
+import java.util.List;
 
-import ui.BasePanel;
+import dao.SupplierDAO;
+import dto.SupplierDTO;
+import ui.BaseCrudPanel;
 
 /**
  * Panel quản lý Nhà cung cấp
  */
-public class SupplierPanel extends BasePanel {
+public class SupplierPanel extends BaseCrudPanel {
     
-    private static final String[] COLUMNS = {"ID", "Tên nhà cung cấp"};
-    private static final Object[][] DATA = {
-        {1, "FPT Synnex"},
-        {2, "Viettel Store"},
-        {3, "CellphoneS B2B"},
-        {4, "Anker Vietnam"},
-        {5, "Baseus Official"},
-        {6, "Ugreen Vietnam"},
-    };
+    private static final String[] COLUMNS = {"ID", "Tên nhà cung cấp", "Số điện thoại", "Email", "Địa chỉ"};
     
     public SupplierPanel(JFrame parentFrame) {
-        super(parentFrame, "Nhà cung cấp", COLUMNS, DATA);
+        super(parentFrame, "nhà cung cấp", COLUMNS);
+    }
+    
+    @Override
+    public void loadData() {
+        SupplierDAO supplierDAO = new SupplierDAO();
+        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        tableModel.setRowCount(0);
+        for (SupplierDTO supplier : suppliers) {
+            tableModel.addRow(new Object[]{
+                supplier.getID(), 
+                supplier.getName(),
+                supplier.getPhone(),
+                supplier.getEmail(),
+                supplier.getAddress()
+            });
+        }
+    }
+    
+    @Override
+    protected void setupColumnWidths() {
+        setFixedColumnWidth(0, 60);   // ID
+        setFlexibleColumnWidth(1, 150, 200); // Tên nhà cung cấp
+        setFixedColumnWidth(2, 120);  // SĐT
+        setFlexibleColumnWidth(3, 180, 220); // Email
+        setFlexibleColumnWidth(4, 200, 300); // Địa chỉ
+    }
+    
+    @Override
+    protected void onAddAction() {
+        new SupplierAddDialog(parentFrame, this);
+    }
+    
+    @Override
+    protected void onEditAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String name = (String) getValueAt(modelRow, 1);
+        String phone = (String) getValueAt(modelRow, 2);
+        String email = (String) getValueAt(modelRow, 3);
+        String address = (String) getValueAt(modelRow, 4);
+        new SupplierEditDialog(parentFrame, id, name, phone, email, address, this);
+    }
+    
+    @Override
+    protected void onDeleteAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        String name = (String) getValueAt(modelRow, 1);
+        new SupplierDeleteDialog(parentFrame, id, name, this);
     }
 }
