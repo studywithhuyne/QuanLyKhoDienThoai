@@ -3,7 +3,7 @@ package ui.product;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import dao.ProductDAO;
+import bus.ProductBUS;
 import dto.ProductDTO;
 import utils.LogHelper;
 
@@ -273,8 +273,8 @@ public class ProductAddDialog extends JDialog {
         newProduct.setCategoryId(cmbCategory.getSelectedIndex() + 1);
         newProduct.setCreatedAt(LocalDateTime.now());
 
-        ProductDAO dao = new ProductDAO();
-        boolean isSuccess = dao.AddProduct(newProduct);
+        ProductBUS productBUS = new ProductBUS();
+        boolean isSuccess = productBUS.add(newProduct);
 
         // 4. Xử lý kết quả
         if (isSuccess) {
@@ -291,7 +291,7 @@ public class ProductAddDialog extends JDialog {
             dispose(); 
             
         } else {
-            showError("Lưu thất bại! Vui lòng kiểm tra kết nối Database.");
+            showError("Thêm sản phẩm thất bại! Tên sản phẩm có thể đã tồn tại.");
         }
     }
     

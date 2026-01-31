@@ -7,9 +7,9 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
-import dao.ImeiDAO;
-import dao.SkuDAO;
-import dao.ImportReceiptDAO;
+import bus.ImeiBUS;
+import bus.SkuBUS;
+import bus.ImportReceiptBUS;
 import dto.ImeiDTO;
 import dto.SkuDTO;
 import dto.ImportReceiptDTO;
@@ -38,11 +38,13 @@ public class ImeiAddDialog extends JDialog {
         setVisible(true);
     }
     
+    private final ImeiBUS imeiBUS = new ImeiBUS();
+    private final SkuBUS skuBUS = new SkuBUS();
+    private final ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
+    
     private void loadData() {
-        SkuDAO skuDAO = new SkuDAO();
-        skus = skuDAO.GetAllSku();
-        ImportReceiptDAO receiptDAO = new ImportReceiptDAO();
-        receipts = receiptDAO.GetAllImportReceipt();
+        skus = skuBUS.getAll();
+        receipts = importReceiptBUS.getAll();
     }
     
     private void initializeDialog() {
@@ -281,9 +283,7 @@ public class ImeiAddDialog extends JDialog {
         SkuDTO selectedSku = (SkuDTO) cboSku.getSelectedItem();
         ImportReceiptDTO selectedReceipt = (ImportReceiptDTO) cboImportReceipt.getSelectedItem();
         
-        ImeiDAO imeiDAO = new ImeiDAO();
-        
-        if (imeiDAO.IsImeiExists(txtImei.getText().trim())) {
+        if (imeiBUS.isImeiExists(txtImei.getText().trim())) {
             showError("Mã IMEI đã tồn tại!");
             txtImei.requestFocus();
             return;
@@ -295,7 +295,7 @@ public class ImeiAddDialog extends JDialog {
         imei.setImei(txtImei.getText().trim());
         imei.setStatus("available");
         
-        boolean success = imeiDAO.AddImei(imei);
+        boolean success = imeiBUS.add(imei);
         
         if (success) {
             LogHelper.logAdd("IMEI", txtImei.getText().trim());
@@ -305,7 +305,7 @@ public class ImeiAddDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Thêm IMEI thất bại!");
+            showError("Thêm IMEI thất bại! Mã IMEI có thể đã tồn tại.");
         }
     }
     

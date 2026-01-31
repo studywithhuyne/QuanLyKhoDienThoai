@@ -6,34 +6,62 @@ import javax.swing.border.*;
 import static utils.ColorUtil.*;
 
 import java.awt.*;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import bus.StatisticsBUS;
+import bus.LogBUS;
+import bus.ProductBUS;
+import bus.SkuBUS;
+import dto.LogDTO;
+import java.util.List;
+import java.text.SimpleDateFormat;
 
 /**
  * Panel hiển thị Dashboard - Trang chủ
  */
 public class DashboardPanel extends JPanel {
     
-    public DashboardPanel() {
-        initializePanel();
-    }
+    private NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+    private JPanel contentWrapper;
     
-    private void initializePanel() {
+    public DashboardPanel() {
         setLayout(new BorderLayout());
         setBackground(CONTENT_BG);
         setBorder(new EmptyBorder(25, 30, 25, 30));
+        loadData();
+    }
+    
+    /**
+     * Load/Reload tất cả dữ liệu từ database
+     */
+    public void loadData() {
+        // Xóa nội dung cũ
+        removeAll();
         
-        JPanel contentWrapper = new JPanel();
+        contentWrapper = new JPanel();
         contentWrapper.setLayout(new BoxLayout(contentWrapper, BoxLayout.Y_AXIS));
         contentWrapper.setBackground(CONTENT_BG);
+        
+        // Load real data
+        StatisticsBUS statsBUS = new StatisticsBUS();
+        ProductBUS productBUS = new ProductBUS();
+        SkuBUS skuBUS = new SkuBUS();
+        
+        int productCount = productBUS.getAll().size();
+        int totalStock = skuBUS.getAll().stream().mapToInt(s -> s.getStock()).sum();
+        int todayImports = statsBUS.getTodayImportCount();
+        double todayRevenue = statsBUS.getTodayRevenue();
         
         // Stats cards row
         JPanel statsPanel = new JPanel(new GridLayout(1, 4, 20, 0));
         statsPanel.setBackground(CONTENT_BG);
         statsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
         
-        statsPanel.add(createStatCard("📱", "Sản phẩm", "10", "+2 mới", SUCCESS_COLOR));
-        statsPanel.add(createStatCard("📦", "Tồn kho", "248", "SKU items", PRIMARY_COLOR));
-        statsPanel.add(createStatCard("📥", "Nhập hôm nay", "15", "Phiếu nhập", WARNING_COLOR));
-        statsPanel.add(createStatCard("🛒", "Bán hôm nay", "52,490,000₫", "+12%", SUCCESS_COLOR));
+        statsPanel.add(createStatCard("Sản phẩm", String.valueOf(productCount), "sản phẩm", SUCCESS_COLOR));
+        statsPanel.add(createStatCard("Tồn kho", String.valueOf(totalStock), "sản phẩm", PRIMARY_COLOR));
+        statsPanel.add(createStatCard("Nhập hôm nay", String.valueOf(todayImports), "Phiếu nhập", WARNING_COLOR));
+        statsPanel.add(createStatCard("Bán hôm nay", formatCurrency(todayRevenue), "", SUCCESS_COLOR));
         
         contentWrapper.add(statsPanel);
         contentWrapper.add(Box.createVerticalStrut(25));
@@ -42,31 +70,53 @@ public class DashboardPanel extends JPanel {
         JPanel chartsRow = new JPanel(new GridLayout(1, 2, 20, 0));
         chartsRow.setBackground(CONTENT_BG);
         
-        // Chart placeholder
+        // Revenue Chart
         JPanel chartCard = createCard("Doanh thu tuần này");
-        JPanel chartContent = new JPanel(new BorderLayout());
-        chartContent.setBackground(CARD_BG);
-        chartContent.setBorder(new EmptyBorder(20, 20, 20, 20));
-        
-        JLabel chartPlaceholder = new JLabel("📈 Biểu đồ doanh thu", SwingConstants.CENTER);
-        chartPlaceholder.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
-        chartPlaceholder.setForeground(TEXT_SECONDARY);
-        chartContent.add(chartPlaceholder, BorderLayout.CENTER);
-        chartCard.add(chartContent, BorderLayout.CENTER);
+        RevenueChartPanel revenueChart = new RevenueChartPanel();
+        chartCard.add(revenueChart, BorderLayout.CENTER);
         
         chartsRow.add(chartCard);
         
-        // Recent activities
+        // Recent activities from logs
         JPanel activitiesCard = createCard("Hoạt động gần đây");
         JPanel activitiesContent = new JPanel();
         activitiesContent.setLayout(new BoxLayout(activitiesContent, BoxLayout.Y_AXIS));
         activitiesContent.setBackground(CARD_BG);
         activitiesContent.setBorder(new EmptyBorder(10, 20, 20, 20));
         
-        activitiesContent.add(createActivityItem("🛒", "Bán iPhone 17 Pro Max", "10:30 AM", SUCCESS_COLOR));
-        activitiesContent.add(createActivityItem("📥", "Nhập hàng từ FPT Synnex", "09:15 AM", PRIMARY_COLOR));
-        activitiesContent.add(createActivityItem("👤", "Đăng nhập: jerry", "08:00 AM", WARNING_COLOR));
-        activitiesContent.add(createActivityItem("📦", "Cập nhật tồn kho", "Hôm qua", TEXT_SECONDARY));
+        // Load recent logs
+        LogBUS logBUS = new LogBUS();
+        List<LogDTO> recentLogs = logBUS.getRecentLogs(5);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM");
+        java.util.Date today = new java.util.Date();
+        
+        for (LogDTO log : recentLogs) {
+            Color color = getColorForAction(log.getAction());
+            
+            // Format time
+            String timeStr;
+            if (isSameDay(log.getCreatedAt(), today)) {
+                timeStr = timeFormat.format(log.getCreatedAt());
+            } else {
+                timeStr = dateFormat.format(log.getCreatedAt());
+            }
+            
+            // Add username to details
+            String displayText = log.getUsername() + ": " + log.getDetails();
+            activitiesContent.add(createActivityItem(displayText, timeStr, color));
+        }
+        
+        // Nếu không có logs
+        if (recentLogs.isEmpty()) {
+            JLabel noDataLabel = new JLabel("Chưa có hoạt động nào");
+            noDataLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+            noDataLabel.setForeground(TEXT_SECONDARY);
+            noDataLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            activitiesContent.add(Box.createVerticalGlue());
+            activitiesContent.add(noDataLabel);
+            activitiesContent.add(Box.createVerticalGlue());
+        }
         
         activitiesCard.add(activitiesContent, BorderLayout.CENTER);
         chartsRow.add(activitiesCard);
@@ -79,9 +129,28 @@ public class DashboardPanel extends JPanel {
         scrollPane.setBackground(CONTENT_BG);
         
         add(scrollPane, BorderLayout.CENTER);
+        
+        revalidate();
+        repaint();
     }
     
-    private JPanel createStatCard(String icon, String title, String value, String subtitle, Color accentColor) {
+    private boolean isSameDay(java.util.Date date1, java.util.Date date2) {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        return fmt.format(date1).equals(fmt.format(date2));
+    }
+    
+    private Color getColorForAction(String action) {
+        if (action == null) return TEXT_SECONDARY;
+        if (action.contains("Đăng nhập") || action.contains("Đăng xuất")) return WARNING_COLOR;
+        if (action.contains("Xuất kho") || action.contains("xuất")) return SUCCESS_COLOR;
+        if (action.contains("nhập") || action.contains("Nhập")) return PRIMARY_COLOR;
+        if (action.contains("Thêm")) return SUCCESS_COLOR;
+        if (action.contains("Sửa") || action.contains("Cập nhật")) return DARK_BLUE;
+        if (action.contains("Xóa")) return DANGER_COLOR;
+        return TEXT_SECONDARY;
+    }
+    
+    private JPanel createStatCard(String title, String value, String subtitle, Color accentColor) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(CARD_BG);
         card.setBorder(new CompoundBorder(new LineBorder(BORDER_COLOR, 1, true), new EmptyBorder(20, 20, 20, 20)));
@@ -90,24 +159,21 @@ public class DashboardPanel extends JPanel {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setOpaque(false);
         
-        // Icon and title row
-        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        // Title with color indicator
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         topRow.setOpaque(false);
         
-        JPanel iconPanel = new JPanel(new GridBagLayout());
-        iconPanel.setPreferredSize(new Dimension(40, 40));
-        iconPanel.setBackground(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 30));
-        iconPanel.setOpaque(true);
-        
-        JLabel iconLabel = new JLabel(icon);
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-        iconPanel.add(iconLabel);
+        // Color dot indicator
+        JPanel colorDot = new JPanel();
+        colorDot.setPreferredSize(new Dimension(8, 8));
+        colorDot.setBackground(accentColor);
+        colorDot.setOpaque(true);
         
         JLabel titleLbl = new JLabel(title);
         titleLbl.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         titleLbl.setForeground(TEXT_SECONDARY);
         
-        topRow.add(iconPanel);
+        topRow.add(colorDot);
         topRow.add(titleLbl);
         
         // Value
@@ -151,29 +217,25 @@ public class DashboardPanel extends JPanel {
         return card;
     }
     
-    private JPanel createActivityItem(String icon, String text, String time, Color color) {
+    private JPanel createActivityItem(String text, String time, Color color) {
         JPanel item = new JPanel(new BorderLayout());
         item.setOpaque(false);
-        item.setBorder(new EmptyBorder(12, 0, 12, 0));
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        item.setBorder(new EmptyBorder(10, 0, 10, 0));
+        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         
-        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         leftSection.setOpaque(false);
         
-        JPanel iconPanel = new JPanel(new GridBagLayout());
-        iconPanel.setPreferredSize(new Dimension(32, 32));
-        iconPanel.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 30));
-        iconPanel.setOpaque(true);
-        
-        JLabel iconLabel = new JLabel(icon);
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        iconPanel.add(iconLabel);
+        JPanel colorDot = new JPanel();
+        colorDot.setPreferredSize(new Dimension(8, 8));
+        colorDot.setBackground(color);
+        colorDot.setOpaque(true);
         
         JLabel textLabel = new JLabel(text);
-        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         textLabel.setForeground(TEXT_PRIMARY);
         
-        leftSection.add(iconPanel);
+        leftSection.add(colorDot);
         leftSection.add(textLabel);
         
         JLabel timeLabel = new JLabel(time);
@@ -184,5 +246,19 @@ public class DashboardPanel extends JPanel {
         item.add(timeLabel, BorderLayout.EAST);
         
         return item;
+    }
+    
+    private String formatCurrency(double value) {
+        if (value >= 1_000_000_000) {
+            return String.format("%.1fB₫", value / 1_000_000_000);
+        } else if (value >= 1_000_000) {
+            return String.format("%.1fM₫", value / 1_000_000);
+        } else if (value >= 1_000) {
+            return currencyFormat.format(value) + "₫";
+        } else if (value == 0) {
+            return "0₫";
+        } else {
+            return currencyFormat.format(value) + "₫";
+        }
     }
 }

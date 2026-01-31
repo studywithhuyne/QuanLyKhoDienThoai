@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.BrandDAO;
+import bus.BrandBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -168,8 +168,8 @@ public class BrandDeleteDialog extends JDialog {
     }
     
     private void deleteBrand() {
-        BrandDAO brandDAO = new BrandDAO();
-        boolean success = brandDAO.DeleteBrand(brandId);
+        BrandBUS brandBUS = new BrandBUS();
+        boolean success = brandBUS.delete(brandId);
         
         if (success) {
             confirmed = true;

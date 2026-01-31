@@ -242,7 +242,7 @@ public class AccountDAO {
     }
     
     // Cập nhật last_login
-    private void UpdateLastLogin(int id) {
+    public void UpdateLastLogin(int id) {
         String sql = "UPDATE accounts SET last_login = CURRENT_TIMESTAMP WHERE id = ?";
         
         try {

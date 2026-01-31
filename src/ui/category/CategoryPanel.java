@@ -3,7 +3,7 @@ package ui.category;
 import javax.swing.*;
 import java.util.List;
 
-import dao.CategoryDAO;
+import bus.CategoryBUS;
 import dto.CategoryDTO;
 import ui.BaseCrudPanel;
 
@@ -13,6 +13,7 @@ import ui.BaseCrudPanel;
 public class CategoryPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên danh mục"};
+    private CategoryBUS categoryBUS = new CategoryBUS();
     
     public CategoryPanel(JFrame parentFrame) {
         super(parentFrame, "danh mục", COLUMNS);
@@ -20,8 +21,7 @@ public class CategoryPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        CategoryDAO categoryDAO = new CategoryDAO();
-        List<CategoryDTO> categories = categoryDAO.GetAllCategory();
+        List<CategoryDTO> categories = categoryBUS.getAll();
         tableModel.setRowCount(0);
         for (CategoryDTO category : categories) {
             tableModel.addRow(new Object[]{category.getID(), category.getName()});

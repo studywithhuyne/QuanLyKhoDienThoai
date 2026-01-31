@@ -3,7 +3,7 @@ package ui.attribute;
 import javax.swing.*;
 import java.util.List;
 
-import dao.AttributeDAO;
+import bus.AttributeBUS;
 import dto.AttributeOptionDTO;
 import ui.BaseCrudPanel;
 
@@ -13,6 +13,7 @@ import ui.BaseCrudPanel;
 public class AttributePanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thuộc tính", "Giá trị"};
+    private AttributeBUS attributeBUS = new AttributeBUS();
     
     public AttributePanel(JFrame parentFrame) {
         super(parentFrame, "thuộc tính", COLUMNS);
@@ -20,8 +21,7 @@ public class AttributePanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        AttributeDAO attributeDAO = new AttributeDAO();
-        List<AttributeOptionDTO> options = attributeDAO.GetAllAttributeOptions();
+        List<AttributeOptionDTO> options = attributeBUS.getAllOptions();
         tableModel.setRowCount(0);
         for (AttributeOptionDTO option : options) {
             tableModel.addRow(new Object[]{

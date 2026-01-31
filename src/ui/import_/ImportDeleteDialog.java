@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.ImportReceiptDAO;
+import bus.ImportReceiptBUS;
 import utils.LogHelper;
 
 public class ImportDeleteDialog extends JDialog {
@@ -167,9 +167,10 @@ public class ImportDeleteDialog extends JDialog {
         return button;
     }
     
+    private final ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
+    
     private void deleteImport() {
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        boolean success = importDAO.DeleteImportReceipt(importId);
+        boolean success = importReceiptBUS.delete(importId);
         
         if (success) {
             confirmed = true;

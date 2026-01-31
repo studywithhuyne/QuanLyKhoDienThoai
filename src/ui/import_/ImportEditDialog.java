@@ -9,8 +9,8 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
-import dao.ImportReceiptDAO;
-import dao.SupplierDAO;
+import bus.ImportReceiptBUS;
+import bus.SupplierBUS;
 import dto.ImportReceiptDTO;
 import dto.SupplierDTO;
 import utils.LogHelper;
@@ -154,18 +154,19 @@ public class ImportEditDialog extends JDialog {
         return formWrapper;
     }
     
+    private final ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
+    private final SupplierBUS supplierBUS = new SupplierBUS();
+    
     private void loadData() {
         // Load suppliers into combobox
-        SupplierDAO supplierDAO = new SupplierDAO();
-        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        List<SupplierDTO> suppliers = supplierBUS.getAll();
         cmbSupplier.removeAllItems();
         for (SupplierDTO supplier : suppliers) {
             cmbSupplier.addItem(supplier);
         }
         
         // Load receipt data from database
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        ImportReceiptDTO receipt = importDAO.GetImportReceiptById(importId);
+        ImportReceiptDTO receipt = importReceiptBUS.getById(importId);
         
         if (receipt != null) {
             txtId.setText(String.valueOf(receipt.getID()));
@@ -182,7 +183,7 @@ public class ImportEditDialog extends JDialog {
             txtEmployee.setText(receipt.getStaffName());
             txtTotalAmount.setText(String.valueOf((long) receipt.getTotalAmount()));
             
-            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("HH:mm - dd/MM/yyyy");
             txtDate.setText(receipt.getCreatedAt() != null ? dateFormat.format(receipt.getCreatedAt()) : "");
         }
     }
@@ -387,8 +388,7 @@ public class ImportEditDialog extends JDialog {
         receipt.setSupplierId(selectedSupplier.getID());
         receipt.setTotalAmount(totalAmount);
         
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        boolean success = importDAO.EditImportReceipt(receipt);
+        boolean success = importReceiptBUS.update(receipt);
         
         if (success) {
             LogHelper.logEdit("phiếu nhập", "#" + importId);

@@ -18,7 +18,7 @@ public class InvoiceDAO {
         String sql = "SELECT i.id, i.staff_id, i.total_amount, i.created_at, a.fullname as staff_name " +
                      "FROM invoices i " +
                      "JOIN accounts a ON i.staff_id = a.id " +
-                     "ORDER BY i.id ASC";
+                     "ORDER BY i.created_at DESC";
         
         try {
             Connection conn = DatabaseHelper.getConnection();

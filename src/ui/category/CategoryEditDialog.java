@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.CategoryDAO;
+import bus.CategoryBUS;
 import dto.CategoryDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -267,8 +267,8 @@ public class CategoryEditDialog extends JDialog {
         category.setID(categoryId);
         category.setName(txtName.getText().trim());
         
-        CategoryDAO categoryDAO = new CategoryDAO();
-        boolean success = categoryDAO.EditCategory(category);
+        CategoryBUS categoryBUS = new CategoryBUS();
+        boolean success = categoryBUS.update(category);
         
         if (success) {
             LogHelper.logEdit("danh mục", txtName.getText().trim());
@@ -281,7 +281,7 @@ public class CategoryEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật danh mục thất bại!");
+            showError("Cập nhật danh mục thất bại! Tên có thể đã tồn tại.");
         }
     }
     

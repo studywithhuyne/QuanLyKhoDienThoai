@@ -5,7 +5,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.ImeiDAO;
+import bus.ImeiBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -158,9 +158,10 @@ public class ImeiDeleteDialog extends JDialog {
         return button;
     }
     
+    private final ImeiBUS imeiBUS = new ImeiBUS();
+    
     private void deleteImei() {
-        ImeiDAO imeiDAO = new ImeiDAO();
-        boolean success = imeiDAO.DeleteImei(imeiId);
+        boolean success = imeiBUS.delete(imeiId);
         
         if (success) {
             LogHelper.logDelete("IMEI", imeiCode);

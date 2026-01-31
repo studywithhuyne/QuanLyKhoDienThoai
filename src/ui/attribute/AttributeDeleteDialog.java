@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.AttributeDAO;
+import bus.AttributeBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -167,9 +167,10 @@ public class AttributeDeleteDialog extends JDialog {
         return button;
     }
     
+    private final AttributeBUS attributeBUS = new AttributeBUS();
+    
     private void deleteAttribute() {
-        AttributeDAO attributeDAO = new AttributeDAO();
-        boolean success = attributeDAO.DeleteAttributeOption(optionId);
+        boolean success = attributeBUS.deleteOption(optionId);
         
         if (success) {
             LogHelper.logDelete("thuộc tính", optionName);

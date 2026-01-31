@@ -5,11 +5,12 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 
 import static utils.ColorUtil.*;
-import dao.StatisticsDAO;
+import bus.StatisticsBUS;
 
 import java.awt.*;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import java.util.Map;
 public class StatisticsPanel extends JPanel {
     
     private JFrame parentFrame;
-    private StatisticsDAO statisticsDAO;
+    private StatisticsBUS statisticsBUS;
     private NumberFormat currencyFormat;
     
     // Stat cards labels
@@ -28,7 +29,6 @@ public class StatisticsPanel extends JPanel {
     private JLabel lblSalesValue;
     private JLabel lblSalesCount;
     private JLabel lblInventoryValue;
-    private JLabel lblSkuCount;
     
     // Filter components
     private JComboBox<String> cboMonth;
@@ -38,7 +38,7 @@ public class StatisticsPanel extends JPanel {
     
     public StatisticsPanel(JFrame parentFrame) {
         this.parentFrame = parentFrame;
-        this.statisticsDAO = new StatisticsDAO();
+        this.statisticsBUS = new StatisticsBUS();
         this.currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
         initializePanel();
         loadData();
@@ -76,6 +76,7 @@ public class StatisticsPanel extends JPanel {
         cboMonth.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cboMonth.setPreferredSize(new Dimension(100, 30));
         cboMonth.setSelectedIndex(LocalDate.now().getMonthValue() - 1);
+        cboMonth.addActionListener(e -> loadData());
         
         // Year combo
         int currentYear = LocalDate.now().getYear();
@@ -86,19 +87,11 @@ public class StatisticsPanel extends JPanel {
         cboYear = new JComboBox<>(years);
         cboYear.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cboYear.setPreferredSize(new Dimension(80, 30));
-        
-        JButton btnRefresh = new JButton("Xem thống kê");
-        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnRefresh.setBackground(PRIMARY_COLOR);
-        btnRefresh.setForeground(Color.WHITE);
-        btnRefresh.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnRefresh.setPreferredSize(new Dimension(110, 30));
-        btnRefresh.addActionListener(e -> loadData());
+        cboYear.addActionListener(e -> loadData());
         
         filterPanel.add(lblFilter);
         filterPanel.add(cboMonth);
         filterPanel.add(cboYear);
-        filterPanel.add(btnRefresh);
         
         headerPanel.add(titleLabel, BorderLayout.WEST);
         headerPanel.add(filterPanel, BorderLayout.EAST);
@@ -130,7 +123,6 @@ public class StatisticsPanel extends JPanel {
         // Inventory card
         JPanel inventoryCard = createStatCard("Giá trị tồn kho", WARNING_COLOR);
         lblInventoryValue = (JLabel) ((JPanel)inventoryCard.getComponent(0)).getComponent(1);
-        lblSkuCount = (JLabel) ((JPanel)inventoryCard.getComponent(0)).getComponent(2);
         statsPanel.add(inventoryCard);
         
         contentWrapper.add(statsPanel);
@@ -168,12 +160,11 @@ public class StatisticsPanel extends JPanel {
         String monthYearText = "tháng " + month + "/" + year;
         
         // Load summary stats with filter
-        double importTotal = statisticsDAO.GetTotalImport(month, year);
-        int importCount = statisticsDAO.GetImportCount(month, year);
-        double salesTotal = statisticsDAO.GetTotalSales(month, year);
-        int salesCount = statisticsDAO.GetSalesCount(month, year);
-        double inventoryValue = statisticsDAO.GetTotalInventoryValue();
-        int skuCount = statisticsDAO.GetTotalSkuInStock();
+        double importTotal = statisticsBUS.getTotalImport(month, year);
+        int importCount = statisticsBUS.getImportCount(month, year);
+        double salesTotal = statisticsBUS.getTotalSales(month, year);
+        int salesCount = statisticsBUS.getSalesCount(month, year);
+        double inventoryValue = statisticsBUS.getTotalInventoryValue();
         
         // Update titles
         lblImportTitle.setText("Tổng nhập " + monthYearText);
@@ -185,7 +176,6 @@ public class StatisticsPanel extends JPanel {
         lblSalesValue.setText(formatCurrency(salesTotal));
         lblSalesCount.setText(salesCount + " phiếu xuất");
         lblInventoryValue.setText(formatCurrency(inventoryValue));
-        lblSkuCount.setText(skuCount + " SKU còn hàng");
         
         // Refresh tables with filter
         refreshTopSellersTable(month, year);
@@ -274,9 +264,9 @@ public class StatisticsPanel extends JPanel {
     private void refreshTopSellersTable(int month, int year) {
         topSellersModel.setRowCount(0);
         lblTopSellersTitle.setText("Top sản phẩm bán chạy tháng " + month + "/" + year);
-        Map<String, Integer> data = statisticsDAO.GetTop5BestSellers(month, year);
+        java.util.Map<String, Integer> data = statisticsBUS.getTop5BestSellers(month, year);
         int rank = 1;
-        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+        for (java.util.Map.Entry<String, Integer> entry : data.entrySet()) {
             topSellersModel.addRow(new Object[]{rank++, entry.getKey(), entry.getValue()});
         }
         if (data.isEmpty()) {
@@ -339,8 +329,8 @@ public class StatisticsPanel extends JPanel {
     
     private void refreshLowStockTable() {
         lowStockModel.setRowCount(0);
-        Map<String, Integer> data = statisticsDAO.GetLowStockProducts();
-        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+        java.util.Map<String, Integer> data = statisticsBUS.getLowStockProducts();
+        for (java.util.Map.Entry<String, Integer> entry : data.entrySet()) {
             lowStockModel.addRow(new Object[]{entry.getKey(), entry.getValue()});
         }
         if (data.isEmpty()) {
@@ -355,7 +345,7 @@ public class StatisticsPanel extends JPanel {
         JPanel card = createCard("Tồn kho theo danh mục");
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         
-        String[] columns = {"Danh mục", "Số lượng", "Biểu đồ"};
+        String[] columns = {"Danh mục", "Số lượng"};
         stockByCategoryModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -372,20 +362,13 @@ public class StatisticsPanel extends JPanel {
         stockByCategoryTable.setIntercellSpacing(new Dimension(0, 0));
         
         // Column widths
-        stockByCategoryTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-        stockByCategoryTable.getColumnModel().getColumn(1).setMaxWidth(80);
-        stockByCategoryTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        stockByCategoryTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+        stockByCategoryTable.getColumnModel().getColumn(1).setPreferredWidth(100);
         
-        // Custom renderer for bar chart column
-        stockByCategoryTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-                c.setForeground(PRIMARY_COLOR);
-                ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 12));
-                return c;
-            }
-        });
+        // Center align for quantity column
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        stockByCategoryTable.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         
         JScrollPane scroll = new JScrollPane(stockByCategoryTable);
         scroll.setBorder(null);
@@ -397,17 +380,14 @@ public class StatisticsPanel extends JPanel {
     
     private void refreshStockByCategoryTable() {
         stockByCategoryModel.setRowCount(0);
-        Map<String, Integer> data = statisticsDAO.GetStockByCategory();
-        
-        // Find max for bar chart
-        int maxStock = data.values().stream().mapToInt(Integer::intValue).max().orElse(1);
-        if (maxStock == 0) maxStock = 1;
+        Map<String, Integer> data = statisticsBUS.getStockByCategory();
         
         for (Map.Entry<String, Integer> entry : data.entrySet()) {
-            int stock = entry.getValue();
-            int barLength = (int) ((stock * 25.0) / maxStock);
-            String bar = "█".repeat(Math.max(1, barLength));
-            stockByCategoryModel.addRow(new Object[]{entry.getKey(), stock, bar});
+            stockByCategoryModel.addRow(new Object[]{entry.getKey(), entry.getValue()});
+        }
+        
+        if (data.isEmpty()) {
+            stockByCategoryModel.addRow(new Object[]{"Chưa có dữ liệu", ""});
         }
     }
     

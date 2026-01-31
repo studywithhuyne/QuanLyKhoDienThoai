@@ -3,7 +3,7 @@ package ui.product;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import dao.ProductDAO;
+import bus.ProductBUS;
 import dto.ProductDTO;
 import utils.LogHelper;
 
@@ -161,11 +161,9 @@ public class ProductDeleteDialog extends JDialog {
     
     private void deleteProduct() {
         confirmed = true;
-        
-        ProductDTO deleteProduct = new ProductDTO();
-        deleteProduct.setId(this.productId); 
-        ProductDAO dao = new ProductDAO();
-        boolean isSuccess = dao.DeleteProduct(deleteProduct);
+
+        ProductBUS productBUS = new ProductBUS();
+        boolean isSuccess = productBUS.delete(this.productId);
         if (isSuccess) {
             LogHelper.logDelete("sản phẩm", productName);
         	JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);

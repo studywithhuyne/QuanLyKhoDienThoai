@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.invoice;
 
 import static utils.ColorUtil.*;
 
@@ -8,10 +8,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.InvoiceDAO;
+import bus.InvoiceBUS;
 import utils.LogHelper;
 
-public class SalesDeleteDialog extends JDialog {
+public class InvoiceDeleteDialog extends JDialog {
     
     // Data
     private int salesId;
@@ -21,13 +21,13 @@ public class SalesDeleteDialog extends JDialog {
     private JButton btnDelete;
     private JButton btnCancel;
     
-    private SalesPanel salesPanel;
+    private InvoicePanel invoicePanel;
 
-    public SalesDeleteDialog(Frame parent, int id, String salesInfo, SalesPanel salesPanel) {
+    public InvoiceDeleteDialog(Frame parent, int id, String salesInfo, InvoicePanel invoicePanel) {
         super(parent, "Xác nhận xóa", true);
         this.salesId = id;
         this.salesInfo = salesInfo;
-        this.salesPanel = salesPanel;
+        this.invoicePanel = invoicePanel;
         initializeDialog();
         createComponents();
         setVisible(true);
@@ -168,8 +168,8 @@ public class SalesDeleteDialog extends JDialog {
     }
     
     private void deleteSales() {
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        boolean success = invoiceDAO.DeleteInvoice(salesId);
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        boolean success = invoiceBUS.delete(salesId);
         
         if (success) {
             LogHelper.logDelete("phiếu xuất", "#" + salesId);
@@ -178,8 +178,8 @@ public class SalesDeleteDialog extends JDialog {
                 "Xóa phiếu xuất thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
-            if (salesPanel != null) {
-                salesPanel.loadData();
+            if (invoicePanel != null) {
+                invoicePanel.loadData();
             }
             dispose();
         } else {

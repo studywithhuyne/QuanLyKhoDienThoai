@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
-import dao.ImeiDAO;
+import bus.ImeiBUS;
 import dto.ImeiDTO;
 import ui.BaseCrudPanel;
 
@@ -14,6 +14,7 @@ import ui.BaseCrudPanel;
 public class ImeiPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "IMEI", "SKU", "Sản phẩm", "Trạng thái", "Ngày nhập"};
+    private ImeiBUS imeiBUS = new ImeiBUS();
     
     public ImeiPanel(JFrame parentFrame) {
         super(parentFrame, "IMEI", COLUMNS);
@@ -21,8 +22,7 @@ public class ImeiPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        ImeiDAO imeiDAO = new ImeiDAO();
-        List<ImeiDTO> imeis = imeiDAO.GetAllImei();
+        List<ImeiDTO> imeis = imeiBUS.getAll();
         tableModel.setRowCount(0);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         for (ImeiDTO imei : imeis) {

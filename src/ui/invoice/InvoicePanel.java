@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.invoice;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -7,18 +7,18 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import dao.InvoiceDAO;
+import bus.InvoiceBUS;
 import dto.InvoiceDTO;
 import ui.BaseCrudPanel;
 
 /**
  * Panel quản lý Phiếu xuất hàng
  */
-public class SalesPanel extends BaseCrudPanel {
+public class InvoicePanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Nhân viên", "Tổng tiền", "Ngày tạo"};
     
-    public SalesPanel(JFrame parentFrame) {
+    public InvoicePanel(JFrame parentFrame) {
         super(parentFrame, "phiếu xuất", COLUMNS);
         setupDoubleClick();
     }
@@ -32,7 +32,7 @@ public class SalesPanel extends BaseCrudPanel {
                     if (selectedRow != -1) {
                         int modelRow = getDataTable().convertRowIndexToModel(selectedRow);
                         int id = (int) getValueAt(modelRow, 0);
-                        new SalesDetailDialog(parentFrame, id);
+                        new InvoiceDetailDialog(parentFrame, id);
                     }
                 }
             }
@@ -41,8 +41,8 @@ public class SalesPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        List<InvoiceDTO> invoices = invoiceDAO.GetAllInvoice();
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        List<InvoiceDTO> invoices = invoiceBUS.getAll();
         tableModel.setRowCount(0);
         NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -66,21 +66,21 @@ public class SalesPanel extends BaseCrudPanel {
     
     @Override
     protected void onAddAction() {
-        new SalesAddDialog(parentFrame, this);
+        new InvoiceAddDialog(parentFrame, this);
     }
     
     @Override
     protected void onEditAction(int modelRow) {
         int id = (int) getValueAt(modelRow, 0);
         String staffName = (String) getValueAt(modelRow, 1);
-        new SalesEditDialog(parentFrame, id, staffName, this);
+        new InvoiceEditDialog(parentFrame, id, staffName, this);
     }
     
     @Override
     protected void onDeleteAction(int modelRow) {
         int id = (int) getValueAt(modelRow, 0);
         String staffName = (String) getValueAt(modelRow, 1);
-        new SalesDeleteDialog(parentFrame, id, "Phiếu xuất #" + id + " - " + staffName, this);
+        new InvoiceDeleteDialog(parentFrame, id, "Phiếu xuất #" + id + " - " + staffName, this);
     }
     
     @Override
@@ -91,6 +91,6 @@ public class SalesPanel extends BaseCrudPanel {
     @Override
     protected void onViewAction(int modelRow) {
         int id = (int) getValueAt(modelRow, 0);
-        new SalesDetailDialog(parentFrame, id);
+        new InvoiceDetailDialog(parentFrame, id);
     }
 }

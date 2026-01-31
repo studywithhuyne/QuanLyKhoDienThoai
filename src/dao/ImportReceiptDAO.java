@@ -20,7 +20,7 @@ public class ImportReceiptDAO {
                      "FROM import_receipts ir " +
                      "JOIN suppliers s ON ir.supplier_id = s.id " +
                      "JOIN accounts a ON ir.staff_id = a.id " +
-                     "ORDER BY ir.id ASC";
+                     "ORDER BY ir.created_at DESC";
         
         try {
             Connection conn = DatabaseHelper.getConnection();

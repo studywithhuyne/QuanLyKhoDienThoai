@@ -215,23 +215,6 @@ public class ProductDAO {
 		}
 	}
 	
-	// Khôi phục product đã xóa
-	public boolean RestoreProduct(int id) {
-		String sql = "UPDATE products SET is_deleted = FALSE WHERE id = ?";
-		try {
-			Connection conn = DatabaseHelper.getConnection();
-			PreparedStatement statement = conn.prepareStatement(sql);
-			
-			statement.setInt(1, id);
-			int rowsAffected = statement.executeUpdate();
-			return rowsAffected > 0;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
 	// Lấy product theo ID
 	public ProductDTO GetProductById(int id) {
 		String sql = "SELECT id, brand_id, category_id, name, is_deleted, created_at FROM products WHERE id = ?";

@@ -156,10 +156,8 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         dataTable = new JTable(tableModel);
         rowSorter = new TableRowSorter<>(tableModel);
         dataTable.setRowSorter(rowSorter);
-        
-        loadData();
+
         setupTable();
-        setupColumnWidths();
         setupContextMenu();
         
         JScrollPane scrollPane = new JScrollPane(dataTable);
@@ -167,6 +165,18 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         scrollPane.getViewport().setBackground(CARD_BG);
         
         add(scrollPane, BorderLayout.CENTER);
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                loadData();
+                setupColumnWidths();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(parentFrame,
+                    "Không thể tải dữ liệu " + entityName + "!",
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
     
     private void setupTable() {

@@ -5,7 +5,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.AccountDAO;
+import bus.AccountBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -18,6 +18,8 @@ public class AccountDeleteDialog extends JDialog {
     private String accountUsername;
     
     private AccountPanel accountPanel;
+
+    private final AccountBUS accountBUS = new AccountBUS();
 
     public AccountDeleteDialog(Frame parent, int id, String username, AccountPanel accountPanel) {
         super(parent, "Xóa tài khoản", true);
@@ -156,8 +158,7 @@ public class AccountDeleteDialog extends JDialog {
     }
     
     private void deleteAccount() {
-        AccountDAO accountDAO = new AccountDAO();
-        boolean success = accountDAO.DeleteAccount(accountId);
+        boolean success = accountBUS.delete(accountId);
         
         if (success) {
             LogHelper.logDelete("tài khoản", accountUsername);

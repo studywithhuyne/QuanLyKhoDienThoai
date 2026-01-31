@@ -125,25 +125,6 @@ public class CategoryDAO {
 		}
 	}
 	
-	// Khôi phục category đã xóa
-	public boolean RestoreCategory(int id) {
-		String sql = "UPDATE categories SET is_deleted = FALSE WHERE id = ?";
-		
-		try {
-			Connection conn = DatabaseHelper.getConnection();
-			PreparedStatement statement = conn.prepareStatement(sql);
-			statement.setInt(1, id);
-			
-			int rowsAffected = statement.executeUpdate();
-			statement.close();
-			return rowsAffected > 0;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
 	// Lấy category theo ID
 	public CategoryDTO GetCategoryById(int id) {
 		String sql = "SELECT id, name, is_deleted FROM categories WHERE id = ?";

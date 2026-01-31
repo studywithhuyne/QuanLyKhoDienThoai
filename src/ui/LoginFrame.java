@@ -8,7 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
-import dao.AccountDAO;
+import bus.AccountBUS;
 import dto.AccountDTO;
 import utils.SessionManager;
 import utils.LogHelper;
@@ -299,8 +299,8 @@ public class LoginFrame extends JFrame {
         SwingWorker<AccountDTO, Void> worker = new SwingWorker<>() {
             @Override
             protected AccountDTO doInBackground() {
-                AccountDAO accountDAO = new AccountDAO();
-                return accountDAO.Login(username, password);
+                AccountBUS accountBUS = new AccountBUS();
+                return accountBUS.login(username, password);
             }
             
             @Override
