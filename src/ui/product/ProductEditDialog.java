@@ -5,6 +5,7 @@ import javax.swing.border.*;
 
 import dao.ProductDAO;
 import dto.ProductDTO;
+import utils.LogHelper;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -305,6 +306,8 @@ public class ProductEditDialog extends JDialog {
         boolean isSuccess = dao.EditProduct(updateProduct);
         
         if (isSuccess) {
+            LogHelper.logEdit("sản phẩm", txtName.getText().trim());
+            
             JOptionPane.showMessageDialog(this, 
                 "Cập nhật sản phẩm thành công!", 
                 "Thành công", 

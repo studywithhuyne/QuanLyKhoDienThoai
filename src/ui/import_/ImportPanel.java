@@ -1,6 +1,7 @@
 package ui.import_;
 
 import javax.swing.*;
+import java.awt.event.*;
 import java.util.List;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -19,6 +20,23 @@ public class ImportPanel extends BaseCrudPanel {
     
     public ImportPanel(JFrame parentFrame) {
         super(parentFrame, "phiếu nhập", COLUMNS);
+        setupDoubleClick();
+    }
+    
+    private void setupDoubleClick() {
+        getDataTable().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = getDataTable().getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = getDataTable().convertRowIndexToModel(selectedRow);
+                        int id = (int) getValueAt(modelRow, 0);
+                        new ImportDetailDialog(parentFrame, id);
+                    }
+                }
+            }
+        });
     }
     
     @Override
@@ -65,5 +83,16 @@ public class ImportPanel extends BaseCrudPanel {
         int id = (int) getValueAt(modelRow, 0);
         String supplierName = (String) getValueAt(modelRow, 1);
         new ImportDeleteDialog(parentFrame, id, "Phiếu nhập #" + id + " - " + supplierName, this);
+    }
+    
+    @Override
+    protected boolean supportsViewAction() {
+        return true;
+    }
+    
+    @Override
+    protected void onViewAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        new ImportDetailDialog(parentFrame, id);
     }
 }

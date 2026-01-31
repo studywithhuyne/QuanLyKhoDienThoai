@@ -5,6 +5,7 @@ import javax.swing.border.*;
 
 import dao.ProductDAO;
 import dto.ProductDTO;
+import utils.LogHelper;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -277,6 +278,8 @@ public class ProductAddDialog extends JDialog {
 
         // 4. Xử lý kết quả
         if (isSuccess) {
+            LogHelper.logAdd("sản phẩm", txtName.getText().trim());
+            
             JOptionPane.showMessageDialog(this, 
                 "Thêm sản phẩm thành công!", 
                 "Thông báo", 

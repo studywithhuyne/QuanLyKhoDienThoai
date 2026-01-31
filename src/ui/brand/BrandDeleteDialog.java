@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.BrandDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class BrandDeleteDialog extends JDialog {
@@ -172,6 +173,7 @@ public class BrandDeleteDialog extends JDialog {
         
         if (success) {
             confirmed = true;
+            LogHelper.logDelete("thương hiệu", brandName);
             JOptionPane.showMessageDialog(this, 
                 "Xóa thương hiệu thành công!", 
                 "Thành công", 

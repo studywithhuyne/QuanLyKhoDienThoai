@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dto.ImportReceiptDTO;
+import dto.ImportDetailDTO;
 import utils.DatabaseHelper;
 
 public class ImportReceiptDAO {
@@ -164,6 +165,87 @@ public class ImportReceiptDAO {
             PreparedStatement statement = conn.prepareStatement(sql);
             statement.setDouble(1, totalAmount);
             statement.setInt(2, receiptId);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            return rowsAffected > 0;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Lấy chi tiết phiếu nhập theo import_receipt_id
+    public List<ImportDetailDTO> GetImportDetails(int receiptId) {
+        List<ImportDetailDTO> details = new ArrayList<>();
+        String sql = "SELECT id.id, id.import_receipt_id, id.product_id, id.sku_id, id.quantity, " +
+                     "p.name as product_name, s.code as sku_code, s.price " +
+                     "FROM import_details id " +
+                     "JOIN products p ON id.product_id = p.id " +
+                     "JOIN skus s ON id.sku_id = s.id " +
+                     "WHERE id.import_receipt_id = ?";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, receiptId);
+            ResultSet rs = statement.executeQuery();
+            
+            while (rs.next()) {
+                ImportDetailDTO detail = new ImportDetailDTO();
+                detail.setId(rs.getInt("id"));
+                detail.setImportReceiptId(rs.getInt("import_receipt_id"));
+                detail.setProductId(rs.getInt("product_id"));
+                detail.setSkuId(rs.getInt("sku_id"));
+                detail.setQuantity(rs.getInt("quantity"));
+                detail.setProductName(rs.getString("product_name"));
+                detail.setSkuCode(rs.getString("sku_code"));
+                detail.setPrice(rs.getDouble("price"));
+                
+                details.add(detail);
+            }
+            
+            rs.close();
+            statement.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return details;
+    }
+    
+    // Thêm chi tiết phiếu nhập
+    public boolean AddImportDetail(int receiptId, int productId, int skuId, int quantity) {
+        String sql = "INSERT INTO import_details (import_receipt_id, product_id, sku_id, quantity) VALUES (?, ?, ?, ?)";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, receiptId);
+            statement.setInt(2, productId);
+            statement.setInt(3, skuId);
+            statement.setInt(4, quantity);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            return rowsAffected > 0;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Cập nhật tồn kho SKU (tăng khi nhập)
+    public boolean UpdateSkuStock(int skuId, int quantityToAdd) {
+        String sql = "UPDATE skus SET stock = stock + ? WHERE id = ?";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, quantityToAdd);
+            statement.setInt(2, skuId);
             
             int rowsAffected = statement.executeUpdate();
             statement.close();

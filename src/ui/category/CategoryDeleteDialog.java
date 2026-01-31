@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.CategoryDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class CategoryDeleteDialog extends JDialog {
@@ -172,6 +173,7 @@ public class CategoryDeleteDialog extends JDialog {
         
         if (success) {
             confirmed = true;
+            LogHelper.logDelete("danh mục", categoryName);
             JOptionPane.showMessageDialog(this, 
                 "Xóa danh mục thành công!", 
                 "Thành công", 

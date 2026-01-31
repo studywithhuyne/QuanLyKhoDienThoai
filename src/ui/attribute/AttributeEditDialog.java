@@ -10,6 +10,7 @@ import java.util.List;
 import dao.AttributeDAO;
 import dto.AttributeDTO;
 import dto.AttributeOptionDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AttributeEditDialog extends JDialog {
@@ -300,6 +301,7 @@ public class AttributeEditDialog extends JDialog {
         boolean success = attributeDAO.EditAttributeOption(option);
         
         if (success) {
+            LogHelper.logEdit("thuộc tính", selectedAttr.getName() + ": " + txtValue.getText().trim());
             JOptionPane.showMessageDialog(this, 
                 "Cập nhật thành công!", 
                 "Thành công", 

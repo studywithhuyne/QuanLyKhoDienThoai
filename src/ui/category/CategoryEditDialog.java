@@ -8,6 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import dao.CategoryDAO;
 import dto.CategoryDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class CategoryEditDialog extends JDialog {
@@ -15,7 +16,6 @@ public class CategoryEditDialog extends JDialog {
     // Form fields
     private JTextField txtId;
     private JTextField txtName;
-    private JTextArea txtDescription;
     
     // Data
     private int categoryId;
@@ -39,7 +39,7 @@ public class CategoryEditDialog extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(480, 500);
+        setSize(480, 370);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -108,21 +108,6 @@ public class CategoryEditDialog extends JDialog {
         
         // Name
         formCard.add(createFormGroup("Tên danh mục", txtName = createTextField("Nhập tên danh mục...")));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Description
-        txtDescription = new JTextArea(4, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 100));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -286,6 +271,7 @@ public class CategoryEditDialog extends JDialog {
         boolean success = categoryDAO.EditCategory(category);
         
         if (success) {
+            LogHelper.logEdit("danh mục", txtName.getText().trim());
             JOptionPane.showMessageDialog(this, 
                 "Cập nhật danh mục thành công!", 
                 "Thành công", 

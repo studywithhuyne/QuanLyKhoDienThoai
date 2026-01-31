@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dto.InvoiceDTO;
+import dto.InvoiceDetailDTO;
 import utils.DatabaseHelper;
 
 public class InvoiceDAO {
@@ -154,6 +155,118 @@ public class InvoiceDAO {
             PreparedStatement statement = conn.prepareStatement(sql);
             statement.setDouble(1, totalAmount);
             statement.setInt(2, invoiceId);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            return rowsAffected > 0;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Lấy chi tiết phiếu xuất theo invoice_id
+    public List<InvoiceDetailDTO> GetInvoiceDetails(int invoiceId) {
+        List<InvoiceDetailDTO> details = new ArrayList<>();
+        String sql = "SELECT id.id, id.invoice_id, id.sku_id, id.quantity, id.imei_id, " +
+                     "s.code as sku_code, s.price, p.name as product_name, " +
+                     "pi.imei as imei_code " +
+                     "FROM invoice_details id " +
+                     "JOIN skus s ON id.sku_id = s.id " +
+                     "JOIN products p ON s.product_id = p.id " +
+                     "LEFT JOIN phone_imeis pi ON id.imei_id = pi.id " +
+                     "WHERE id.invoice_id = ?";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, invoiceId);
+            ResultSet rs = statement.executeQuery();
+            
+            while (rs.next()) {
+                InvoiceDetailDTO detail = new InvoiceDetailDTO();
+                detail.setId(rs.getInt("id"));
+                detail.setInvoiceId(rs.getInt("invoice_id"));
+                detail.setSkuId(rs.getInt("sku_id"));
+                detail.setQuantity(rs.getInt("quantity"));
+                
+                int imeiId = rs.getInt("imei_id");
+                detail.setImeiId(rs.wasNull() ? null : imeiId);
+                
+                detail.setSkuCode(rs.getString("sku_code"));
+                detail.setPrice(rs.getDouble("price"));
+                detail.setProductName(rs.getString("product_name"));
+                detail.setImeiCode(rs.getString("imei_code"));
+                
+                details.add(detail);
+            }
+            
+            rs.close();
+            statement.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return details;
+    }
+    
+    // Thêm chi tiết phiếu xuất
+    public boolean AddInvoiceDetail(int invoiceId, int skuId, int quantity, Integer imeiId) {
+        String sql = "INSERT INTO invoice_details (invoice_id, sku_id, quantity, imei_id) VALUES (?, ?, ?, ?)";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, invoiceId);
+            statement.setInt(2, skuId);
+            statement.setInt(3, quantity);
+            if (imeiId != null) {
+                statement.setInt(4, imeiId);
+            } else {
+                statement.setNull(4, java.sql.Types.INTEGER);
+            }
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            return rowsAffected > 0;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Giảm tồn kho SKU khi xuất
+    public boolean DecreaseSkuStock(int skuId, int quantityToDecrease) {
+        String sql = "UPDATE skus SET stock = stock - ? WHERE id = ? AND stock >= ?";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, quantityToDecrease);
+            statement.setInt(2, skuId);
+            statement.setInt(3, quantityToDecrease);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            return rowsAffected > 0;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Cập nhật trạng thái IMEI khi bán
+    public boolean UpdateImeiStatus(int imeiId, String status) {
+        String sql = "UPDATE phone_imeis SET status = ? WHERE id = ?";
+        
+        try {
+            Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, status);
+            statement.setInt(2, imeiId);
             
             int rowsAffected = statement.executeUpdate();
             statement.close();

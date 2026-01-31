@@ -10,6 +10,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import dao.InvoiceDAO;
 import dto.InvoiceDTO;
+import utils.LogHelper;
 
 public class SalesEditDialog extends JDialog {
     
@@ -29,7 +30,7 @@ public class SalesEditDialog extends JDialog {
     private SalesPanel salesPanel;
     
     public SalesEditDialog(Frame parent, int id, String staffName, SalesPanel salesPanel) {
-        super(parent, "Sửa hóa đơn bán hàng", true);
+        super(parent, "Sửa phiếu xuất", true);
         this.salesId = id;
         this.salesPanel = salesPanel;
         
@@ -68,7 +69,7 @@ public class SalesEditDialog extends JDialog {
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(CARD_BG);
         
-        JLabel titleLabel = new JLabel("Sửa hóa đơn bán hàng");
+        JLabel titleLabel = new JLabel("Sửa phiếu xuất");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         
@@ -104,7 +105,7 @@ public class SalesEditDialog extends JDialog {
         txtId = createTextField("");
         txtId.setEditable(false);
         txtId.setBackground(CONTENT_BG);
-        formCard.add(createFormGroup("ID hóa đơn", txtId));
+        formCard.add(createFormGroup("ID phiếu xuất", txtId));
         formCard.add(Box.createVerticalStrut(18));
         
         // Employee (readonly)
@@ -350,8 +351,9 @@ public class SalesEditDialog extends JDialog {
         boolean success = invoiceDAO.EditInvoice(invoice);
         
         if (success) {
+            LogHelper.logEdit("phiếu xuất", "#" + salesId);
             JOptionPane.showMessageDialog(this, 
-                "Cập nhật hóa đơn thành công!", 
+                "Cập nhật phiếu xuất thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
             if (salesPanel != null) {
@@ -359,7 +361,7 @@ public class SalesEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật hóa đơn thất bại!");
+            showError("Cập nhật phiếu xuất thất bại!");
         }
     }
     

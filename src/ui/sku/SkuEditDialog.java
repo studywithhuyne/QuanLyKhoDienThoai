@@ -17,6 +17,7 @@ import dto.SkuDTO;
 import dto.ProductDTO;
 import dto.AttributeDTO;
 import dto.AttributeOptionDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class SkuEditDialog extends JDialog {
@@ -474,6 +475,7 @@ public class SkuEditDialog extends JDialog {
                 skuDAO.AddSkuAttributeOption(skuId, optionId);
             }
             
+            LogHelper.logEdit("SKU", txtCode.getText().trim());
             JOptionPane.showMessageDialog(this, "Cập nhật SKU thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (skuPanel != null) {
                 skuPanel.loadData();

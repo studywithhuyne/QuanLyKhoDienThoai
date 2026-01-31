@@ -13,6 +13,7 @@ import dao.ImportReceiptDAO;
 import dao.SupplierDAO;
 import dto.ImportReceiptDTO;
 import dto.SupplierDTO;
+import utils.LogHelper;
 
 public class ImportEditDialog extends JDialog {
     
@@ -390,6 +391,7 @@ public class ImportEditDialog extends JDialog {
         boolean success = importDAO.EditImportReceipt(receipt);
         
         if (success) {
+            LogHelper.logEdit("phiếu nhập", "#" + importId);
             JOptionPane.showMessageDialog(this, 
                 "Cập nhật phiếu nhập thành công!", 
                 "Thành công", 

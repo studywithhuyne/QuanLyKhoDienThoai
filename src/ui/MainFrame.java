@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.*;
 import com.formdev.flatlaf.FlatLightLaf; 
 
+import utils.SessionManager;
+import utils.LogHelper;
 import ui.dashboard.DashboardPanel;
 import ui.product.ProductPanel;
 import ui.import_.ImportPanel;
@@ -36,7 +38,7 @@ public class MainFrame extends JFrame {
     // Menu items - Đã bổ sung đầy đủ theo bảng phân công
     private String[] menuItems = {
         "Dashboard", "Sản phẩm", "Thuộc tính", "SKU", "IMEI",
-        "Nhập kho", "Bán hàng", "Nhà cung cấp", 
+        "Nhập kho", "Xuất kho", "Nhà cung cấp", 
         "Thương hiệu", "Danh mục", "Tài khoản", "Thống kê", "Logs"
     };
     private String[] menuIcons = {
@@ -45,19 +47,19 @@ public class MainFrame extends JFrame {
         "●", "●", "●", "●", "●"
     };
     private Color[] menuIconColors = {
-        new Color(64, 156, 255),   // Dashboard - Vivid Blue
-        new Color(46, 213, 115),   // Sản phẩm - Vivid Green
-        new Color(156, 136, 255),  // Thuộc tính - Vivid Purple
-        new Color(255, 193, 7),    // SKU - Vivid Amber
-        new Color(0, 188, 212),    // IMEI - Vivid Cyan
-        new Color(255, 159, 67),   // Nhập kho - Vivid Orange
-        new Color(255, 71, 87),    // Bán hàng - Vivid Red
-        new Color(83, 82, 237),    // Nhà cung cấp - Vivid Indigo
-        new Color(255, 107, 129),  // Thương hiệu - Vivid Pink
-        new Color(112, 161, 255),  // Danh mục - Vivid Light Blue
-        new Color(236, 204, 104),  // Tài khoản - Vivid Yellow
-        new Color(76, 175, 80),    // Thống kê - Vivid Green
-        new Color(158, 158, 158)   // Logs - Gray
+        new Color(64, 156, 255),   // Dashboard 
+        new Color(46, 213, 115),   // Sản phẩm 
+        new Color(156, 136, 255),  // Thuộc tính 
+        new Color(255, 193, 7),    // SKU 
+        new Color(0, 188, 212),    // IMEI 
+        new Color(255, 159, 67),   // Nhập kho 
+        new Color(255, 71, 87),    // Xuất kho 
+        new Color(83, 82, 237),    // Nhà cung cấp 
+        new Color(255, 107, 129),  // Thương hiệu 
+        new Color(112, 161, 255),  // Danh mục 
+        new Color(236, 204, 104),  // Tài khoản 
+        new Color(76, 175, 80),    // Thống kê 
+        new Color(158, 158, 158)   // Logs 
     };
     
     public MainFrame() {
@@ -100,7 +102,7 @@ public class MainFrame extends JFrame {
         mainContentPanel.add(new SkuPanel(this), "SKU");
         mainContentPanel.add(new ImeiPanel(this), "IMEI");
         mainContentPanel.add(new ImportPanel(this), "Nhập kho");
-        mainContentPanel.add(new SalesPanel(this), "Bán hàng");
+        mainContentPanel.add(new SalesPanel(this), "Xuất kho");
         mainContentPanel.add(new SupplierPanel(this), "Nhà cung cấp");
         mainContentPanel.add(new BrandPanel(this), "Thương hiệu");
         mainContentPanel.add(new CategoryPanel(this), "Danh mục");
@@ -156,14 +158,25 @@ public class MainFrame extends JFrame {
         menuPanel.add(Box.createVerticalStrut(10));
         
         // Menu items
+        boolean isAdmin = SessionManager.getInstance().isAdmin();
+        boolean isFirstVisible = true;
+        
         for (int i = 0; i < menuItems.length; i++) {
-            JButton menuButton = createMenuButton(menuIcons[i], menuItems[i], menuIconColors[i]);
+            String menuName = menuItems[i];
+            
+            // Ẩn "Tài khoản" và "Logs" nếu không phải admin
+            if (!isAdmin && (menuName.equals("Tài khoản") || menuName.equals("Logs"))) {
+                continue;
+            }
+            
+            JButton menuButton = createMenuButton(menuIcons[i], menuName, menuIconColors[i]);
             menuPanel.add(menuButton);
             menuPanel.add(Box.createVerticalStrut(5));
             
-            // Set first button as active
-            if (i == 0) {
+            // Set first visible button as active
+            if (isFirstVisible) {
                 setActiveButton(menuButton);
+                isFirstVisible = false;
             }
         }
         
@@ -207,7 +220,7 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridy = 0;
         
-        // Icon - vẽ hình tròn thực sự thay vì dùng ký tự text
+        // Icon 
         JPanel iconPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -285,8 +298,14 @@ public class MainFrame extends JFrame {
         userPanel.add(separator);
         userPanel.add(Box.createVerticalStrut(15));
         
-        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        // Sử dụng BorderLayout để căn logout button sang phải
+        JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBackground(SIDEBAR_BG);
+        infoPanel.setMaximumSize(new Dimension(230, 45));
+        
+        // Left section: Avatar + Text
+        JPanel leftSection = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        leftSection.setBackground(SIDEBAR_BG);
         
         // Avatar
         JPanel avatarPanel = new JPanel(new GridBagLayout());
@@ -302,31 +321,58 @@ public class MainFrame extends JFrame {
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         textPanel.setBackground(SIDEBAR_BG);
         
-        JLabel nameLabel = new JLabel("Admin");
+        // Lấy thông tin user từ SessionManager
+        SessionManager session = SessionManager.getInstance();
+        String displayName = session.isLoggedIn() ? session.getDisplayName() : "Guest";
+        String roleName = session.isLoggedIn() ? session.getRoleDisplayName() : "";
+        
+        JLabel nameLabel = new JLabel(displayName);
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         nameLabel.setForeground(Color.WHITE);
         
-        JLabel roleLabel = new JLabel("Quản trị viên");
+        JLabel roleLabel = new JLabel(roleName);
         roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         roleLabel.setForeground(MENU_LABEL);
         
         textPanel.add(nameLabel);
         textPanel.add(roleLabel);
         
-        infoPanel.add(avatarPanel);
-        infoPanel.add(textPanel);
+        leftSection.add(avatarPanel);
+        leftSection.add(textPanel);
         
-        // Logout button
-        JButton logoutBtn = new JButton("🚪");
-        logoutBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        // Logout button - căn phải
+        JButton logoutBtn = new JButton("⎗");
+        logoutBtn.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 22));
         logoutBtn.setBackground(SIDEBAR_BG);
-        logoutBtn.setForeground(TEXT_LIGHT);
+        logoutBtn.setForeground(new Color(248, 113, 113));
         logoutBtn.setBorderPainted(false);
         logoutBtn.setFocusPainted(false);
         logoutBtn.setContentAreaFilled(false);
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.setToolTipText("Đăng xuất");
-        infoPanel.add(logoutBtn);
+        logoutBtn.setPreferredSize(new Dimension(40, 40));
+        
+        // Xử lý đăng xuất
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn đăng xuất?",
+                "Xác nhận đăng xuất",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                LogHelper.logLogout();
+                SessionManager.getInstance().logout();
+                dispose();
+                new LoginFrame();
+            }
+        });
+        
+        // Add vào infoPanel với BorderLayout
+        infoPanel.add(leftSection, BorderLayout.WEST);
+        infoPanel.add(logoutBtn, BorderLayout.EAST);
         
         userPanel.add(infoPanel);
         
@@ -345,49 +391,7 @@ public class MainFrame extends JFrame {
         titleLabel.setForeground(TEXT_PRIMARY);
         header.add(titleLabel, BorderLayout.WEST);
         
-        // Right section - Search and notifications
-        JPanel rightSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
-        rightSection.setBackground(CARD_BG);
-        
-
-        
-        // Notification button
-        JButton notifBtn = createIconButton("🔔", "Thông báo");
-        rightSection.add(notifBtn);
-        
-        // Settings button
-        JButton settingsBtn = createIconButton("⚙", "Cài đặt");
-        rightSection.add(settingsBtn);
-        
-        header.add(rightSection, BorderLayout.EAST);
-        
         return header;
-    }
-    
-    private JButton createIconButton(String icon, String tooltip) {
-        JButton button = new JButton(icon);
-        button.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
-        button.setPreferredSize(new Dimension(40, 40));
-        button.setBackground(CARD_BG);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setToolTipText(tooltip);
-        button.setOpaque(true);
-        
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(CONTENT_BG);
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(CARD_BG);
-            }
-        });
-        
-        return button;
     }
     
     public static void main(String[] args) {
@@ -401,6 +405,7 @@ public class MainFrame extends JFrame {
             e.printStackTrace();
         }
         
-        SwingUtilities.invokeLater(() -> new MainFrame());
+        // Mở trang đăng nhập khi chạy app
+        SwingUtilities.invokeLater(() -> new LoginFrame());
     }
 }

@@ -11,6 +11,7 @@ import java.text.ParseException;
 
 import dao.ImeiDAO;
 import dto.ImeiDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class ImeiEditDialog extends JDialog {
@@ -319,6 +320,7 @@ public class ImeiEditDialog extends JDialog {
         boolean success = imeiDAO.EditImei(imei);
         
         if (success) {
+            LogHelper.logEdit("IMEI", txtImei.getText().trim());
             JOptionPane.showMessageDialog(this, "Cập nhật IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (imeiPanel != null) {
                 imeiPanel.loadData();

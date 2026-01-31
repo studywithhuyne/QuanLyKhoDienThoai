@@ -8,6 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import dao.AccountDAO;
 import dto.AccountDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AccountEditDialog extends JDialog {
@@ -372,6 +373,7 @@ public class AccountEditDialog extends JDialog {
         boolean success = accountDAO.EditAccount(account);
         
         if (success) {
+            LogHelper.logEdit("tài khoản", username);
             JOptionPane.showMessageDialog(this,
                 "Cập nhật tài khoản thành công!",
                 "Thành công",
