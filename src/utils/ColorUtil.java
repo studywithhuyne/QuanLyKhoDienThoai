@@ -24,6 +24,7 @@ public class ColorUtil {
     public static final Color DANGER_RED = new Color(239, 68, 68);
     public static final Color DANGER_HOVER = new Color(220, 38, 38);
     public static final Color DANGER_BG = new Color(254, 242, 242);
+    public static final Color ERROR_COLOR = new Color(220, 38, 38);
     public static final Color GREEN = new Color(22, 186, 44);
     
     // Dialog Background Colors

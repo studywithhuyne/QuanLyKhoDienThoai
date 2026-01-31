@@ -1,6 +1,7 @@
 package ui.sales;
 
 import javax.swing.*;
+import java.awt.event.*;
 import java.util.List;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -11,14 +12,31 @@ import dto.InvoiceDTO;
 import ui.BaseCrudPanel;
 
 /**
- * Panel quản lý Phiếu xuất hàng / Hóa đơn
+ * Panel quản lý Phiếu xuất hàng
  */
 public class SalesPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Nhân viên", "Tổng tiền", "Ngày tạo"};
     
     public SalesPanel(JFrame parentFrame) {
-        super(parentFrame, "hóa đơn", COLUMNS);
+        super(parentFrame, "phiếu xuất", COLUMNS);
+        setupDoubleClick();
+    }
+    
+    private void setupDoubleClick() {
+        getDataTable().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = getDataTable().getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = getDataTable().convertRowIndexToModel(selectedRow);
+                        int id = (int) getValueAt(modelRow, 0);
+                        new SalesDetailDialog(parentFrame, id);
+                    }
+                }
+            }
+        });
     }
     
     @Override
@@ -62,6 +80,17 @@ public class SalesPanel extends BaseCrudPanel {
     protected void onDeleteAction(int modelRow) {
         int id = (int) getValueAt(modelRow, 0);
         String staffName = (String) getValueAt(modelRow, 1);
-        new SalesDeleteDialog(parentFrame, id, "Hóa đơn #" + id + " - " + staffName, this);
+        new SalesDeleteDialog(parentFrame, id, "Phiếu xuất #" + id + " - " + staffName, this);
+    }
+    
+    @Override
+    protected boolean supportsViewAction() {
+        return true;
+    }
+    
+    @Override
+    protected void onViewAction(int modelRow) {
+        int id = (int) getValueAt(modelRow, 0);
+        new SalesDetailDialog(parentFrame, id);
     }
 }

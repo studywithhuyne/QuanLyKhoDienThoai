@@ -8,7 +8,11 @@ import javax.swing.table.*;
 import static utils.ColorUtil.*;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
+import dao.LogDAO;
+import dto.LogDTO;
 import ui.ISearchable;
 
 /**
@@ -22,20 +26,29 @@ public class LogsPanel extends JPanel implements ISearchable {
     private TableRowSorter<DefaultTableModel> rowSorter;
     
     private static final String[] COLUMNS = {"ID", "Thời gian", "Người dùng", "Hành động", "Chi tiết"};
-    private static final Object[][] DATA = {
-        {1, "18/01/2026 10:30:00", "admin", "Đăng nhập", "Đăng nhập thành công"},
-        {2, "18/01/2026 10:32:15", "admin", "Thêm sản phẩm", "Thêm sản phẩm: iPhone 17 Pro Max"},
-        {3, "18/01/2026 10:45:30", "jerry", "Đăng nhập", "Đăng nhập thành công"},
-        {4, "18/01/2026 11:00:00", "jerry", "Tạo phiếu nhập", "Phiếu nhập #1 - FPT Synnex"},
-        {5, "18/01/2026 11:30:45", "jerry", "Bán hàng", "Hóa đơn #1 - iPhone 17 Pro Max"},
-        {6, "18/01/2026 12:00:00", "admin", "Sửa sản phẩm", "Cập nhật giá: Samsung Galaxy S26 Ultra"},
-        {7, "18/01/2026 14:15:20", "jerry", "Xóa IMEI", "Xóa IMEI: 352789100456792"},
-        {8, "18/01/2026 15:30:00", "admin", "Đăng xuất", "Đăng xuất thành công"},
-    };
     
     public LogsPanel(JFrame parentFrame) {
         this.parentFrame = parentFrame;
         initializePanel();
+        loadData();
+    }
+    
+    public void loadData() {
+        LogDAO logDAO = new LogDAO();
+        List<LogDTO> logs = logDAO.GetAllLogs();
+        tableModel.setRowCount(0);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        for (LogDTO log : logs) {
+            String dateStr = log.getCreatedAt() != null ? sdf.format(log.getCreatedAt()) : "";
+            tableModel.addRow(new Object[]{
+                log.getID(),
+                dateStr,
+                log.getUsername(),
+                log.getAction(),
+                log.getDetails()
+            });
+        }
     }
     
     private void initializePanel() {
@@ -54,6 +67,7 @@ public class LogsPanel extends JPanel implements ISearchable {
         
         JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
         refreshBtn.addActionListener(e -> {
+            loadData();
             JOptionPane.showMessageDialog(parentFrame, "Đã làm mới dữ liệu logs!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         });
         
@@ -85,7 +99,7 @@ public class LogsPanel extends JPanel implements ISearchable {
         add(actionPanel, BorderLayout.NORTH);
         
         // Table
-        tableModel = new DefaultTableModel(DATA, COLUMNS) {
+        tableModel = new DefaultTableModel(COLUMNS, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;

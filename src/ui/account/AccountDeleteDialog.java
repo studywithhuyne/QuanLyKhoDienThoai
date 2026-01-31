@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.AccountDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AccountDeleteDialog extends JDialog {
@@ -159,6 +160,7 @@ public class AccountDeleteDialog extends JDialog {
         boolean success = accountDAO.DeleteAccount(accountId);
         
         if (success) {
+            LogHelper.logDelete("tài khoản", accountUsername);
             JOptionPane.showMessageDialog(this,
                 "Đã xóa tài khoản \"" + accountUsername + "\" thành công!",
                 "Thành công",

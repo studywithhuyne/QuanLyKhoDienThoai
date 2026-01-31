@@ -13,6 +13,7 @@ import dao.ImportReceiptDAO;
 import dto.ImeiDTO;
 import dto.SkuDTO;
 import dto.ImportReceiptDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class ImeiAddDialog extends JDialog {
@@ -297,6 +298,7 @@ public class ImeiAddDialog extends JDialog {
         boolean success = imeiDAO.AddImei(imei);
         
         if (success) {
+            LogHelper.logAdd("IMEI", txtImei.getText().trim());
             JOptionPane.showMessageDialog(this, "Thêm IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (imeiPanel != null) {
                 imeiPanel.loadData();

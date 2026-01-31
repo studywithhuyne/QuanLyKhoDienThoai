@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.ImportReceiptDAO;
+import utils.LogHelper;
 
 public class ImportDeleteDialog extends JDialog {
     
@@ -172,6 +173,7 @@ public class ImportDeleteDialog extends JDialog {
         
         if (success) {
             confirmed = true;
+            LogHelper.logDelete("phiếu nhập", "#" + importId);
             JOptionPane.showMessageDialog(this, 
                 "Xóa phiếu nhập thành công!", 
                 "Thành công", 

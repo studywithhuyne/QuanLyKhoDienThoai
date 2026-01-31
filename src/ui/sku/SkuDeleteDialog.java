@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.SkuDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class SkuDeleteDialog extends JDialog {
@@ -163,6 +164,7 @@ public class SkuDeleteDialog extends JDialog {
         boolean success = skuDAO.DeleteSku(skuId);
         
         if (success) {
+            LogHelper.logDelete("SKU", skuCode);
             confirmed = true;
             JOptionPane.showMessageDialog(this, "Xóa SKU thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (skuPanel != null) {

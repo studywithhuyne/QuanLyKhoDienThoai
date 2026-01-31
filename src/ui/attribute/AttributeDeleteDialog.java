@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.AttributeDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AttributeDeleteDialog extends JDialog {
@@ -171,6 +172,7 @@ public class AttributeDeleteDialog extends JDialog {
         boolean success = attributeDAO.DeleteAttributeOption(optionId);
         
         if (success) {
+            LogHelper.logDelete("thuộc tính", optionName);
             confirmed = true;
             JOptionPane.showMessageDialog(this, 
                 "Xóa thành công!", 

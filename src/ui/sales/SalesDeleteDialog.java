@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.InvoiceDAO;
+import utils.LogHelper;
 
 public class SalesDeleteDialog extends JDialog {
     
@@ -87,7 +88,7 @@ public class SalesDeleteDialog extends JDialog {
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         // Title
-        JLabel titleLabel = new JLabel("Xóa hóa đơn?");
+        JLabel titleLabel = new JLabel("Xóa phiếu xuất?");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -124,7 +125,7 @@ public class SalesDeleteDialog extends JDialog {
             dispose();
         });
         
-        btnDelete = createButton("Xóa hóa đơn", Color.WHITE, DANGER_RED, false);
+        btnDelete = createButton("Xóa phiếu xuất", Color.WHITE, DANGER_RED, false);
         btnDelete.addActionListener(e -> deleteSales());
         
         footer.add(btnCancel);
@@ -171,9 +172,10 @@ public class SalesDeleteDialog extends JDialog {
         boolean success = invoiceDAO.DeleteInvoice(salesId);
         
         if (success) {
+            LogHelper.logDelete("phiếu xuất", "#" + salesId);
             confirmed = true;
             JOptionPane.showMessageDialog(this, 
-                "Xóa hóa đơn thành công!", 
+                "Xóa phiếu xuất thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
             if (salesPanel != null) {
@@ -182,7 +184,7 @@ public class SalesDeleteDialog extends JDialog {
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, 
-                "Xóa hóa đơn thất bại!", 
+                "Xóa phiếu xuất thất bại!", 
                 "Lỗi", 
                 JOptionPane.ERROR_MESSAGE);
         }

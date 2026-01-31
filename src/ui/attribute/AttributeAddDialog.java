@@ -10,6 +10,7 @@ import java.util.List;
 import dao.AttributeDAO;
 import dto.AttributeDTO;
 import dto.AttributeOptionDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AttributeAddDialog extends JDialog {
@@ -261,6 +262,7 @@ public class AttributeAddDialog extends JDialog {
         boolean success = attributeDAO.AddAttributeOption(option);
         
         if (success) {
+            LogHelper.logAdd("thuộc tính", selectedAttr.getName() + ": " + txtValue.getText().trim());
             JOptionPane.showMessageDialog(this, "Thêm giá trị thuộc tính thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (attributePanel != null) {
                 attributePanel.loadData();

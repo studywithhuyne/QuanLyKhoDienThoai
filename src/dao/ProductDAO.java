@@ -145,6 +145,37 @@ public class ProductDAO {
 		}
 	}
 	
+	// Thêm sản phẩm và trả về ID
+	public int AddProductReturnId(ProductDTO product) {
+		String sql = "INSERT INTO products(brand_id, category_id, name, created_at) VALUES (?, ?, ?, ?)";
+		
+		try {
+			Connection conn = DatabaseHelper.getConnection();
+			PreparedStatement statement = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, product.getBrandId());
+			statement.setInt(2, product.getCategoryId());
+			statement.setString(3, product.getName());
+			statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+			
+			int rowsAffected = statement.executeUpdate();
+			if (rowsAffected > 0) {
+				ResultSet generatedKeys = statement.getGeneratedKeys();
+				if (generatedKeys.next()) {
+					int newId = generatedKeys.getInt(1);
+					generatedKeys.close();
+					statement.close();
+					return newId;
+				}
+				generatedKeys.close();
+			}
+			statement.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
 	public boolean EditProduct(ProductDTO product) {	
 		String sql = "UPDATE products "
 					+ "SET brand_id = ?, category_id = ?, name = ? "

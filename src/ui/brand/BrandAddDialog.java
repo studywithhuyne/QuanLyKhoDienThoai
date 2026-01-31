@@ -8,13 +8,13 @@ import java.awt.geom.RoundRectangle2D;
 
 import dao.BrandDAO;
 import dto.BrandDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class BrandAddDialog extends JDialog {
     
     // Form fields
     private JTextField txtName;
-    private JTextArea txtDescription;
     
     private JButton btnSave;
     private JButton btnCancel;
@@ -30,7 +30,7 @@ public class BrandAddDialog extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(480, 450);
+        setSize(480, 320);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -91,21 +91,6 @@ public class BrandAddDialog extends JDialog {
 
         // Name
         formCard.add(createFormGroup("Tên thương hiệu", txtName = createTextField("Nhập tên thương hiệu...")));
-        formCard.add(Box.createVerticalStrut(18));
-        
-        // Description
-        txtDescription = new JTextArea(4, 20);
-        txtDescription.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDescription.setLineWrap(true);
-        txtDescription.setWrapStyleWord(true);
-        txtDescription.setBorder(new EmptyBorder(10, 12, 10, 12));
-        
-        JScrollPane descScroll = new JScrollPane(txtDescription);
-        descScroll.setBorder(new LineBorder(BORDER_COLOR, 1, true));
-        descScroll.setPreferredSize(new Dimension(0, 100));
-        descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        
-        formCard.add(createFormGroupWithComponent("Mô tả (tùy chọn)", descScroll));
         
         formCard.add(Box.createVerticalGlue());
         
@@ -258,6 +243,7 @@ public class BrandAddDialog extends JDialog {
         boolean success = brandDAO.AddBrand(brand);
         
         if (success) {
+            LogHelper.logAdd("thương hiệu", txtName.getText().trim());
             JOptionPane.showMessageDialog(this, "Thêm thương hiệu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (brandPanel != null) {
                 brandPanel.loadData();

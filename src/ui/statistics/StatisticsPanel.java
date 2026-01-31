@@ -183,7 +183,7 @@ public class StatisticsPanel extends JPanel {
         lblImportValue.setText(formatCurrency(importTotal));
         lblImportCount.setText(importCount + " phiếu nhập");
         lblSalesValue.setText(formatCurrency(salesTotal));
-        lblSalesCount.setText(salesCount + " hóa đơn");
+        lblSalesCount.setText(salesCount + " phiếu xuất");
         lblInventoryValue.setText(formatCurrency(inventoryValue));
         lblSkuCount.setText(skuCount + " SKU còn hàng");
         

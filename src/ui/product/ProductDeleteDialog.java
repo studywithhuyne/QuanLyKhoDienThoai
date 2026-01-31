@@ -5,6 +5,7 @@ import javax.swing.border.*;
 
 import dao.ProductDAO;
 import dto.ProductDTO;
+import utils.LogHelper;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -166,6 +167,7 @@ public class ProductDeleteDialog extends JDialog {
         ProductDAO dao = new ProductDAO();
         boolean isSuccess = dao.DeleteProduct(deleteProduct);
         if (isSuccess) {
+            LogHelper.logDelete("sản phẩm", productName);
         	JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
         	if (productPanel != null) {
         	    productPanel.loadData();

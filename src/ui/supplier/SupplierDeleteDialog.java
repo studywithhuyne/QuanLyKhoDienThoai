@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.SupplierDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class SupplierDeleteDialog extends JDialog {
@@ -172,6 +173,7 @@ public class SupplierDeleteDialog extends JDialog {
         
         if (success) {
             confirmed = true;
+            LogHelper.logDelete("nhà cung cấp", supplierName);
             JOptionPane.showMessageDialog(this, 
                 "Xóa nhà cung cấp thành công!", 
                 "Thành công", 

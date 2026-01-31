@@ -150,6 +150,16 @@ CREATE TABLE category_attribute (
     FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE
 );
 
+-- 16. logs
+CREATE TABLE logs (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    action      VARCHAR(50) NOT NULL,
+    details     VARCHAR(500),
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES accounts(id)
+);
+
 
 -- =======================================================
 -- 2. DỮ LIỆU MẪU (DUMMY DATA)
@@ -307,7 +317,7 @@ INSERT INTO phone_imeis (sku_id, import_receipt_id, imei, status) VALUES
 (1, 1, '999988887777001', 'available'),
 (1, 1, '999988887777002', 'sold');
 
--- Xuất kho (Bán hàng)
+-- Xuất kho (Phiếu xuất)
 INSERT INTO invoices (id, staff_id, total_amount, created_at) VALUES
 (1, 2, 56490000, '2026-01-05 10:30:00');
 
@@ -315,3 +325,14 @@ INSERT INTO invoices (id, staff_id, total_amount, created_at) VALUES
 INSERT INTO invoice_details (invoice_id, sku_id, quantity, imei_id) VALUES
 (1, 1, 1, 2),    -- iPhone
 (1, 8, 1, NULL); -- Sạc dự phòng
+
+-- Logs mẫu
+INSERT INTO logs (user_id, action, details, created_at) VALUES
+(1, 'Đăng nhập', 'Đăng nhập thành công', '2026-01-18 10:30:00'),
+(1, 'Thêm sản phẩm', 'Thêm sản phẩm: iPhone 17 Pro Max', '2026-01-18 10:32:15'),
+(2, 'Đăng nhập', 'Đăng nhập thành công', '2026-01-18 10:45:30'),
+(2, 'Tạo phiếu nhập', 'Phiếu nhập #1 - FPT Synnex', '2026-01-18 11:00:00'),
+(2, 'Xuất kho', 'Phiếu xuất #1 - iPhone 17 Pro Max', '2026-01-18 11:30:45'),
+(1, 'Sửa sản phẩm', 'Cập nhật giá: Samsung Galaxy S26 Ultra', '2026-01-18 12:00:00'),
+(2, 'Xóa IMEI', 'Xóa IMEI: 352789100456792', '2026-01-18 14:15:20'),
+(1, 'Đăng xuất', 'Đăng xuất thành công', '2026-01-18 15:30:00');

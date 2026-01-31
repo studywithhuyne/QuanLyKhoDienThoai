@@ -91,6 +91,23 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         buttonsPanel.add(deleteBtn);
         buttonsPanel.add(refreshBtn);
         
+        // Add view button if subclass supports it
+        if (supportsViewAction()) {
+            JButton viewBtn = createActionButton("Xem", new Color(108, 117, 125)); // Gray
+            viewBtn.addActionListener(e -> {
+                int selectedRow = dataTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(parentFrame, 
+                        "Vui lòng chọn " + entityName + " cần xem!", 
+                        "Thông báo", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                int modelRow = dataTable.convertRowIndexToModel(selectedRow);
+                onViewAction(modelRow);
+            });
+            buttonsPanel.add(viewBtn);
+        }
+        
         actionPanel.add(buttonsPanel, BorderLayout.WEST);
         
         // Right side - search field
@@ -223,6 +240,24 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         contextMenu.add(menuEdit);
         contextMenu.add(menuDelete);
         
+        // Add view menu item if subclass supports it
+        if (supportsViewAction()) {
+            JMenuItem menuView = createMenuItem("Xem chi tiết", new Color(108, 117, 125));
+            menuView.addActionListener(e -> {
+                int selectedRow = dataTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(parentFrame, 
+                        "Vui lòng chọn " + entityName + " cần xem!", 
+                        "Thông báo", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                int modelRow = dataTable.convertRowIndexToModel(selectedRow);
+                onViewAction(modelRow);
+            });
+            contextMenu.addSeparator();
+            contextMenu.add(menuView);
+        }
+        
         // Add mouse listener for right-click
         dataTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -350,6 +385,10 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
         return parentFrame;
     }
     
+    protected JTable getDataTable() {
+        return dataTable;
+    }
+    
     // ==================== Abstract methods - lớp con phải implement ====================
     
     /**
@@ -378,6 +417,22 @@ public abstract class BaseCrudPanel extends JPanel implements ISearchable {
      * @param modelRow Chỉ số dòng trong model (đã convert từ view)
      */
     protected abstract void onDeleteAction(int modelRow);
+    
+    /**
+     * Kiểm tra xem panel có hỗ trợ chức năng xem chi tiết không
+     * Override và return true nếu cần nút Xem
+     */
+    protected boolean supportsViewAction() {
+        return false;
+    }
+    
+    /**
+     * Xử lý khi nhấn nút Xem
+     * @param modelRow Chỉ số dòng trong model (đã convert từ view)
+     */
+    protected void onViewAction(int modelRow) {
+        // Default: do nothing. Override in subclass if needed.
+    }
     
     // ==================== Search implementation ====================
     

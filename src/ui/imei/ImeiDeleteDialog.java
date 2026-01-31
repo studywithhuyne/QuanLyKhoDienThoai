@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
 import dao.ImeiDAO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class ImeiDeleteDialog extends JDialog {
@@ -162,6 +163,7 @@ public class ImeiDeleteDialog extends JDialog {
         boolean success = imeiDAO.DeleteImei(imeiId);
         
         if (success) {
+            LogHelper.logDelete("IMEI", imeiCode);
             confirmed = true;
             JOptionPane.showMessageDialog(this, "Xóa IMEI thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (imeiPanel != null) {

@@ -8,6 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import dao.SupplierDAO;
 import dto.SupplierDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class SupplierEditDialog extends JDialog {
@@ -314,6 +315,7 @@ public class SupplierEditDialog extends JDialog {
         boolean success = supplierDAO.EditSupplier(supplier);
         
         if (success) {
+            LogHelper.logEdit("nhà cung cấp", txtName.getText().trim());
             JOptionPane.showMessageDialog(this, 
                 "Cập nhật nhà cung cấp thành công!", 
                 "Thành công", 
