@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.CategoryDAO;
+import bus.CategoryBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -168,8 +168,8 @@ public class CategoryDeleteDialog extends JDialog {
     }
     
     private void deleteCategory() {
-        CategoryDAO categoryDAO = new CategoryDAO();
-        boolean success = categoryDAO.DeleteCategory(categoryId);
+        CategoryBUS categoryBUS = new CategoryBUS();
+        boolean success = categoryBUS.delete(categoryId);
         
         if (success) {
             confirmed = true;

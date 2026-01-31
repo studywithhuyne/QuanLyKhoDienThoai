@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.sql.Timestamp;
 import java.text.ParseException;
 
-import dao.ImeiDAO;
+import bus.ImeiBUS;
 import dto.ImeiDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -42,9 +42,10 @@ public class ImeiEditDialog extends JDialog {
         setVisible(true);
     }
     
+    private final ImeiBUS imeiBUS = new ImeiBUS();
+    
     private void loadImeiData() {
-        ImeiDAO imeiDAO = new ImeiDAO();
-        for (ImeiDTO imei : imeiDAO.GetAllImei()) {
+        for (ImeiDTO imei : imeiBUS.getAll()) {
             if (imei.getID() == imeiId) {
                 currentImei = imei;
                 break;
@@ -302,9 +303,7 @@ public class ImeiEditDialog extends JDialog {
             return;
         }
         
-        ImeiDAO imeiDAO = new ImeiDAO();
-        
-        if (imeiDAO.IsImeiExistsExcept(txtImei.getText().trim(), imeiId)) {
+        if (imeiBUS.isImeiExistsExcept(txtImei.getText().trim(), imeiId)) {
             showError("Mã IMEI đã tồn tại!");
             txtImei.requestFocus();
             return;
@@ -317,7 +316,7 @@ public class ImeiEditDialog extends JDialog {
         imei.setStatus((String) cboStatus.getSelectedItem());
         imei.setCreatedAt(createdAt);
         
-        boolean success = imeiDAO.EditImei(imei);
+        boolean success = imeiBUS.update(imei);
         
         if (success) {
             LogHelper.logEdit("IMEI", txtImei.getText().trim());
@@ -327,7 +326,7 @@ public class ImeiEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật IMEI thất bại!");
+            showError("Cập nhật IMEI thất bại! Mã IMEI có thể đã tồn tại.");
         }
     }
     

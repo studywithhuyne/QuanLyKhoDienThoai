@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.CategoryDAO;
+import bus.CategoryBUS;
 import dto.CategoryDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -239,8 +239,8 @@ public class CategoryAddDialog extends JDialog {
         CategoryDTO category = new CategoryDTO();
         category.setName(txtName.getText().trim());
         
-        CategoryDAO categoryDAO = new CategoryDAO();
-        boolean success = categoryDAO.AddCategory(category);
+        CategoryBUS categoryBUS = new CategoryBUS();
+        boolean success = categoryBUS.add(category);
         
         if (success) {
             LogHelper.logAdd("danh mục", txtName.getText().trim());

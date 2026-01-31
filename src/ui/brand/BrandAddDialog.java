@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.BrandDAO;
+import bus.BrandBUS;
 import dto.BrandDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -239,8 +239,8 @@ public class BrandAddDialog extends JDialog {
         BrandDTO brand = new BrandDTO();
         brand.setName(txtName.getText().trim());
         
-        BrandDAO brandDAO = new BrandDAO();
-        boolean success = brandDAO.AddBrand(brand);
+        BrandBUS brandBUS = new BrandBUS();
+        boolean success = brandBUS.add(brand);
         
         if (success) {
             LogHelper.logAdd("thương hiệu", txtName.getText().trim());

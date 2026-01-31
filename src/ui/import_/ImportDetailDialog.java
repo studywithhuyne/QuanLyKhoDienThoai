@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import dao.ImportReceiptDAO;
+import bus.ImportReceiptBUS;
 import dto.ImportReceiptDTO;
 import dto.ImportDetailDTO;
 
@@ -163,13 +163,14 @@ public class ImportDetailDialog extends JDialog {
         });
     }
     
+    private final ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
+    
     private void loadData() {
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        ImportReceiptDTO receipt = importDAO.GetImportReceiptById(receiptId);
-        List<ImportDetailDTO> details = importDAO.GetImportDetails(receiptId);
+        ImportReceiptDTO receipt = importReceiptBUS.getById(receiptId);
+        List<ImportDetailDTO> details = importReceiptBUS.getDetails(receiptId);
         
         NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
         
         // Update title with more info
         if (receipt != null) {

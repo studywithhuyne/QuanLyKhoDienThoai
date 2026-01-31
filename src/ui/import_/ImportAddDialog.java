@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import dao.ImportReceiptDAO;
-import dao.SupplierDAO;
-import dao.SkuDAO;
+import bus.ImportReceiptBUS;
+import bus.SupplierBUS;
+import bus.SkuBUS;
 import dto.ImportReceiptDTO;
 import dto.SupplierDTO;
 import dto.SkuDTO;
@@ -52,6 +52,10 @@ public class ImportAddDialog extends JDialog {
     
     private ImportPanel importPanel;
     private NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+
+    private final ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
+    private final SupplierBUS supplierBUS = new SupplierBUS();
+    private final SkuBUS skuBUS = new SkuBUS();
 
     // Inner class for detail row
     private static class ImportDetailRow {
@@ -174,7 +178,7 @@ public class ImportAddDialog extends JDialog {
         gbc.gridx = 0; gbc.gridy = 1;
         infoCard.add(createLabel("Ngày tạo:"), gbc);
         gbc.gridx = 1;
-        txtDate = new JTextField(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
+        txtDate = new JTextField(new SimpleDateFormat("HH:mm - dd/MM/yyyy").format(new Date()));
         txtDate.setPreferredSize(new Dimension(250, 35));
         txtDate.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtDate.setEditable(false);
@@ -445,15 +449,13 @@ public class ImportAddDialog extends JDialog {
     
     private void loadComboBoxData() {
         // Load suppliers
-        SupplierDAO supplierDAO = new SupplierDAO();
-        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        List<SupplierDTO> suppliers = supplierBUS.getAll();
         for (SupplierDTO supplier : suppliers) {
             cmbSupplier.addItem(supplier);
         }
         
         // Load SKUs
-        SkuDAO skuDAO = new SkuDAO();
-        allSkus = skuDAO.GetAllSku();
+        allSkus = skuBUS.getAll();
         filterSkuList();
         
         // Set current employee
@@ -544,15 +546,14 @@ public class ImportAddDialog extends JDialog {
         receipt.setStaffId(currentUser.getID());
         receipt.setTotalAmount(totalAmount);
         
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        int newId = importDAO.AddImportReceipt(receipt);
+        int newId = importReceiptBUS.add(receipt);
         
         if (newId > 0) {
             // Add details and update stock
             boolean allSuccess = true;
             for (ImportDetailRow row : detailRows) {
-                boolean detailAdded = importDAO.AddImportDetail(newId, row.productId, row.skuId, row.quantity);
-                boolean stockUpdated = importDAO.UpdateSkuStock(row.skuId, row.quantity);
+                boolean detailAdded = importReceiptBUS.addDetail(newId, row.productId, row.skuId, row.quantity);
+                boolean stockUpdated = importReceiptBUS.updateSkuStock(row.skuId, row.quantity);
                 if (!detailAdded || !stockUpdated) {
                     allSuccess = false;
                 }

@@ -5,6 +5,10 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+
+import bus.AccountBUS;
+import dto.AccountDTO;
+import utils.LogHelper;
 import static utils.ColorUtil.*;
 
 public class AccountAddDialog extends JDialog {
@@ -18,6 +22,8 @@ public class AccountAddDialog extends JDialog {
     
     private JButton btnSave;
     private JButton btnCancel;
+
+    private final AccountBUS accountBUS = new AccountBUS();
 
     public AccountAddDialog(Frame parent) {
         super(parent, "Thêm tài khoản", true);
@@ -332,12 +338,35 @@ public class AccountAddDialog extends JDialog {
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        // TODO: Save to database
-        JOptionPane.showMessageDialog(this,
-            "Thêm tài khoản thành công!\n\nUsername: " + username + "\nHọ tên: " + fullName + "\nVai trò: " + role,
-            "Thành công",
-            JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+
+        if (accountBUS.isUsernameExists(username)) {
+            JOptionPane.showMessageDialog(this,
+                "Tên đăng nhập đã tồn tại!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+            txtUsername.requestFocus();
+            return;
+        }
+
+        AccountDTO account = new AccountDTO();
+        account.setUsername(username);
+        account.setFullname(fullName);
+        account.setPassword(password);
+        account.setRole("Admin".equals(role) ? "admin" : "staff");
+
+        boolean success = accountBUS.add(account);
+        if (success) {
+            LogHelper.logAdd("tài khoản", username);
+            JOptionPane.showMessageDialog(this,
+                "Thêm tài khoản thành công!",
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Thêm tài khoản thất bại!",
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

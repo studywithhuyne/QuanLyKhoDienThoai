@@ -5,7 +5,7 @@ import java.util.List;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import dao.SkuDAO;
+import bus.SkuBUS;
 import dto.SkuDTO;
 import ui.BaseCrudPanel;
 
@@ -15,6 +15,7 @@ import ui.BaseCrudPanel;
 public class SkuPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Mã SKU", "Sản phẩm", "Thuộc tính", "Giá", "Tồn kho"};
+    private SkuBUS skuBUS = new SkuBUS();
     
     public SkuPanel(JFrame parentFrame) {
         super(parentFrame, "SKU", COLUMNS);
@@ -22,8 +23,7 @@ public class SkuPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        SkuDAO skuDAO = new SkuDAO();
-        List<SkuDTO> skus = skuDAO.GetAllSku();
+        List<SkuDTO> skus = skuBUS.getAll();
         tableModel.setRowCount(0);
         NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
         for (SkuDTO sku : skus) {

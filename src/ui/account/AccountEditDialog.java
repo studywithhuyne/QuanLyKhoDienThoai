@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.AccountDAO;
+import bus.AccountBUS;
 import dto.AccountDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -28,6 +28,8 @@ public class AccountEditDialog extends JDialog {
     private String currentUsername;
     private String currentFullName;
     private String currentRole;
+
+    private final AccountBUS accountBUS = new AccountBUS();
     
     private AccountPanel accountPanel;
 
@@ -344,6 +346,7 @@ public class AccountEditDialog extends JDialog {
     private void updateAccount() {
         String username = txtUsername.getText().trim();
         String fullName = txtFullName.getText().trim();
+        String newPassword = new String(txtPassword.getPassword()).trim();
         String role = (String) cmbRole.getSelectedItem();
         
         if (username.isEmpty() || fullName.isEmpty()) {
@@ -354,8 +357,7 @@ public class AccountEditDialog extends JDialog {
             return;
         }
         
-        AccountDAO accountDAO = new AccountDAO();
-        if (accountDAO.IsUsernameExistsExcept(username, accountId)) {
+        if (accountBUS.isUsernameExistsExcept(username, accountId)) {
             JOptionPane.showMessageDialog(this,
                 "Tên đăng nhập đã tồn tại!",
                 "Lỗi",
@@ -370,9 +372,20 @@ public class AccountEditDialog extends JDialog {
         account.setFullname(fullName);
         account.setRole(role.equals("Admin") ? "admin" : "staff");
         
-        boolean success = accountDAO.EditAccount(account);
+        boolean success = accountBUS.update(account);
         
         if (success) {
+            if (!newPassword.isEmpty()) {
+                boolean passwordUpdated = accountBUS.updatePassword(accountId, newPassword);
+                if (!passwordUpdated) {
+                    JOptionPane.showMessageDialog(this,
+                        "Cập nhật mật khẩu thất bại!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
             LogHelper.logEdit("tài khoản", username);
             JOptionPane.showMessageDialog(this,
                 "Cập nhật tài khoản thành công!",

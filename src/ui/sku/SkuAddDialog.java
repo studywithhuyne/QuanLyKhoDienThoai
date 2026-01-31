@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import dao.SkuDAO;
-import dao.ProductDAO;
-import dao.AttributeDAO;
+import bus.SkuBUS;
+import bus.ProductBUS;
+import bus.AttributeBUS;
 import dto.SkuDTO;
 import dto.ProductDTO;
 import dto.AttributeDTO;
@@ -32,7 +32,10 @@ public class SkuAddDialog extends JDialog {
     private List<AttributeDTO> attributes;
     private Map<Integer, List<AttributeOptionDTO>> attributeOptionsMap;
     private JPanel attributesContainer; // Panel chứa thuộc tính động
-    private AttributeDAO attributeDAO;
+
+    private final SkuBUS skuBUS = new SkuBUS();
+    private final ProductBUS productBUS = new ProductBUS();
+    private final AttributeBUS attributeBUS = new AttributeBUS();
     
     private JButton btnSave;
     private JButton btnCancel;
@@ -43,7 +46,6 @@ public class SkuAddDialog extends JDialog {
     public SkuAddDialog(Frame parent, SkuPanel skuPanel) {
         super(parent, "Thêm SKU", true);
         this.skuPanel = skuPanel;
-        this.attributeDAO = new AttributeDAO();
         this.attributeComboBoxes = new LinkedHashMap<>();
         this.attributeOptionsMap = new LinkedHashMap<>();
         this.attributes = new ArrayList<>();
@@ -58,8 +60,7 @@ public class SkuAddDialog extends JDialog {
     }
     
     private void loadProducts() {
-        ProductDAO productDAO = new ProductDAO();
-        products = productDAO.GetAllProduct();
+        products = productBUS.getAll();
     }
     
     private void loadAttributesForProduct(ProductDTO product) {
@@ -70,10 +71,10 @@ public class SkuAddDialog extends JDialog {
         attributeOptionsMap = new LinkedHashMap<>();
         
         // Load attributes for this product's category
-        attributes = attributeDAO.GetAttributesByCategoryId(product.getCategoryId());
+        attributes = attributeBUS.getByCategoryId(product.getCategoryId());
         
         for (AttributeDTO attr : attributes) {
-            List<AttributeOptionDTO> options = attributeDAO.GetOptionsByAttributeId(attr.getID());
+            List<AttributeOptionDTO> options = attributeBUS.getOptionsByAttributeId(attr.getID());
             attributeOptionsMap.put(attr.getID(), options);
         }
         
@@ -456,20 +457,19 @@ public class SkuAddDialog extends JDialog {
         sku.setPrice(price);
         sku.setStock(stock);
         
-        SkuDAO skuDAO = new SkuDAO();
-        
-        if (skuDAO.IsCodeExists(sku.getCode())) {
+
+        if (skuBUS.isCodeExists(sku.getCode())) {
             showError("Mã SKU đã tồn tại!");
             txtCode.requestFocus();
             return;
         }
-        
-        int newId = skuDAO.AddSku(sku);
+
+        int newId = skuBUS.add(sku);
         
         if (newId > 0) {
             // Save attribute options for SKU
             for (int optionId : selectedAttributeOptionIds) {
-                skuDAO.AddSkuAttributeOption(newId, optionId);
+                skuBUS.addAttributeOption(newId, optionId);
             }
             
             LogHelper.logAdd("SKU", txtCode.getText().trim());
@@ -479,7 +479,7 @@ public class SkuAddDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Thêm SKU thất bại!");
+            showError("Thêm SKU thất bại! Mã SKU có thể đã tồn tại.");
         }
     }
     

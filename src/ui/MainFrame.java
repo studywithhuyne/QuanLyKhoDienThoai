@@ -14,7 +14,7 @@ import utils.LogHelper;
 import ui.dashboard.DashboardPanel;
 import ui.product.ProductPanel;
 import ui.import_.ImportPanel;
-import ui.sales.SalesPanel;
+import ui.invoice.InvoicePanel;
 import ui.supplier.SupplierPanel;
 import ui.brand.BrandPanel;
 import ui.category.CategoryPanel;
@@ -34,11 +34,12 @@ public class MainFrame extends JFrame {
     private JButton currentActiveButton;
     private CardLayout cardLayout;
     private JPanel mainContentPanel;
+    private DashboardPanel dashboardPanel;
     
     // Menu items - Đã bổ sung đầy đủ theo bảng phân công
     private String[] menuItems = {
         "Dashboard", "Sản phẩm", "Thuộc tính", "SKU", "IMEI",
-        "Nhập kho", "Xuất kho", "Nhà cung cấp", 
+        "Nhập kho", "Hóa đơn", "Nhà cung cấp", 
         "Thương hiệu", "Danh mục", "Tài khoản", "Thống kê", "Logs"
     };
     private String[] menuIcons = {
@@ -53,7 +54,7 @@ public class MainFrame extends JFrame {
         new Color(255, 193, 7),    // SKU 
         new Color(0, 188, 212),    // IMEI 
         new Color(255, 159, 67),   // Nhập kho 
-        new Color(255, 71, 87),    // Xuất kho 
+        new Color(255, 71, 87),    // Hóa đơn 
         new Color(83, 82, 237),    // Nhà cung cấp 
         new Color(255, 107, 129),  // Thương hiệu 
         new Color(112, 161, 255),  // Danh mục 
@@ -96,19 +97,23 @@ public class MainFrame extends JFrame {
         mainContentPanel.setBackground(CONTENT_BG);
         
         // Add panels for each menu item - Sử dụng các class panel riêng biệt
-        mainContentPanel.add(new DashboardPanel(), "Dashboard");
+        DashboardPanel dashboardPanel = new DashboardPanel();
+        mainContentPanel.add(dashboardPanel, "Dashboard");
         mainContentPanel.add(new ProductPanel(this), "Sản phẩm");
         mainContentPanel.add(new AttributePanel(this), "Thuộc tính");
         mainContentPanel.add(new SkuPanel(this), "SKU");
         mainContentPanel.add(new ImeiPanel(this), "IMEI");
         mainContentPanel.add(new ImportPanel(this), "Nhập kho");
-        mainContentPanel.add(new SalesPanel(this), "Xuất kho");
+        mainContentPanel.add(new InvoicePanel(this), "Hóa đơn");
         mainContentPanel.add(new SupplierPanel(this), "Nhà cung cấp");
         mainContentPanel.add(new BrandPanel(this), "Thương hiệu");
         mainContentPanel.add(new CategoryPanel(this), "Danh mục");
         mainContentPanel.add(new AccountPanel(this), "Tài khoản");
         mainContentPanel.add(new StatisticsPanel(this), "Thống kê");
         mainContentPanel.add(new LogsPanel(this), "Logs");
+        
+        // Store reference to dashboardPanel for refresh
+        this.dashboardPanel = dashboardPanel;
         
         rightPanel.add(mainContentPanel, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.CENTER);
@@ -255,6 +260,11 @@ public class MainFrame extends JFrame {
             setActiveButton(button);
             cardLayout.show(mainContentPanel, text);
             titleLabel.setText(text);
+            
+            // Reload Dashboard data when navigating to it
+            if (text.equals("Dashboard") && dashboardPanel != null) {
+                dashboardPanel.loadData();
+            }
         });
         
         button.addMouseListener(new MouseAdapter() {

@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import dao.SkuDAO;
-import dao.AttributeDAO;
-import dao.ProductDAO;
+import bus.SkuBUS;
+import bus.AttributeBUS;
+import bus.ProductBUS;
 import dto.SkuDTO;
 import dto.ProductDTO;
 import dto.AttributeDTO;
@@ -32,7 +32,10 @@ public class SkuEditDialog extends JDialog {
     private List<AttributeDTO> attributes;
     private Map<Integer, List<AttributeOptionDTO>> attributeOptionsMap;
     private JPanel attributesContainer;
-    private AttributeDAO attributeDAO;
+
+    private final SkuBUS skuBUS = new SkuBUS();
+    private final ProductBUS productBUS = new ProductBUS();
+    private final AttributeBUS attributeBUS = new AttributeBUS();
     private List<Integer> currentAttributeOptionIds;
     
     private int skuId;
@@ -49,7 +52,6 @@ public class SkuEditDialog extends JDialog {
         this.skuId = id;
         this.skuCode = code;
         this.skuPanel = skuPanel;
-        this.attributeDAO = new AttributeDAO();
         this.attributeComboBoxes = new LinkedHashMap<>();
         this.attributeOptionsMap = new LinkedHashMap<>();
         this.attributes = new ArrayList<>();
@@ -62,24 +64,22 @@ public class SkuEditDialog extends JDialog {
     }
     
     private void loadSkuData() {
-        SkuDAO skuDAO = new SkuDAO();
-        for (SkuDTO sku : skuDAO.GetAllSku()) {
+        for (SkuDTO sku : skuBUS.getAll()) {
             if (sku.getID() == skuId) {
                 currentSku = sku;
                 break;
             }
         }
         // Load current attribute option ids
-        currentAttributeOptionIds = skuDAO.GetSkuAttributeOptionIds(skuId);
+        currentAttributeOptionIds = skuBUS.getAttributeOptionIds(skuId);
     }
     
     private void loadAttributesForSku() {
         if (currentSku == null) return;
         
         // Load product to get category
-        ProductDAO productDAO = new ProductDAO();
         ProductDTO product = null;
-        for (ProductDTO p : productDAO.GetAllProduct()) {
+        for (ProductDTO p : productBUS.getAll()) {
             if (p.getId() == currentSku.getProductId()) {
                 product = p;
                 break;
@@ -89,10 +89,10 @@ public class SkuEditDialog extends JDialog {
         if (product == null) return;
         
         // Load attributes for this category
-        attributes = attributeDAO.GetAttributesByCategoryId(product.getCategoryId());
+        attributes = attributeBUS.getByCategoryId(product.getCategoryId());
         
         for (AttributeDTO attr : attributes) {
-            List<AttributeOptionDTO> options = attributeDAO.GetOptionsByAttributeId(attr.getID());
+            List<AttributeOptionDTO> options = attributeBUS.getOptionsByAttributeId(attr.getID());
             attributeOptionsMap.put(attr.getID(), options);
         }
         
@@ -451,9 +451,8 @@ public class SkuEditDialog extends JDialog {
             }
         }
         
-        SkuDAO skuDAO = new SkuDAO();
-        
-        if (skuDAO.IsCodeExistsExcept(txtCode.getText().trim(), skuId)) {
+
+        if (skuBUS.isCodeExistsExcept(txtCode.getText().trim(), skuId)) {
             showError("Mã SKU đã tồn tại!");
             txtCode.requestFocus();
             return;
@@ -466,13 +465,13 @@ public class SkuEditDialog extends JDialog {
         sku.setPrice(price);
         sku.setStock(stock);
         
-        boolean success = skuDAO.EditSku(sku);
+        boolean success = skuBUS.update(sku);
         
         if (success) {
             // Update attributes: delete old, add new
-            skuDAO.DeleteSkuAttributeOptions(skuId);
+            skuBUS.deleteAttributeOptions(skuId);
             for (int optionId : selectedAttributeOptionIds) {
-                skuDAO.AddSkuAttributeOption(skuId, optionId);
+                skuBUS.addAttributeOption(skuId, optionId);
             }
             
             LogHelper.logEdit("SKU", txtCode.getText().trim());
@@ -482,7 +481,7 @@ public class SkuEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật SKU thất bại!");
+            showError("Cập nhật SKU thất bại! Mã SKU có thể đã tồn tại.");
         }
     }
     

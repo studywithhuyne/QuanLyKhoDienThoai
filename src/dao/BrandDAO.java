@@ -125,25 +125,6 @@ public class BrandDAO {
 		}
 	}
 	
-	// Khôi phục brand đã xóa
-	public boolean RestoreBrand(int id) {
-		String sql = "UPDATE brands SET is_deleted = FALSE WHERE id = ?";
-		
-		try {
-			Connection conn = DatabaseHelper.getConnection();
-			PreparedStatement statement = conn.prepareStatement(sql);
-			statement.setInt(1, id);
-			
-			int rowsAffected = statement.executeUpdate();
-			statement.close();
-			return rowsAffected > 0;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
 	// Lấy brand theo ID
 	public BrandDTO GetBrandById(int id) {
 		String sql = "SELECT id, name, is_deleted FROM brands WHERE id = ?";

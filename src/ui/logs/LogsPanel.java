@@ -11,7 +11,7 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import dao.LogDAO;
+import bus.LogBUS;
 import dto.LogDTO;
 import ui.ISearchable;
 
@@ -24,21 +24,22 @@ public class LogsPanel extends JPanel implements ISearchable {
     private JTable logsTable;
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> rowSorter;
+    private LogBUS logBUS;
     
     private static final String[] COLUMNS = {"ID", "Thời gian", "Người dùng", "Hành động", "Chi tiết"};
     
     public LogsPanel(JFrame parentFrame) {
         this.parentFrame = parentFrame;
+        this.logBUS = new LogBUS();
         initializePanel();
         loadData();
     }
     
     public void loadData() {
-        LogDAO logDAO = new LogDAO();
-        List<LogDTO> logs = logDAO.GetAllLogs();
+        List<LogDTO> logs = logBUS.getAll();
         tableModel.setRowCount(0);
         
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss - dd/MM/yyyy");
         for (LogDTO log : logs) {
             String dateStr = log.getCreatedAt() != null ? sdf.format(log.getCreatedAt()) : "";
             tableModel.addRow(new Object[]{

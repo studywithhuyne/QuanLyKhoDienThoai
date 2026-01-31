@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.invoice;
 
 import static utils.ColorUtil.*;
 
@@ -12,11 +12,11 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import dao.InvoiceDAO;
+import bus.InvoiceBUS;
 import dto.InvoiceDTO;
 import dto.InvoiceDetailDTO;
 
-public class SalesDetailDialog extends JDialog {
+public class InvoiceDetailDialog extends JDialog {
     
     private int invoiceId;
     private JTable detailTable;
@@ -24,7 +24,7 @@ public class SalesDetailDialog extends JDialog {
     
     private static final String[] COLUMNS = {"STT", "Sản phẩm", "Mã SKU", "Đơn giá", "SL", "IMEI", "Thành tiền"};
     
-    public SalesDetailDialog(Frame parent, int invoiceId) {
+    public InvoiceDetailDialog(Frame parent, int invoiceId) {
         super(parent, "Chi tiết phiếu xuất #" + invoiceId, true);
         this.invoiceId = invoiceId;
         
@@ -165,9 +165,9 @@ public class SalesDetailDialog extends JDialog {
     }
     
     private void loadData() {
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        InvoiceDTO invoice = invoiceDAO.GetInvoiceById(invoiceId);
-        List<InvoiceDetailDTO> details = invoiceDAO.GetInvoiceDetails(invoiceId);
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        InvoiceDTO invoice = invoiceBUS.getById(invoiceId);
+        List<InvoiceDetailDTO> details = invoiceBUS.getDetails(invoiceId);
         
         NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");

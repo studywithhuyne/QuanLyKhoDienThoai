@@ -3,7 +3,7 @@ package ui.product;
 import javax.swing.*;
 import java.util.List;
 
-import dao.ProductDAO;
+import bus.ProductBUS;
 import ui.BaseCrudPanel;
 
 /**
@@ -12,6 +12,7 @@ import ui.BaseCrudPanel;
 public class ProductPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên sản phẩm", "Thương hiệu", "Danh mục", "Tồn kho"};
+    private ProductBUS productBUS = new ProductBUS();
     
     public ProductPanel(JFrame parentFrame) {
         super(parentFrame, "sản phẩm", COLUMNS);
@@ -19,8 +20,7 @@ public class ProductPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        ProductDAO productDAO = new ProductDAO();
-        List<Object[]> rows = productDAO.GetProductTableData();
+        List<Object[]> rows = productBUS.getTableData();
         tableModel.setRowCount(0);
         for (Object[] row : rows) {
             tableModel.addRow(row);

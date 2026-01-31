@@ -5,7 +5,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SkuDAO;
+import bus.SkuBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -19,6 +19,8 @@ public class SkuDeleteDialog extends JDialog {
     private JButton btnCancel;
     
     private SkuPanel skuPanel;
+
+    private final SkuBUS skuBUS = new SkuBUS();
     
     public SkuDeleteDialog(Frame parent, int id, String code, SkuPanel skuPanel) {
         super(parent, "Xác nhận xóa", true);
@@ -160,8 +162,7 @@ public class SkuDeleteDialog extends JDialog {
     }
     
     private void deleteSku() {
-        SkuDAO skuDAO = new SkuDAO();
-        boolean success = skuDAO.DeleteSku(skuId);
+        boolean success = skuBUS.delete(skuId);
         
         if (success) {
             LogHelper.logDelete("SKU", skuCode);

@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SupplierDAO;
+import bus.SupplierBUS;
 import dto.SupplierDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -31,6 +31,8 @@ public class SupplierEditDialog extends JDialog {
     private JButton btnCancel;
     
     private SupplierPanel supplierPanel;
+
+    private final SupplierBUS supplierBUS = new SupplierBUS();
     
     public SupplierEditDialog(Frame parent, int id, String name, String phone, String email, String address, SupplierPanel supplierPanel) {
         super(parent, "Sửa nhà cung cấp", true);
@@ -297,9 +299,8 @@ public class SupplierEditDialog extends JDialog {
             txtName.requestFocus();
             return;
         }
-        
-        SupplierDAO supplierDAO = new SupplierDAO();
-        if (supplierDAO.IsNameExistsExcept(txtName.getText().trim(), supplierId)) {
+
+        if (supplierBUS.isNameExistsExcept(txtName.getText().trim(), supplierId)) {
             showError("Tên nhà cung cấp đã tồn tại!");
             txtName.requestFocus();
             return;
@@ -311,8 +312,8 @@ public class SupplierEditDialog extends JDialog {
         supplier.setPhone(txtPhone.getText().trim());
         supplier.setEmail(txtEmail.getText().trim());
         supplier.setAddress(txtAddress.getText().trim());
-        
-        boolean success = supplierDAO.EditSupplier(supplier);
+
+        boolean success = supplierBUS.update(supplier);
         
         if (success) {
             LogHelper.logEdit("nhà cung cấp", txtName.getText().trim());
@@ -325,7 +326,7 @@ public class SupplierEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật nhà cung cấp thất bại!");
+            showError("Cập nhật nhà cung cấp thất bại! Tên có thể đã tồn tại.");
         }
     }
     

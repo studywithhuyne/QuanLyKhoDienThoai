@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.invoice;
 
 import static utils.ColorUtil.*;
 
@@ -8,11 +8,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.InvoiceDAO;
+import bus.InvoiceBUS;
 import dto.InvoiceDTO;
 import utils.LogHelper;
 
-public class SalesEditDialog extends JDialog {
+public class InvoiceEditDialog extends JDialog {
     
     // Form fields
     private JTextField txtId;
@@ -27,12 +27,12 @@ public class SalesEditDialog extends JDialog {
     private JButton btnUpdate;
     private JButton btnCancel;
     
-    private SalesPanel salesPanel;
+    private InvoicePanel invoicePanel;
     
-    public SalesEditDialog(Frame parent, int id, String staffName, SalesPanel salesPanel) {
+    public InvoiceEditDialog(Frame parent, int id, String staffName, InvoicePanel invoicePanel) {
         super(parent, "Sửa phiếu xuất", true);
         this.salesId = id;
-        this.salesPanel = salesPanel;
+        this.invoicePanel = invoicePanel;
         
         initializeDialog();
         createComponents();
@@ -146,8 +146,8 @@ public class SalesEditDialog extends JDialog {
     
     private void loadData() {
         // Load invoice data from database
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        InvoiceDTO invoice = invoiceDAO.GetInvoiceById(salesId);
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        InvoiceDTO invoice = invoiceBUS.getById(salesId);
         
         if (invoice != null) {
             txtId.setText(String.valueOf(invoice.getID()));
@@ -342,13 +342,15 @@ public class SalesEditDialog extends JDialog {
             return;
         }
         
-        // Update in database
-        InvoiceDTO invoice = new InvoiceDTO();
-        invoice.setID(salesId);
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        InvoiceDTO invoice = invoiceBUS.getById(salesId);
+        if (invoice == null) {
+            showError("Không tìm thấy phiếu xuất để cập nhật!");
+            return;
+        }
+
         invoice.setTotalAmount(totalAmount);
-        
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        boolean success = invoiceDAO.EditInvoice(invoice);
+        boolean success = invoiceBUS.update(invoice);
         
         if (success) {
             LogHelper.logEdit("phiếu xuất", "#" + salesId);
@@ -356,8 +358,8 @@ public class SalesEditDialog extends JDialog {
                 "Cập nhật phiếu xuất thành công!", 
                 "Thành công", 
                 JOptionPane.INFORMATION_MESSAGE);
-            if (salesPanel != null) {
-                salesPanel.loadData();
+            if (invoicePanel != null) {
+                invoicePanel.loadData();
             }
             dispose();
         } else {

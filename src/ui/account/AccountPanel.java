@@ -2,7 +2,7 @@ package ui.account;
 
 import javax.swing.*;
 
-import dao.AccountDAO;
+import bus.AccountBUS;
 import dto.AccountDTO;
 import ui.BasePanel;
 
@@ -15,15 +15,16 @@ import java.text.SimpleDateFormat;
 public class AccountPanel extends BasePanel {
     
     private static final String[] COLUMNS = {"ID", "Username", "Họ tên", "Vai trò", "Ngày tạo"};
+    private AccountBUS accountBUS;
     
     public AccountPanel(JFrame parentFrame) {
         super(parentFrame, "Tài khoản", COLUMNS, new Object[][]{});
+        this.accountBUS = new AccountBUS();
         loadData();
     }
     
     public void loadData() {
-        AccountDAO accountDAO = new AccountDAO();
-        List<AccountDTO> accounts = accountDAO.GetAllAccount();
+        List<AccountDTO> accounts = accountBUS.getAll();
         
         tableModel.setRowCount(0);
         

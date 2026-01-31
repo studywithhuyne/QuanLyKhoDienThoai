@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.BrandDAO;
+import bus.BrandBUS;
 import dto.BrandDTO;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
@@ -267,8 +267,8 @@ public class BrandEditDialog extends JDialog {
         brand.setID(brandId);
         brand.setName(txtName.getText().trim());
         
-        BrandDAO brandDAO = new BrandDAO();
-        boolean success = brandDAO.EditBrand(brand);
+        BrandBUS brandBUS = new BrandBUS();
+        boolean success = brandBUS.update(brand);
         
         if (success) {
             LogHelper.logEdit("thương hiệu", txtName.getText().trim());
@@ -281,7 +281,7 @@ public class BrandEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật thương hiệu thất bại!");
+            showError("Cập nhật thương hiệu thất bại! Tên có thể đã tồn tại.");
         }
     }
     

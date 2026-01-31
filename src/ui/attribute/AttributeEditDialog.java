@@ -7,7 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
-import dao.AttributeDAO;
+import bus.AttributeBUS;
 import dto.AttributeDTO;
 import dto.AttributeOptionDTO;
 import utils.LogHelper;
@@ -45,9 +45,10 @@ public class AttributeEditDialog extends JDialog {
         setVisible(true);
     }
     
+    private final AttributeBUS attributeBUS = new AttributeBUS();
+    
     private void loadAttributes() {
-        AttributeDAO attributeDAO = new AttributeDAO();
-        attributes = attributeDAO.GetAllAttribute();
+        attributes = attributeBUS.getAll();
     }
     
     private void initializeDialog() {
@@ -297,8 +298,7 @@ public class AttributeEditDialog extends JDialog {
         option.setAttributeId(selectedAttr.getID());
         option.setValue(txtValue.getText().trim());
         
-        AttributeDAO attributeDAO = new AttributeDAO();
-        boolean success = attributeDAO.EditAttributeOption(option);
+        boolean success = attributeBUS.updateOption(option);
         
         if (success) {
             LogHelper.logEdit("thuộc tính", selectedAttr.getName() + ": " + txtValue.getText().trim());
@@ -311,7 +311,7 @@ public class AttributeEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật thất bại!");
+            showError("Cập nhật thuộc tính thất bại! Tên có thể đã tồn tại.");
         }
     }
     

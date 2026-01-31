@@ -3,7 +3,7 @@ package ui.brand;
 import javax.swing.*;
 import java.util.List;
 
-import dao.BrandDAO;
+import bus.BrandBUS;
 import dto.BrandDTO;
 import ui.BaseCrudPanel;
 
@@ -13,6 +13,7 @@ import ui.BaseCrudPanel;
 public class BrandPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên thương hiệu"};
+    private BrandBUS brandBUS = new BrandBUS();
     
     public BrandPanel(JFrame parentFrame) {
         super(parentFrame, "thương hiệu", COLUMNS);
@@ -20,8 +21,7 @@ public class BrandPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        BrandDAO brandDAO = new BrandDAO();
-        List<BrandDTO> brands = brandDAO.GetAllBrand();
+        List<BrandDTO> brands = brandBUS.getAll();
         tableModel.setRowCount(0);
         for (BrandDTO brand : brands) {
             tableModel.addRow(new Object[]{brand.getID(), brand.getName()});

@@ -3,7 +3,7 @@ package ui.product;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import dao.ProductDAO;
+import bus.ProductBUS;
 import dto.ProductDTO;
 import utils.LogHelper;
 
@@ -302,8 +302,8 @@ public class ProductEditDialog extends JDialog {
         updateProduct.setBrandId(cmbBrand.getSelectedIndex() + 1);
         updateProduct.setCategoryId(cmbCategory.getSelectedIndex() + 1);
         
-        ProductDAO dao = new ProductDAO();
-        boolean isSuccess = dao.EditProduct(updateProduct);
+        ProductBUS productBUS = new ProductBUS();
+        boolean isSuccess = productBUS.update(updateProduct);
         
         if (isSuccess) {
             LogHelper.logEdit("sản phẩm", txtName.getText().trim());
@@ -317,7 +317,7 @@ public class ProductEditDialog extends JDialog {
             }
             dispose();
         } else {
-            showError("Cập nhật thất bại!");
+            showError("Cập nhật sản phẩm thất bại! Tên có thể đã tồn tại.");
         }
     }
     

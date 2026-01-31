@@ -71,19 +71,19 @@ public class LogDAO {
         return AddLog(log);
     }
     
-    // Lấy logs theo user
-    public List<LogDTO> GetLogsByUser(int userId) {
+    // Lấy n logs gần nhất
+    public List<LogDTO> GetRecentLogs(int limit) {
         List<LogDTO> logs = new ArrayList<>();
         String sql = "SELECT l.id, l.user_id, a.username, l.action, l.details, l.created_at " +
                      "FROM logs l " +
                      "JOIN accounts a ON l.user_id = a.id " +
-                     "WHERE l.user_id = ? " +
-                     "ORDER BY l.created_at DESC";
+                     "ORDER BY l.created_at DESC " +
+                     "LIMIT ?";
         
         try {
             Connection conn = DatabaseHelper.getConnection();
             PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setInt(1, userId);
+            statement.setInt(1, limit);
             ResultSet rs = statement.executeQuery();
             
             while (rs.next()) {
@@ -104,24 +104,5 @@ public class LogDAO {
             e.printStackTrace();
         }
         return logs;
-    }
-    
-    // Xóa logs cũ (theo số ngày)
-    public boolean DeleteOldLogs(int daysOld) {
-        String sql = "DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)";
-        
-        try {
-            Connection conn = DatabaseHelper.getConnection();
-            PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setInt(1, daysOld);
-            
-            statement.executeUpdate();
-            statement.close();
-            return true;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 }

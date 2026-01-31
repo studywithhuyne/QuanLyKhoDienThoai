@@ -249,36 +249,4 @@ public class ImeiDAO {
         }
         return false;
     }
-    
-    // Lấy IMEI khả dụng (status = 'available') theo SKU id
-    public List<ImeiDTO> GetAvailableImeiBySkuId(int skuId) {
-        List<ImeiDTO> imeis = new ArrayList<>();
-        String sql = "SELECT id, sku_id, import_receipt_id, imei, status, created_at " +
-                     "FROM phone_imeis WHERE sku_id = ? AND status = 'available' ORDER BY id";
-        
-        try {
-            Connection conn = DatabaseHelper.getConnection();
-            PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setInt(1, skuId);
-            ResultSet rs = statement.executeQuery();
-            
-            while (rs.next()) {
-                ImeiDTO imei = new ImeiDTO();
-                imei.setID(rs.getInt("id"));
-                imei.setSkuId(rs.getInt("sku_id"));
-                imei.setImportReceiptId(rs.getInt("import_receipt_id"));
-                imei.setImei(rs.getString("imei"));
-                imei.setStatus(rs.getString("status"));
-                imei.setCreatedAt(rs.getTimestamp("created_at"));
-                imeis.add(imei);
-            }
-            
-            rs.close();
-            statement.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return imeis;
-    }
 }

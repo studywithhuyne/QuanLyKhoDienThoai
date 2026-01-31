@@ -7,7 +7,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import dao.ImportReceiptDAO;
+import bus.ImportReceiptBUS;
 import dto.ImportReceiptDTO;
 import ui.BaseCrudPanel;
 
@@ -17,6 +17,7 @@ import ui.BaseCrudPanel;
 public class ImportPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Nhà cung cấp", "Nhân viên", "Tổng tiền", "Ngày tạo"};
+    private ImportReceiptBUS importReceiptBUS = new ImportReceiptBUS();
     
     public ImportPanel(JFrame parentFrame) {
         super(parentFrame, "phiếu nhập", COLUMNS);
@@ -41,11 +42,10 @@ public class ImportPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        ImportReceiptDAO importDAO = new ImportReceiptDAO();
-        List<ImportReceiptDTO> receipts = importDAO.GetAllImportReceipt();
+        List<ImportReceiptDTO> receipts = importReceiptBUS.getAll();
         tableModel.setRowCount(0);
         NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
         for (ImportReceiptDTO receipt : receipts) {
             tableModel.addRow(new Object[]{
                 receipt.getID(), 

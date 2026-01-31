@@ -3,7 +3,7 @@ package ui.supplier;
 import javax.swing.*;
 import java.util.List;
 
-import dao.SupplierDAO;
+import bus.SupplierBUS;
 import dto.SupplierDTO;
 import ui.BaseCrudPanel;
 
@@ -13,6 +13,7 @@ import ui.BaseCrudPanel;
 public class SupplierPanel extends BaseCrudPanel {
     
     private static final String[] COLUMNS = {"ID", "Tên nhà cung cấp", "Số điện thoại", "Email", "Địa chỉ"};
+    private SupplierBUS supplierBUS = new SupplierBUS();
     
     public SupplierPanel(JFrame parentFrame) {
         super(parentFrame, "nhà cung cấp", COLUMNS);
@@ -20,8 +21,7 @@ public class SupplierPanel extends BaseCrudPanel {
     
     @Override
     public void loadData() {
-        SupplierDAO supplierDAO = new SupplierDAO();
-        List<SupplierDTO> suppliers = supplierDAO.GetAllSupplier();
+        List<SupplierDTO> suppliers = supplierBUS.getAll();
         tableModel.setRowCount(0);
         for (SupplierDTO supplier : suppliers) {
             tableModel.addRow(new Object[]{

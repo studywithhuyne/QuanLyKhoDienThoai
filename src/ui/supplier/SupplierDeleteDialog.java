@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-import dao.SupplierDAO;
+import bus.SupplierBUS;
 import utils.LogHelper;
 import static utils.ColorUtil.*;
 
@@ -21,6 +21,8 @@ public class SupplierDeleteDialog extends JDialog {
     private JButton btnCancel;
     
     private SupplierPanel supplierPanel;
+
+    private final SupplierBUS supplierBUS = new SupplierBUS();
     
     public SupplierDeleteDialog(Frame parent, int id, String name, SupplierPanel supplierPanel) {
         super(parent, "Xác nhận xóa", true);
@@ -168,8 +170,7 @@ public class SupplierDeleteDialog extends JDialog {
     }
     
     private void deleteSupplier() {
-        SupplierDAO supplierDAO = new SupplierDAO();
-        boolean success = supplierDAO.DeleteSupplier(supplierId);
+        boolean success = supplierBUS.delete(supplierId);
         
         if (success) {
             confirmed = true;

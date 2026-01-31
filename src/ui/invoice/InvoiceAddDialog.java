@@ -1,4 +1,4 @@
-package ui.sales;
+package ui.invoice;
 
 import static utils.ColorUtil.*;
 
@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import dao.InvoiceDAO;
-import dao.SkuDAO;
-import dao.ImeiDAO;
+import bus.InvoiceBUS;
+import bus.SkuBUS;
+import bus.ImeiBUS;
 import dto.InvoiceDTO;
 import dto.SkuDTO;
 import dto.ImeiDTO;
@@ -26,7 +26,7 @@ import dto.AccountDTO;
 import utils.SessionManager;
 import utils.LogHelper;
 
-public class SalesAddDialog extends JDialog {
+public class InvoiceAddDialog extends JDialog {
     
     // Detail table
     private JTable detailTable;
@@ -55,7 +55,7 @@ public class SalesAddDialog extends JDialog {
     private JButton btnSave;
     private JButton btnCancel;
     
-    private SalesPanel salesPanel;
+    private InvoicePanel invoicePanel;
     private NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
 
     // Inner class for detail row
@@ -73,9 +73,9 @@ public class SalesAddDialog extends JDialog {
         }
     }
 
-    public SalesAddDialog(Frame parent, SalesPanel salesPanel) {
+    public InvoiceAddDialog(Frame parent, InvoicePanel invoicePanel) {
         super(parent, "Thêm phiếu xuất kho", true);
-        this.salesPanel = salesPanel;
+        this.invoicePanel = invoicePanel;
         initializeDialog();
         createComponents();
         loadComboBoxData();
@@ -371,8 +371,8 @@ public class SalesAddDialog extends JDialog {
     
     private void loadImeiForSku(int skuId) {
         cmbImei.removeAllItems();
-        ImeiDAO imeiDAO = new ImeiDAO();
-        List<ImeiDTO> imeis = imeiDAO.GetAvailableImeiBySkuId(skuId);
+        ImeiBUS imeiBUS = new ImeiBUS();
+        List<ImeiDTO> imeis = imeiBUS.getAvailableBySkuId(skuId);
         for (ImeiDTO imei : imeis) {
             cmbImei.addItem(imei);
         }
@@ -572,8 +572,8 @@ public class SalesAddDialog extends JDialog {
     
     private void loadComboBoxData() {
         // Load SKUs with stock > 0
-        SkuDAO skuDAO = new SkuDAO();
-        allSkus = skuDAO.GetAllSku();
+        SkuBUS skuBUS = new SkuBUS();
+        allSkus = skuBUS.getAll();
         filterSkuList();
         
         // Set current employee
@@ -657,19 +657,19 @@ public class SalesAddDialog extends JDialog {
         invoice.setStaffId(currentUser.getID());
         invoice.setTotalAmount(totalAmount);
         
-        InvoiceDAO invoiceDAO = new InvoiceDAO();
-        int newId = invoiceDAO.AddInvoice(invoice);
+        InvoiceBUS invoiceBUS = new InvoiceBUS();
+        int newId = invoiceBUS.add(invoice);
         
         if (newId > 0) {
             // Add details and update stock
             boolean allSuccess = true;
             for (SalesDetailRow row : detailRows) {
-                boolean detailAdded = invoiceDAO.AddInvoiceDetail(newId, row.skuId, row.quantity, row.imeiId);
-                boolean stockUpdated = invoiceDAO.DecreaseSkuStock(row.skuId, row.quantity);
+                boolean detailAdded = invoiceBUS.addDetail(newId, row.skuId, row.quantity, row.imeiId);
+                boolean stockUpdated = invoiceBUS.decreaseSkuStock(row.skuId, row.quantity);
                 
                 // Update IMEI status if applicable
                 if (row.imeiId != null) {
-                    invoiceDAO.UpdateImeiStatus(row.imeiId, "sold");
+                    invoiceBUS.updateImeiStatus(row.imeiId, "sold");
                 }
                 
                 if (!detailAdded || !stockUpdated) {
@@ -682,8 +682,8 @@ public class SalesAddDialog extends JDialog {
                 JOptionPane.showMessageDialog(this, 
                     "Thêm phiếu xuất thành công!\nMã phiếu: #" + newId, 
                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                if (salesPanel != null) {
-                    salesPanel.loadData();
+                if (invoicePanel != null) {
+                    invoicePanel.loadData();
                 }
                 dispose();
             } else {
