@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -94,18 +93,11 @@ public class ImeiEditDialog extends JDialog {
         formWrapper.setBackground(DIALOG_BG);
         formWrapper.setBorder(new EmptyBorder(25, 25, 15, 25));
         
-        JPanel formCard = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.dispose();
-            }
-        };
+        JPanel formCard = new JPanel();
         formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
-        formCard.setOpaque(false);
+        formCard.setOpaque(true);
+        formCard.setBackground(CARD_BG);
+        formCard.putClientProperty("JComponent.roundRect", true);
         formCard.setBorder(new EmptyBorder(25, 25, 25, 25));
         
         // ID (readonly)
@@ -183,20 +175,9 @@ public class ImeiEditDialog extends JDialog {
     }
 
     private JTextField createTextField(String placeholder) {
-        JTextField field = new JTextField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty() && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_SECONDARY_DARK);
-                    g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                    g2.drawString(placeholder, 12, 26);
-                    g2.dispose();
-                }
-            }
-        };
+        JTextField field = new JTextField();
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.putClientProperty("JTextField.placeholderText", placeholder);
         field.setPreferredSize(new Dimension(Integer.MAX_VALUE, 42));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         field.setBorder(new CompoundBorder(
@@ -240,39 +221,21 @@ public class ImeiEditDialog extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                    g2.setColor(BORDER_COLOR);
-                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                } else {
-                    Color hoverColor = new Color(
-                        Math.min(bgColor.getRed() + 20, 255),
-                        Math.min(bgColor.getGreen() + 20, 255),
-                        Math.min(bgColor.getBlue() + 20, 255)
-                    );
-                    g2.setColor(getModel().isRollover() ? hoverColor : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                }
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
+        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 100 : 130, 42));
-        button.setBorderPainted(false);
+        button.setBorderPainted(isOutline);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
+        button.putClientProperty("JButton.buttonType", "roundRect");
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (isOutline) {
+            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        }
         
         return button;
     }

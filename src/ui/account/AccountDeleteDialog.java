@@ -3,7 +3,6 @@ package ui.account;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 import bus.AccountBUS;
 import utils.LogHelper;
@@ -33,7 +32,7 @@ public class AccountDeleteDialog extends JDialog {
     }
     
     private void initializeDialog() {
-        setSize(450, 320);
+        setSize(460, 360);
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
@@ -52,36 +51,15 @@ public class AccountDeleteDialog extends JDialog {
         contentWrapper.setBackground(DIALOG_BG);
         contentWrapper.setBorder(new EmptyBorder(30, 30, 20, 30));
         
-        JPanel contentCard = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.dispose();
-            }
-        };
+        JPanel contentCard = new JPanel();
         contentCard.setLayout(new BoxLayout(contentCard, BoxLayout.Y_AXIS));
-        contentCard.setOpaque(false);
-        contentCard.setBorder(new EmptyBorder(30, 30, 30, 30));
-        
-        // Warning Icon
-        JLabel iconLabel = new JLabel("⚠️") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(DANGER_RED.getRed(), DANGER_RED.getGreen(), DANGER_RED.getBlue(), 30));
-                g2.fillOval(10, 0, 60, 60);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        iconLabel.setPreferredSize(new Dimension(80, 60));
-        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        contentCard.setOpaque(true);
+        contentCard.setBackground(CARD_BG);
+        contentCard.putClientProperty("JComponent.roundRect", true);
+        contentCard.setBorder(new CompoundBorder(
+            new LineBorder(BORDER_COLOR, 1, true),
+            new EmptyBorder(30, 30, 30, 30)
+        ));
         
         // Title
         JLabel titleLabel = new JLabel("Xác nhận xóa tài khoản?");
@@ -96,8 +74,7 @@ public class AccountDeleteDialog extends JDialog {
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        contentCard.add(iconLabel);
-        contentCard.add(Box.createVerticalStrut(15));
+        contentCard.add(Box.createVerticalStrut(5));
         contentCard.add(titleLabel);
         contentCard.add(Box.createVerticalStrut(12));
         contentCard.add(messageLabel);
@@ -125,33 +102,22 @@ public class AccountDeleteDialog extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                    g2.setColor(BORDER_COLOR);
-                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                } else {
-                    g2.setColor(getModel().isRollover() ? DANGER_HOVER : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                }
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
         button.setPreferredSize(new Dimension(isOutline ? 100 : 140, 42));
-        button.setBorderPainted(false);
+        button.putClientProperty("JButton.buttonType", "roundRect");
+        button.setBorderPainted(true);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
+        if (isOutline) {
+            button.setBackground(CARD_BG);
+            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        } else {
+            button.setBackground(bgColor);
+            button.setBorder(new EmptyBorder(6, 16, 6, 16));
+        }
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         return button;

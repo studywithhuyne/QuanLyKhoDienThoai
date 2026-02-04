@@ -6,7 +6,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -99,18 +98,11 @@ public class ImportDetailDialog extends JDialog {
     }
     
     private JPanel createInfoPanel() {
-        JPanel infoCard = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-                g2.dispose();
-            }
-        };
+        JPanel infoCard = new JPanel();
         infoCard.setLayout(new GridLayout(1, 4, 20, 0));
-        infoCard.setOpaque(false);
+        infoCard.setOpaque(true);
+        infoCard.setBackground(CARD_BG);
+        infoCard.putClientProperty("JComponent.roundRect", true);
         infoCard.setBorder(new EmptyBorder(15, 20, 15, 20));
         
         return infoCard;

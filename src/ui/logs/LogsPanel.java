@@ -66,7 +66,7 @@ public class LogsPanel extends JPanel implements ISearchable {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         buttonsPanel.setBackground(CONTENT_BG);
         
-        JButton refreshBtn = createActionButton("🔄 Làm mới", GREEN);
+        JButton refreshBtn = createActionButton("Làm mới", GREEN);
         refreshBtn.addActionListener(e -> {
             loadData();
             JOptionPane.showMessageDialog(parentFrame, "Đã làm mới dữ liệu logs!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
