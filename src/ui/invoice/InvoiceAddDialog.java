@@ -39,9 +39,9 @@ public class InvoiceAddDialog extends JDialog {
     private List<SkuDTO> allSkus = new ArrayList<>();
     
     // IMEI selection
-    private JCheckBox chkSelectImei;
     private JComboBox<ImeiDTO> cmbImei;
     private JLabel lblStock;
+    private boolean imeiRequiredForSku = false;
     
     private JSpinner spnQuantity;
     
@@ -278,11 +278,7 @@ public class InvoiceAddDialog extends JDialog {
         
         // Row 3: IMEI selection (for phones)
         gbc.gridx = 0; gbc.gridy = 2;
-        chkSelectImei = new JCheckBox("Chọn IMEI cụ thể");
-        chkSelectImei.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        chkSelectImei.setOpaque(false);
-        chkSelectImei.addActionListener(e -> toggleImeiSelection());
-        panel.add(chkSelectImei, gbc);
+        panel.add(createLabel("IMEI:"), gbc);
         
         gbc.gridx = 1;
         cmbImei = new JComboBox<>();
@@ -372,26 +368,19 @@ public class InvoiceAddDialog extends JDialog {
     private void loadImeiForSku(int skuId) {
         cmbImei.removeAllItems();
         ImeiBUS imeiBUS = new ImeiBUS();
-        List<ImeiDTO> imeis = imeiBUS.getAvailableBySkuId(skuId);
-        for (ImeiDTO imei : imeis) {
+        List<ImeiDTO> availableImeis = imeiBUS.getAvailableBySkuId(skuId);
+        List<ImeiDTO> allImeis = imeiBUS.getBySkuId(skuId);
+        imeiRequiredForSku = !allImeis.isEmpty();
+        for (ImeiDTO imei : availableImeis) {
             cmbImei.addItem(imei);
         }
-        
-        // Enable checkbox only if there are IMEIs available
-        chkSelectImei.setEnabled(!imeis.isEmpty());
-        if (imeis.isEmpty()) {
-            chkSelectImei.setSelected(false);
-            cmbImei.setEnabled(false);
-        }
-    }
-    
-    private void toggleImeiSelection() {
-        boolean selected = chkSelectImei.isSelected();
-        cmbImei.setEnabled(selected);
-        if (selected) {
+
+        if (imeiRequiredForSku) {
+            cmbImei.setEnabled(cmbImei.getItemCount() > 0);
             spnQuantity.setValue(1);
             spnQuantity.setEnabled(false);
         } else {
+            cmbImei.setEnabled(false);
             spnQuantity.setEnabled(true);
         }
     }
@@ -465,12 +454,27 @@ public class InvoiceAddDialog extends JDialog {
                 "Lỗi", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        if (imeiRequiredForSku) {
+            if (cmbImei.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "Sản phẩm này yêu cầu IMEI nhưng không còn IMEI khả dụng.", 
+                    "Lỗi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (cmbImei.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "Vui lòng chọn IMEI cho sản phẩm điện thoại.", 
+                    "Lỗi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
         
         // Handle IMEI selection
         Integer imeiId = null;
         String imeiCode = "-";
         
-        if (chkSelectImei.isSelected() && cmbImei.getSelectedItem() != null) {
+        if (imeiRequiredForSku && cmbImei.getSelectedItem() != null) {
             ImeiDTO selectedImei = (ImeiDTO) cmbImei.getSelectedItem();
             imeiId = selectedImei.getID();
             imeiCode = selectedImei.getImei();
@@ -515,10 +519,7 @@ public class InvoiceAddDialog extends JDialog {
         if (imeiId != null) {
             cmbImei.removeItem(cmbImei.getSelectedItem());
             if (cmbImei.getItemCount() == 0) {
-                chkSelectImei.setSelected(false);
-                chkSelectImei.setEnabled(false);
                 cmbImei.setEnabled(false);
-                spnQuantity.setEnabled(true);
             }
         }
     }
@@ -555,7 +556,9 @@ public class InvoiceAddDialog extends JDialog {
                 imei.setID(row.imeiId);
                 imei.setImei(row.imeiCode);
                 cmbImei.addItem(imei);
-                chkSelectImei.setEnabled(true);
+                if (imeiRequiredForSku) {
+                    cmbImei.setEnabled(true);
+                }
             }
             
             detailRows.remove(index);
