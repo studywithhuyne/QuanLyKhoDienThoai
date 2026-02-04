@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
     // Menu items - Đã bổ sung đầy đủ theo bảng phân công
     private String[] menuItems = {
         "Dashboard", "Sản phẩm", "Thuộc tính", "SKU", "IMEI",
-        "Nhập kho", "Hóa đơn", "Nhà cung cấp", 
+        "Nhập kho", "Xuất kho", "Nhà cung cấp", 
         "Thương hiệu", "Danh mục", "Tài khoản", "Thống kê", "Logs"
     };
     private String[] menuIcons = {
@@ -54,7 +54,7 @@ public class MainFrame extends JFrame {
         new Color(255, 193, 7),    // SKU 
         new Color(0, 188, 212),    // IMEI 
         new Color(255, 159, 67),   // Nhập kho 
-        new Color(255, 71, 87),    // Hóa đơn 
+        new Color(255, 71, 87),    // Xuất kho 
         new Color(83, 82, 237),    // Nhà cung cấp 
         new Color(255, 107, 129),  // Thương hiệu 
         new Color(112, 161, 255),  // Danh mục 
@@ -104,7 +104,7 @@ public class MainFrame extends JFrame {
         mainContentPanel.add(new SkuPanel(this), "SKU");
         mainContentPanel.add(new ImeiPanel(this), "IMEI");
         mainContentPanel.add(new ImportPanel(this), "Nhập kho");
-        mainContentPanel.add(new InvoicePanel(this), "Hóa đơn");
+        mainContentPanel.add(new InvoicePanel(this), "Xuất kho");
         mainContentPanel.add(new SupplierPanel(this), "Nhà cung cấp");
         mainContentPanel.add(new BrandPanel(this), "Thương hiệu");
         mainContentPanel.add(new CategoryPanel(this), "Danh mục");
