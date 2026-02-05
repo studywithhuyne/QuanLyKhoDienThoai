@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -84,18 +83,11 @@ public class LoginFrame extends JFrame {
     }
     
     private JPanel createFormCard() {
-        JPanel card = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20));
-                g2.dispose();
-            }
-        };
+        JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setOpaque(false);
+        card.setOpaque(true);
+        card.setBackground(CARD_BG);
+        card.putClientProperty("JComponent.roundRect", true);
         card.setBorder(new EmptyBorder(30, 30, 30, 30));
         card.setPreferredSize(new Dimension(340, 300));
         card.setMaximumSize(new Dimension(340, 300));
@@ -157,21 +149,9 @@ public class LoginFrame extends JFrame {
     }
     
     private JTextField createTextField(String placeholder) {
-        JTextField field = new JTextField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty() && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_LIGHT);
-                    g2.setFont(getFont().deriveFont(Font.ITALIC));
-                    g2.drawString(placeholder, getInsets().left, 
-                        g.getFontMetrics().getMaxAscent() + getInsets().top + 2);
-                    g2.dispose();
-                }
-            }
-        };
+        JTextField field = new JTextField();
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.putClientProperty("JTextField.placeholderText", placeholder);
         field.setPreferredSize(new Dimension(280, 45));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         field.setBorder(new CompoundBorder(
@@ -201,21 +181,9 @@ public class LoginFrame extends JFrame {
     }
     
     private JPasswordField createPasswordField(String placeholder) {
-        JPasswordField field = new JPasswordField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getPassword().length == 0 && !hasFocus()) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(TEXT_LIGHT);
-                    g2.setFont(getFont().deriveFont(Font.ITALIC));
-                    g2.drawString(placeholder, getInsets().left, 
-                        g.getFontMetrics().getMaxAscent() + getInsets().top + 2);
-                    g2.dispose();
-                }
-            }
-        };
+        JPasswordField field = new JPasswordField();
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.putClientProperty("JTextField.placeholderText", placeholder);
         field.setPreferredSize(new Dimension(280, 45));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         field.setBorder(new CompoundBorder(

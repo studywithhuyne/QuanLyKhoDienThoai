@@ -8,7 +8,6 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -127,18 +126,11 @@ public class InvoiceAddDialog extends JDialog {
     }
     
     private JPanel createInfoPanel() {
-        JPanel infoCard = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-                g2.dispose();
-            }
-        };
+        JPanel infoCard = new JPanel();
         infoCard.setLayout(new GridBagLayout());
-        infoCard.setOpaque(false);
+        infoCard.setOpaque(true);
+        infoCard.setBackground(CARD_BG);
+        infoCard.putClientProperty("JComponent.roundRect", true);
         infoCard.setBorder(new EmptyBorder(20, 20, 20, 20));
         
         GridBagConstraints gbc = new GridBagConstraints();
@@ -202,18 +194,11 @@ public class InvoiceAddDialog extends JDialog {
     }
     
     private JPanel createAddRowPanel() {
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-                g2.dispose();
-            }
-        };
+        JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setOpaque(false);
+        panel.setOpaque(true);
+        panel.setBackground(CARD_BG);
+        panel.putClientProperty("JComponent.roundRect", true);
         panel.setBorder(new EmptyBorder(15, 20, 15, 20));
         
         GridBagConstraints gbc = new GridBagConstraints();
@@ -604,34 +589,21 @@ public class InvoiceAddDialog extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                    g2.setColor(BORDER_COLOR);
-                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                } else {
-                    g2.setColor(getModel().isRollover() ? PRIMARY_HOVER : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                }
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
+        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 100 : 160, 42));
-        button.setBorderPainted(false);
+        button.setBorderPainted(isOutline);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
+        button.putClientProperty("JButton.buttonType", "roundRect");
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (isOutline) {
+            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        }
         
         return button;
     }

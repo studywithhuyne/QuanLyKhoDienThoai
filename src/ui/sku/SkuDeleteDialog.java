@@ -3,7 +3,6 @@ package ui.sku;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 import bus.SkuBUS;
 import utils.LogHelper;
@@ -51,34 +50,19 @@ public class SkuDeleteDialog extends JDialog {
         wrapper.setBackground(DIALOG_BG);
         wrapper.setBorder(new EmptyBorder(15, 30, 10, 30));
         
-        JPanel card = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.dispose();
-            }
-        };
+        JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setOpaque(false);
-        card.setBorder(new EmptyBorder(30, 30, 30, 30));
+        card.setOpaque(true);
+        card.setBackground(CARD_BG);
+        card.putClientProperty("JComponent.roundRect", true);
+        card.setBorder(new CompoundBorder(new LineBorder(BORDER_COLOR, 1, true), new EmptyBorder(30, 30, 30, 30)));
         
         card.add(Box.createVerticalGlue());
         
-        JLabel iconLabel = new JLabel("⚠") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DANGER_BG);
-                g2.fillOval(0, 0, getWidth(), getHeight());
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
+        JLabel iconLabel = new JLabel("⚠");
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 25));
+        iconLabel.setOpaque(true);
+        iconLabel.setBackground(DANGER_BG);
         iconLabel.setPreferredSize(new Dimension(70, 70));
         iconLabel.setMaximumSize(new Dimension(70, 70));
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -129,34 +113,25 @@ public class SkuDeleteDialog extends JDialog {
     }
     
     private JButton createButton(String text, Color textColor, Color bgColor, boolean isOutline) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (isOutline) {
-                    g2.setColor(getModel().isRollover() ? CONTENT_BG : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                    g2.setColor(BORDER_COLOR);
-                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
-                } else {
-                    g2.setColor(getModel().isRollover() ? DANGER_HOVER : bgColor);
-                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                }
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(textColor);
+        button.setBackground(bgColor);
         button.setPreferredSize(new Dimension(isOutline ? 110 : 130, 44));
-        button.setBorderPainted(false);
+        button.setBorderPainted(true);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.putClientProperty("JButton.buttonType", "roundRect");
+        
+        if (isOutline) {
+            button.setBackground(CARD_BG);
+            button.setBorder(new LineBorder(BORDER_COLOR, 1, true));
+        } else {
+            button.setBackground(bgColor);
+            button.setBorder(new EmptyBorder(6, 16, 6, 16));
+        }
         
         return button;
     }
